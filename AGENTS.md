@@ -74,6 +74,70 @@ All data is scoped to `current_department_id` on the User. Roles:
 - Item history tracked via `ItemHistory` on save callbacks
 - Elasticsearch indexes on `ParentItem` and `Borrower` (with synonym support via `elastic_synonyms.txt`)
 
+## Issue Tracking
+
+Issues are tracked with `git-bug`, a distributed issue tracker embedded in git.
+Issues sync bidirectionally to GitHub Issues via the configured bridge.
+
+Use the `git-bug` skill (invoke with `/git-bug`) for the full command reference.
+
+### Quick Reference
+
+```bash
+git bug bug                          # List open issues
+git bug bug new --non-interactive -t "Title" -m "Description"
+git bug bug show <ID>                # Show issue details
+git bug bug status close <ID>        # Close an issue
+git bug bug label new <ID> <label>   # Add a label
+git bug bug label rm <ID> <label>    # Remove a label
+git bug push                         # Push issues to git remote
+git bug bridge push                  # Sync issues to GitHub Issues
+```
+
+### Labels
+
+**Type labels** (one per issue):
+
+| Label | Usage |
+|-------|-------|
+| `feature` | New functionality |
+| `enhancement` | Improvement to existing functionality |
+| `bug` | Something isn't working |
+| `chore` | Maintenance, dependencies, infrastructure, tooling |
+| `documentation` | Documentation work |
+| `epic` | Tracking container for a group of related issues |
+
+**Phase labels** (one per issue, matches `docs/plans/` structure):
+
+`phase-a`, `phase-b`, `phase-c`, `phase-d`
+
+**Work state labels** (one per issue):
+
+| Label | Usage |
+|-------|-------|
+| `ready` | Actionable, no blockers |
+| `in-progress` | Currently being worked on |
+| `blocked` | Waiting on something (add comment explaining why) |
+
+### Workflow
+
+```bash
+# Start of session
+git bug pull
+git bug bridge pull
+
+# Claim a task
+git bug bug label new <ID> in-progress
+
+# Complete a task
+git bug bug label rm <ID> in-progress
+git bug bug status close <ID>
+
+# End of session
+git bug push
+git bug bridge push
+```
+
 ## Migration Plans
 
 Plans are in `docs/plans/`, executed in order per `docs/plans/EXECUTION-ORDER.md`:
