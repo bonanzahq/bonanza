@@ -1,0 +1,13 @@
+<div class="bnz-card">
+    <div class="header">
+        <div class="left">
+            <%= link_to parent_item_path(parent_item), data: { "turbo-frame": "_top"}, class: "name" do %>
+                <h4><%= parent_item.name %></h4>
+            <% end %>
+        </div>
+        <div class="right"></div>
+    </div>
+    <div class="body">
+        <%= render partial: "bnz_item", collection: parent_item.items.order(:uid), as: :item %>
+    </div>
+</div>

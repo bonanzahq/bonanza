@@ -1,0 +1,22 @@
+<% flash.each do |key, value| %>
+  <% unless key.to_s == "printable_agreement" %>
+    <div data-controller="flash" class="toast show slideInRight align-items-center <%= key.to_s %>" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body">
+          <%= value %>
+        </div>
+        <button type="button" class="btn-close btn-close-dark me-2 m-auto" data-action="flash#dismiss" aria-label="Close"></button>
+      </div>
+    </div>
+  <% else %>
+
+    <iframe style="display:none" id="printable_agreement" src="<%= flash[:printable_agreement] %>" ></iframe>
+    <script>
+      window.onload=function() {
+        var frame = document.getElementById("printable_agreement").contentWindow
+        frame.focus();
+        frame.print();
+      }
+    </script>
+    <% end %>
+<% end %>

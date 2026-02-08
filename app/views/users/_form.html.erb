@@ -1,0 +1,124 @@
+<%= form_with(model: user, data: {turbo: false, controller: 'form-validation'}) do |f| %>
+    <% if user.errors.any? %>
+      <div id="error_explanation">
+        <h2>Wegen <%= pluralize(user.errors.count, "Fehler") %> konnte die verleihende Person nicht gespeichert werden:</h2>
+
+        <ul>
+        <% user.errors.full_messages.each do |message| %>
+          <li><%= message %></li>
+        <% end %>
+        </ul>
+      </div>
+    <% end %>
+
+    <div class="mb-2" data-field-container>
+        <%= f.label :firstname, "Vorname", class: "form-label" %><br>
+        <%= f.text_field :firstname, :autocomplete => 'off', class: "form-control", :required => true %>
+    </div>
+    <div class="mb-2" data-field-container>
+        <%= f.label :lastname, "Nachname", class: "form-label" %><br>
+        <%= f.text_field :lastname, :autocomplete => 'off', class: "form-control", :required => true %>
+    </div>
+
+    <div class="mb-4" data-field-container>
+      <%= f.label :email, "E-Mail-Adresse", class: "form-label" %>
+      <%= f.email_field :email, autocomplete: "off", class: "form-control", :required => true %>
+    </div>
+
+    <% if current_user.admin? %>
+        <div class="mb-4" data-field-container>
+            <div class="form-check">
+                  <%= f.check_box :admin, autocomplete: "off", class: "form-check-input" %>
+                  <%= f.label :admin, "Admin?", class: "form-check-label" %>
+            </div>
+        </div>
+
+        <div class="row" data-field-container>
+            <label class="form-label col-12">Zugewiesene Rolle in den Werkstätten</label>
+
+            <%= f.fields_for :department_memberships do |dept| %>
+                <div class="col-3 mb-4">
+                    <div class="col-form-label">
+                        <%= dept.object.department.name %>
+                    </div>
+                    
+                </div>
+                <div class="col-9 mb-4">
+                    <%= dept.select :role, options_for_select(DepartmentMembership.roles.reject{ |k,v| v == 99 }.map { |k, v| [t( k, scope: 'role'), k] }, dept.object.role), {}, { class: "form-select" } %>
+                    <%= dept.hidden_field :department_id, autocomplete: 'off' %>
+                </div>
+            <% end %>
+
+        </div>
+
+    <% else %>
+
+        <div class="row mb-4" data-field-container>
+            <label class="form-label col-12">Zugewiesene Rolle in den Werkstätten</label>
+
+            <!-- <% unless user.department_memberships.workable.empty? %>
+                <% user.department_memberships.workable.each do |dept| %>
+                    <div class="col-3">
+                        <div class="col-form-label">
+                            <%= dept.department.name %>
+                        </div>
+                        
+                    </div>
+                    <div class="col-9 col-form-label fw-normal">
+                        <%= t( dept.role, scope: 'role') %>
+                    </div>
+                <% end %>
+            <% else %>
+                Du bist Gast bei <%= user.current_department.name %>
+            <% end %> -->
+
+            <% user.department_memberships.each do |dept| %>
+                <div class="col-3">
+                    <div class="col-form-label">
+                        <%= dept.department.name %>
+                    </div>
+                    
+                </div>
+                <div class="col-9 col-form-label fw-normal">
+                    <%= t( dept.role, scope: 'role') %>
+                </div>
+            <% end %>
+
+        </div>
+        
+    <% end %>
+    <div class="mb-4" data-field-container>
+        <label class="form-label">Primäre Werkstatt</label>
+        <%= f.select :current_department_id, options_for_select(user.department_memberships.collect { |k, v| [k.department.name, k.department_id] }, user.current_department_id), {}, { class: "form-select" } %>
+    </div>
+
+    <label class="form-label">Passwort</label>
+
+    <div class="accordion mb-3" id="accordionFlushExample">
+      <div class="accordion-item">
+        <% unless user.new_record? %>
+        <h2 class="accordion-header" id="flush-headingOne">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+            Passwort ändern
+          </button>
+        </h2>
+        <% end %>
+        <div id="flush-collapseOne" class="accordion-collapse <%= "collapse" unless user.new_record? %>" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+          <div class="accordion-body">
+                <div class="mb-2" data-field-container>
+                  <%= f.label :password, "Neues Passwort", class: "form-label" %>
+                  <%= f.password_field :password, :autocomplete => 'off', class: "form-control", minlength: "8" %>
+                </div>
+                <div class="mb-2" data-field-container>
+                  <%= f.label :password_confirmation, "Neues Passwort wiederholen", class: "form-label" %>
+                  <%= f.password_field :password_confirmation, :autocomplete => 'off', class: "form-control", data: {validates: "equalTo" } %>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <%= f.submit "Speichern", class: "btn btn-primary" %>
+    </div>
+<% end %>

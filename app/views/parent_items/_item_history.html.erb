@@ -1,0 +1,67 @@
+<div class="bnz-card <%= "overdue" if item_history.line_item && item_history.line_item.lending.is_overdue? %>">
+  <div class="header">
+    <% if item_history.status == 'created' %>
+      <div class="left"><span class="icon-before pulse fw-bold">Angelegt</span></div>
+      <div class="right"><div class="user"><%= item_history.user&.fullname %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
+    <% end %>
+
+    <% if item_history.status == 'lent' %>
+      <div class="left"><span class="icon-before arrow-right fw-bold">Ausgeliehen</span> <%= link_to "von #{item_history.line_item.lending.borrower.fullname}", borrower_path(item_history.line_item.lending.borrower)%></div>
+      <div class="right"><div class="user"><%= item_history.user&.fullname %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
+    <% end %>
+
+    <% if item_history.status == 'returned' %>
+      <div class="left"><span class="icon-before arrow-left fw-bold">Zurückgegeben</span></div>
+      <div class="right"><div class="user"><%= item_history.user.fullname %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
+    <% end %>
+
+    <% if item_history.status == 'deleted' %>
+      <div class="left"><span class="icon-before pulse fw-bold">Gelöscht</span></div>
+      <div class="right"><div class="user"><%= item_history.user.fullname %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
+    <% end %>
+
+    <% if item_history.status.nil? && item_history.condition %>
+      <div class="left">
+        <div class="identifier fw-bold <%= item_history.condition %>" title="<%= t(item_history.condition, :scope => 'condition') %>">
+          Neuer Zustand
+        </div>
+      </div>
+      <div class="right"><div class="user"><%= item_history.user.fullname %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
+    <% end %>
+
+    <% if item_history.note && item_history.condition.nil? && item_history.status.nil? %>
+      <div class="left fw-bold">
+          Neuer Kommentar
+      </div>
+      <div class="right"><div class="user"><%= item_history.user.fullname %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
+    <% end %>
+
+  </div>
+  <% if item_history.status == 'returned' %>
+    <div class="body">
+      <div class="item">
+        <div class="left">
+          <div class="identifier <%= item_history.condition %>" title="<%= t(item_history.condition, :scope => 'condition') %>">
+            <%= "#{item_history.quantity} x" if item_history.quantity %>
+          </div>
+          <%= item_history.note %>
+        </div>
+        <div class="right">
+          <% if item_history.line_item && item_history.line_item.lending.is_overdue? %>
+            <span class="status overdue">23 Tage überfällig</span>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+
+  <% if item_history.note %>
+    <div class="body">
+      <div class="item">
+        <div class="left">
+            <%= item_history.note %>
+        </div>
+      </div>
+    </div>
+  <% end %>
+</div>

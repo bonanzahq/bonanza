@@ -1,0 +1,63 @@
+<div class="row justify-content-center">
+  <div class="col-8 pt-3">
+    <h3>Werkstätten</h3>
+    <div class="bg-light p-3 rounded mb-3 position-relative">
+      <a href="/" class="link-back link-dark">Zurück</a>
+
+      <% @departments.each do |department| %>
+        <% if not department.hidden && !( user_signed_in? && current_user.admin?) %>
+          <div class="bnz-card">
+            <div class="header">
+              <h4>
+                <%= department.name %>
+                <% if department.hidden %>
+                  <span>(versteckt)</span>
+                <% end %>
+              </h4>
+              
+              <% unless department.room.blank? %>
+                <div class="right">
+                  <span class="icon-before location"><%= department.room %></span>
+                  
+                </div>
+              <% end %>
+            </div>
+
+            <div class="body">
+
+              <% unless department.department_memberships.includes(:user).where.not(role: [0,3,99]).where(user: {invitation_created_at: nil}).or(department.department_memberships.includes(:user).where.not(role: [0,3,99]).where.not(user: {invitation_created_at: nil}).where.not(user: {invitation_accepted_at: nil})).count == 0 %>
+                <div class="line">
+                  <strong class="label"><%= t('lending person', :count => department.department_memberships.includes(:user).where.not(role: [0,3,99]).where(user: {invitation_created_at: nil}).or(department.department_memberships.includes(:user).where.not(role: [0,3,99]).where.not(user: {invitation_created_at: nil}).where.not(user: {invitation_accepted_at: nil})).count)%></strong> 
+                  <%= department.department_memberships.includes(:user).where.not(role: [0,3,99]).where(user: {invitation_created_at: nil}).or(department.department_memberships.includes(:user).where.not(role: [0,3,99]).where.not(user: {invitation_created_at: nil}).where.not(user: {invitation_accepted_at: nil})).map{|membership| membership.user.fullname}.to_sentence(two_words_connector: ' und ') %>
+                </div>
+              <% end %>
+
+              <% unless department.time.blank? %>
+              <div class="line">
+                <strong class="label">Öffnungszeiten</strong> <%= department.time %>
+              </div>
+              <% end %>
+              <% unless department.note.blank? %>
+                <div class="line desc" data-controller="readmore">
+                    <%= render_markdown(department.note) %>  
+                </div>
+              <% end %>
+
+              <% if user_signed_in? and can? :edit, department %>
+                <div class="line">
+                  <%= link_to 'Editieren', edit_department_path(department) %>
+                </div>
+              <% end %>
+            </div>
+          </div>
+        <% end %>
+      <% end %>
+
+      <% if user_signed_in? and can? :create, Department %>
+        <%= link_to "Neue Werkstatt", new_department_path %>
+      <% end %>
+      
+    </div>
+    <%= render "shared/footer" %>
+  </div>
+</div>

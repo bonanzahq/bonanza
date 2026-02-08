@@ -1,0 +1,101 @@
+<%= form_tag(borrowers_path, method: :get, data: { turbo: "true", "turbo-frame": "results", controller: "autocomplete", "autocomplete-source-value": "http://localhost:3000/autocomplete/borrowers/"}) do %>
+    <div class="input-group mb-3">
+        <%= text_field_tag :q, params[:q], class: "form-control search-icon", id: "autoComplete-borrowers", autocomplete: "off", placeholder: "Ausleihende suchen", autofocus: true, data: { "autocomplete-target": "input"} %>
+
+        <div data-controller="filter-dropdown">
+            <button class="btn btn-secondary dropdown-filter" type="button" id="dropdownFilter" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                Filter
+                <span class="badge bg-light rounded-pill text-muted ms-1 d-none" data-filter-dropdown-target="amount">1</span>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li>
+                    <div class="form-check">
+                        <label class="form-check-label" for="dropdownBlameless">
+                            <input name="conducts[]" value="blameless" <%= "checked" if (params[:conducts].present? && params[:conducts].include?("blameless") or params[:conducts].blank? ) %> type="checkbox" class="form-check-input" id="dropdownBlameless" data-filter-dropdown-target="input" data-action="filter-dropdown#trackAmount">
+                            tadellos
+                        </label>
+                    </div>
+                </li>
+                <li>
+                    <div class="form-check">
+                        <label class="form-check-label" for="dropdownWarned">
+                             <input name="conducts[]" value="warned" <%= "checked" if (params[:conducts].present? && params[:conducts].include?("warned") or params[:conducts].blank? ) %> type="checkbox" class="form-check-input" id="dropdownWarned" data-filter-dropdown-target="input" data-action="filter-dropdown#trackAmount">
+                            verwarnt
+                        </label>
+                    </div>
+                </li>
+                <li>
+                    <div class="form-check">
+                        <label class="form-check-label" for="dropdownBanned">
+                             <input name="conducts[]" value="banned" <%= "checked" if (params[:conducts].present? && params[:conducts].include?("banned") or params[:conducts].blank? ) %> type="checkbox" class="form-check-input" id="dropdownBanned" data-filter-dropdown-target="input" data-action="filter-dropdown#trackAmount">
+                            gesperrt
+                        </label>
+                    </div>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <div class="form-check">
+                        <label class="form-check-label" for="dropdownActive">
+                            <input name="lending_status[]" value="active" <%= "checked" if (params[:lending_status].present? && params[:lending_status].include?("active") or params[:lending_status].blank? ) %> type="checkbox" class="form-check-input" id="dropdownActive" data-filter-dropdown-target="input" data-action="filter-dropdown#trackAmount">
+                            mit aktiven Ausleihen
+                        </label>
+                    </div>
+                </li>
+                <li>
+                    <div class="form-check">
+                        <label class="form-check-label" for="dropdownNone">
+                            <input name="lending_status[]" value="none" <%= "checked" if (params[:lending_status].present? && params[:lending_status].include?("none") or params[:lending_status].blank? ) %> type="checkbox" class="form-check-input" id="dropdownNone" data-filter-dropdown-target="input" data-action="filter-dropdown#trackAmount">
+                            ohne aktive Ausleihen
+                        </label>
+                    </div>
+                </li>
+                <li><hr class="dropdown-divider"></li>
+                <li>
+                    <div class="form-check">
+                        <label class="form-check-label" for="dropdownStudent">
+                            <input name="borrower_type[]" value="student" <%= "checked" if (params[:borrower_type].present? && params[:borrower_type].include?("student") or params[:borrower_type].blank? ) %> type="checkbox" class="form-check-input" id="dropdownStudent" data-filter-dropdown-target="input" data-action="filter-dropdown#trackAmount">
+                            Studierende
+                        </label>
+                    </div>
+                </li>
+                <li>
+                    <div class="form-check">
+                        <label class="form-check-label" for="dropdownEmployee">
+                            <input name="borrower_type[]" value="employee" <%= "checked" if (params[:borrower_type].present? && params[:borrower_type].include?("employee") or params[:borrower_type].blank? ) %> type="checkbox" class="form-check-input" id="dropdownEmployee" data-filter-dropdown-target="input" data-action="filter-dropdown#trackAmount">
+                            Mitarbeitende
+                        </label>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+<% end %>
+
+<turbo-frame id="results" class="results borrowers">
+    <% if @borrowers.count > 0 %>
+        <%= render partial: "result_item", collection: @borrowers, as: :borrower %>
+    <% else %>
+        Keine ausleihende Personen gefunden
+    <% end %>
+    <% if @borrowers.last_page? %>
+        <%= turbo_stream.replace "load-more" do %>
+        <% end %>
+    <% else %>
+        <%= turbo_stream.replace "more-wrapper" do %>
+            <div id="more-wrapper">
+                <div id="load-more" class="d-flex justify-content-center mt-3">
+                    <%= link_to_next_page @borrowers, 'Mehr anzeigen', class: "btn btn-outline-secondary btn-sm", data: { turbo_stream: true } %>
+                </div>
+            </div>
+        <% end %>
+    <% end %>
+</turbo-frame>
+
+<div id="more-wrapper">
+   <% unless @borrowers.last_page? %>
+    <div id="load-more" class="d-flex justify-content-center mt-3">
+        <%= link_to_next_page @borrowers, 'Mehr anzeigen', class: "btn btn-outline-secondary btn-sm", data: { turbo_stream: true } 
+        %>
+    </div>
+    <% end %> 
+</div>

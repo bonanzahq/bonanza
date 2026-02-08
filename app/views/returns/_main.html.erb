@@ -1,0 +1,53 @@
+<div class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7">
+        <div class="p-3 bg-light mb-3 rounded-bottom">
+            <h3>Anstehend <span class="badge bg-white rounded-pill text-muted ms-1"><%= @pending_returns_count %></span></h3>
+
+            <% if (@grouped_pending_returns && @grouped_pending_returns.length > 0)
+                @grouped_pending_returns.each do |day, lendings|
+                    days_until_return = (day - Date.today).to_i %>
+                    <div class="date-divider">
+                    <% if days_until_return > 1 %>
+                        <%= "In #{days_until_return} Tagen," %>
+                    <% elsif days_until_return == 1 %>
+                        Morgen,
+                    <% else %>
+                        Heute, 
+                    <% end %>
+                    <%= l(day, :format => "%a. %d.%m.%y") %>
+                    </div>
+                    <div class="results">
+                        <%= render partial: "result", collection: lendings, as: :lending %>
+                    </div>
+
+                <% end %>
+            <% else %>
+                <p class="mb-0"><i class="text-muted small">Keine Ausleihen anstehend</i></p>
+            <% end %>
+
+            <% if (@overdue_returns && @overdue_returns.length > 0) %>
+        </div>
+    </div>
+    <div class="col-3">
+    </div>
+</div>
+<div class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7">
+        <div class="p-3 bg-light mb-3 rounded">
+            <h3>Überfällig <span class="badge bg-white rounded-pill text-muted ms-1"><%= @overdue_returns_count %></span></h3>
+
+                    <div class="results">
+                        <%= render partial: "result", collection: @overdue_returns, as: :lending %>
+                    </div>
+
+
+            <% end %>
+        </div>
+    </div>
+    <div class="col-3">
+    </div>
+</div>

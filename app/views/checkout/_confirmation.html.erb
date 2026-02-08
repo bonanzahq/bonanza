@@ -1,0 +1,137 @@
+<header class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7 bnz-tab-navigation d-flex align-items-stretch pt-3">
+        <h3>Ausleihe prüfen</h3>
+    </div>
+    <div class="col-3 d-flex align-items-center">
+        <%= render 'shared/user_menu' %>
+    </div>
+</header>
+
+<div class="row">
+    <div class="col-2 pt-3 d-flex justify-content-end align-items-start">
+        <%= link_to "Ausleihende", checkout_state_path(state: 'borrower', b: @lending.borrower.fullname), class: "link-back link-dark" %>
+    </div>
+    <div class="col-7">
+        <div class="p-3 bg-light mb-3 rounded">
+            <%= form_with model: @lending, url: update_checkout_path("confirmation"), data: { turbo: false} do |form| %>
+                <h3><%= @lending.line_items.count %> Artikel in der Ausleihe</h3>
+                <% @lending.line_items.each_with_index do |line_item, line_item_index| %>
+
+                    <div class="bnz-card" data-controller="show-details">
+                        <div class="header">
+                            <div class="left fw-bold">
+                                <%= line_item.item.parent_item.name %>
+                            </div>
+                            <div class="right">
+                                <% if line_item.item.storage_location.present? %>
+                                    <div class="storage-location"><%= line_item.item.storage_location %></div>
+                                <% end %>
+
+                                <% if line_item.item.uid.present? %>
+                                    <div class="identifier <%= line_item.item.condition %>" title="<%= t(line_item.item.condition, :scope => 'condition') %>">
+                                        <%= line_item.item.uid %>
+                                    </div>
+                                <% else %>
+                                    <%= line_item.quantity %>
+                                    x
+                                <% end %>
+                                
+                            </div> 
+                        </div>
+
+                        <% if line_item.item.parent_item.accessories.any? %>
+                            <div class="body">
+                                <% line_item.item.parent_item.accessories.each_with_index do |accessory, i| %>
+                                    <div class="item">
+                                        <div class="left"><%= accessory.name %></div>
+                                        <div class="right">
+                                            <div class="form-check-inline me-0">
+                                                <%= check_box_tag "lending[line_items_attributes][#{i}][accessory_ids][]", accessory.id, true, class: "form-check-input" %>
+                                                <%= hidden_field_tag "lending[line_items_attributes][#{i}][id]", line_item.id %>
+                                            </div>
+                                        </div>
+                                    </div>
+                                <% end %>
+                            </div>
+                        <% end %>
+                        
+                    </div>
+
+                <% end %>
+
+                <hr class="divider">
+
+                <div class="mb-2 line justify-content-between">
+                    <div class="left d-flex align-items-center"><h4 class="mb-0"><%= @lending.borrower.fullname %></h4></div>
+                    <div class="right set-duration" data-controller="datepicker" data-datepicker-startdate-value="<%= Date.today.to_date %>">
+                        <p>Verleihen für</p>
+                        <%= form.text_field :duration, value: @current_user.current_department.default_lending_duration, class: "form-control days", required: true, data: { "datepicker-target": "output", "action": "keyup->datepicker#setDateinPicker"} %>
+                        <p>Tage, bis</p>
+                        <input class="form-control date" type="text" name="" data-datepicker-target="input">
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <%= form.label :note, class: "form-label" do %>
+                        Anmerkung zur Ausleihe <em>optional</em>
+                    <% end %>
+                    <%= form.text_area :note, class: "form-control" %>
+                </div>
+
+                <% if @lending.borrower.conducts.any? %>
+                    <hr class="divider">
+
+                    <div>
+                        <h4>Verwarnungen und Sperren</h4>
+
+                        <ul class="conducts-list">
+                            <% @lending.borrower.conducts.each do |conduct| %>            
+                                <% if conduct.kind == "warned" %>
+                                    <li class="small line">
+                                        <div class="flex-grow-1">
+                                        In <%= conduct.department.name %> <strong><%= "bis #{l(conduct.created_at.to_date + conduct.duration.to_i, :format => "%a, %d.%m.%Y" )} " %></strong> verwarnt wegen überschrittener Ausleihfrist.
+                                <% elsif conduct.kind == "banned" %>
+                                    <li class="small text-danger line">
+                                        <div class="flex-grow-1">
+                                        <% if conduct.permanent %>
+                                            In <%= conduct.department.name %> 
+                                                <% if conduct.user %>
+                                                von <%= conduct.user.fullname %>
+                                                <% end %>
+
+                                            <strong>dauerhaft</strong> 
+
+                                        <% else %>
+                                            In <%= conduct.department.name %> 
+                                                <% if conduct.user %>
+                                                von <%= conduct.user.fullname %>
+                                                <% end %>
+
+                                            <strong><%= "bis #{l(conduct.created_at.to_date + conduct.duration.to_i, :format => "%a, %d.%m.%Y" )} " %></strong>
+                                        <% end %>
+
+                                        gesperrt. 
+                                        <%= "Grund: #{conduct.reason}" if conduct.reason %>
+                                <% end %>
+
+                                </div>
+                                </li>
+                            <% end %>
+                        </ul>
+
+                    </div>
+                <% end %>
+
+                <div class="actions">
+                    <%= link_to "Abbrechen", lending_path, class: "btn btn-outline-secondary" %>
+                    <%= form.submit "Abschließen & drucken", class: "btn btn-primary", disabled: @lending.borrower.has_bans_here?, data: { turbo: false, action: "click->parent-item-edit-form#submitForm"} %>
+                </div>
+            
+            <% end %>
+        </div>
+    </div>
+    <div class="col-3">
+    </div>
+</div>

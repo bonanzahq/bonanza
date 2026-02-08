@@ -1,0 +1,133 @@
+<header class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7 bnz-tab-navigation d-flex align-items-stretch">
+        <a href="" class="active lending">
+            Ausleihe
+        </a>
+        <%= link_to return_path, class: "returning" do %>
+            Rücknahme <span class="badge bg-light rounded-pill text-muted ms-1"><%= @lendings_count %></span>
+        <% end %>
+    </div>
+    <div class="col-3 d-flex align-items-center">
+        <%= render 'shared/user_menu' %>
+    </div>
+</header>
+
+<div class="row">
+    <div class="col-2 pt-3 d-flex justify-content-end align-items-start" data-controller="depts-selector">
+        <!-- <% if current_user.admin? %>
+            <%= select_tag :dept,
+            options_for_select([["Meine Werkstatt / #{current_user.current_department.name}", current_user.current_department.id], ["Alle Werkstätten", Department.pluck(:id).join(",")]] + Department.all.collect { |o| [o.name, o.id] unless o.id == current_user.current_department_id }.compact!, select = params[:dept].blank? ? current_user.current_department_id : params[:dept].to_s), id: "dept-selector" , class: "form-select", data: {action: "depts-selector#setDept"}  %>
+        <% else %>
+            <%= select_tag :dept,
+            options_for_select([["Meine Werkstatt / #{current_user.current_department.name}", current_user.current_department.id], ["Alle Werkstätten", Department.get_all_visible_ids.join(",")]] + Department.where(hidden: false).collect { |o| [o.name, o.id] unless o.id == current_user.current_department_id }.compact!, select = params[:dept].blank? ? current_user.current_department_id : params[:dept].to_s), id: "dept-selector" , class: "form-select", data: {action: "depts-selector#setDept"} %>
+        <% end %> -->
+    </div>
+    <div class="col-7">
+        <div class="p-3 bg-light mb-3 rounded-bottom">
+            <%= form_tag(lending_path, method: :get, data: { turbo: "true", "turbo-frame": "results", controller: "autocomplete", action: "depts-selector:setDept@document->autocomplete#setSource", "autocomplete-source-value": "http://localhost:3000/autocomplete/items/depts/", "autocomplete-dept-value": @dept_id}) do %>
+            <%= hidden_field_tag :dept, @dept_id %>
+            <div class="input-group mb-3">
+                <%= text_field_tag :q, params[:q], class: "form-control search-icon", id: "autoComplete-lending", autocomplete: "off", placeholder: "Artikel suchen", autofocus: true, data: { "autocomplete-target": "input"} %>
+                <div data-controller="filter-dropdown">
+                    <button class="btn btn-secondary dropdown-filter" type="button" id="dropdownFilter" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                        Filter
+                        <span class="badge bg-light rounded-pill text-muted ms-1 d-none" data-filter-dropdown-target="amount">1</span>
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li>
+                            <div class="form-check">
+                                <label class="form-check-label" for="dropdownAvailable">
+                                    <input name="status[]" value="available" <%= "checked" if (params[:status].present? && params[:status].include?("available") or params[:status].blank? ) %> type="checkbox" class="form-check-input" id="dropdownAvailable" data-filter-dropdown-target="input" data-action="filter-dropdown#trackAmount">
+                                    Verfügbar
+                                </label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <label class="form-check-label" for="dropdownLent">
+                                     <input name="status[]" value="lent" <%= "checked" if (params[:status].present? && params[:status].include?("lent") or params[:status].blank? ) %> type="checkbox" class="form-check-input" id="dropdownLent" data-filter-dropdown-target="input" data-action="filter-dropdown#trackAmount">
+                                    Verliehen
+                                </label>
+                            </div>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <div class="form-check">
+                                <label class="form-check-label" for="dropdownFlawless">
+                                    <input name="condition[]" value="flawless" <%= "checked" if (params[:condition].present? && params[:condition].include?("flawless") or params[:condition].blank? ) %> type="checkbox" class="form-check-input" id="dropdownFlawless" data-filter-dropdown-target="input" data-action="filter-dropdown#trackAmount">
+                                    Einwandfrei
+                                </label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <label class="form-check-label" for="dropdownDamaged">
+                                    <input name="condition[]" value="flawed" <%= "checked" if (params[:condition].present? && params[:condition].include?("flawed") or params[:condition].blank? ) %> type="checkbox" class="form-check-input" id="dropdownDamaged" data-filter-dropdown-target="input" data-action="filter-dropdown#trackAmount">
+                                    Beschädigt
+                                </label>
+                            </div>
+                        </li>
+                        <li>
+                            <div class="form-check">
+                                <label class="form-check-label" for="dropdownBroken">
+                                    <input name="condition[]" value="broken" <%= "checked" if (params[:condition].present? && params[:condition].include?("broken") or params[:condition].blank? ) %> type="checkbox" class="form-check-input" id="dropdownBroken" data-filter-dropdown-target="input" data-action="filter-dropdown#trackAmount">
+                                    Kaputt
+                                </label>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <% end %>
+            <div class="results">
+
+                <turbo-frame id="results">
+                    <% if @parent_items.count > 0 %>
+                        <%= render partial: "result", collection: @parent_items, as: :parent_item %>
+                    <% else %>
+                        Keine Artikel gefunden
+                    <% end %>
+
+                    <% if @parent_items.last_page? %>
+                        <%= turbo_stream.remove "load-more" %>
+                    <% else %>
+                        <%= turbo_stream.replace "more-wrapper" do %>
+                          <div id="more-wrapper">
+                                <div id="load-more" class="d-flex justify-content-center mt-3">
+                                    <%= link_to_next_page @parent_items, 'Mehr anzeigen', class: "btn btn-outline-secondary btn-sm", data: { turbo_stream: true } %>
+                                </div>
+                          </div>
+                        <% end %>
+                    <% end %>
+                </turbo-frame>
+            </div>
+            <div id="more-wrapper">
+                <% unless @parent_items.last_page? %>
+                    <div id="load-more" class="d-flex justify-content-center mt-3">
+                        <%= link_to_next_page @parent_items, 'Mehr anzeigen', class: "btn btn-outline-secondary btn-sm", data: { turbo_stream: true } %>
+                    </div>
+                <% end %>
+            </div>
+        </div>
+        <div class="recent-lendings">
+            <h6>Letzte Ausleihen</h6>
+            <div class="lending">
+                <% @previous_lendings.each do |lending| %>
+                    <%= link_to token_lending_path(lending, token: lending.token) do %>
+                    <strong class="name"><%= lending.borrower.fullname %></strong> 
+                    <p>Ausleihe <span data-controller="timeago" datetime="<%= lending.lent_at %>"></span></p>
+                    <% end %>
+                <% end %>
+
+                <% if @previous_lendings.empty? %>
+                    <em class="text-muted ">Noch keine Ausleihen</em>
+                <% end %>
+            </div>
+        </div>
+    </div>
+    <div class="col-3">
+        <%= render partial: 'sidebar_cart' %>
+    </div>
+</div>

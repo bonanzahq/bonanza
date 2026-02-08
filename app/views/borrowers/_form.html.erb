@@ -1,0 +1,69 @@
+<%= form_with(model: borrower, data: {controller: 'form-validation'}) do |form| %>
+  <% if borrower.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(borrower.errors.count, "error") %> prohibited this borrower from being saved:</h2>
+
+      <ul>
+        <% borrower.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-2">
+    <%= form.label :firstname, "Vorname", class: "form-label" %>
+    <%= form.text_field :firstname, :autocomplete => 'off', class: "form-control", :required => true, data: { "value-missing": "Bitte Vorname angeben"} %>
+  </div>
+
+  <div class="mb-2">
+    <%= form.label :lastname, "Nachname", class: "form-label" %>
+    <%= form.text_field :lastname, :autocomplete => 'off', class: "form-control", :required => true, data: { "value-missing": "Bitte Nachname angeben"} %>
+  </div>
+
+  <div class="mb-2">
+    <%= form.label :email, "E-Mail", class: "form-label" %>
+    <%= form.email_field :email, :autocomplete => 'off', class: "form-control", :required => true, data: { "value-missing": "Bitte E-Mail angeben", "type-mismatch": "Bitte eine valide E-Mail-Adresse angeben"} %>
+  </div>
+
+  <div class="mb-2">
+    <%= form.label :phone, "Telefon", class: "form-label" %>
+    <%= form.text_field :phone, :autocomplete => 'off', class: "form-control", :required => true, data: { "value-missing": "Bitte Telefonnummer angeben"} %>
+  </div>
+
+  <div class="<% if borrower.borrower_type == "employee" %>mb-4<% else %>mb-2<% end %>">
+    <%= form.label :borrower_type, "Art", class: "form-label" %>
+    <%= form.select :borrower_type, options_for_select(Borrower.borrower_types.map {|key, value| 
+      unless key == "deleted"
+        [t(key, :scope => "type"), Borrower.borrower_types.key(value)]
+      else
+        nil 
+    end
+    }.compact, borrower.borrower_type), {}, {class: "form-select", data: { "controller": "student-id-input", "action": "student-id-input#toggleInput"}}%>
+  </div>
+
+  <div class="mb-4 student-id <% if borrower.borrower_type == "employee" %>d-none<% end %>">
+    <%= form.label :student_id, "Matrikel-Nr.", class: "form-label" %>
+    <%= form.text_field :student_id, :autocomplete => 'off', class: "form-control" %>
+  </div>
+
+  <div class="mb-2 form-check">
+    <%= form.check_box :id_checked, :autocomplete => 'off', class: "form-check-input" %>
+    <%= form.label :id_checked, "Studierenden-/Mitarbeitendenausweis überprüft?", class: "form-check-label" %>
+  </div>
+
+  <div class="mb-2 form-check">
+    <%= form.check_box :insurance_checked, :autocomplete => 'off', class: "form-check-input" %>
+    <%= form.label :insurance_checked, "Haftpflichtversicherung überprüft?", class: "form-check-label" %>
+  </div>
+
+  <div class="mb-4 form-check">
+    <%= form.check_box :tos_accepted, :autocomplete => 'off', class: "form-check-input" %>
+    <%= form.label :tos_accepted, "Bedingungen akzeptiert?", class: "form-check-label" %>
+  </div>
+
+  <div class="actions">
+    <%= link_to "Abbrechen", :back, class: "btn btn-outline-secondary" %>
+    <%= form.submit "Speichern", class: "btn btn-primary" %>
+  </div>
+<% end %>

@@ -1,0 +1,28 @@
+<div id="<%= dom_id borrower %>" class="bnz-card <%= "warning" if borrower.has_bans_here? or not borrower.tos_accepted %>" data-controller="show-details">
+    <div class="header">
+        <div class="left">
+            <%= link_to borrower_path(borrower), class: "name" do %>
+                <h4><%= borrower.fullname %></h4>
+            <% end %>
+            <% if borrower.has_bans_here? %>
+                <div class="icon-before warning">gesperrt</div>
+                <% c = borrower.conducts.order(Arel.sql "DATE(created_at + duration * interval '1 day') DESC").first %>
+                <div class="date">
+                    <% if c.permanent %>
+                        dauerhaft
+                    <% else %>
+                        <%= "Bis #{l(c.created_at.to_date + c.duration.to_i, :format => "%a, %d.%m.%Y" )} "%>
+                    <% end %>
+                        
+                </div>
+            <% end %>
+        </div>
+        <div class="right">
+            <% unless borrower.tos_accepted %>
+                <%= link_to send_confirm_email_path(borrower.email_token), class: "btn btn-outline-secondary btn-sm", data: { turbo_stream: true } do  %>
+                    <span class="icon-before reload">Bedingungen erneut senden</span>
+                <% end %>
+            <% end %>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,23 @@
+<header class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7 bnz-tab-navigation d-flex align-items-stretch pt-3">
+        <h4>Artikeldetails</h4>
+    </div>
+    <div class="col-3 d-flex align-items-center">
+        <%= render 'shared/user_menu' %>
+    </div>
+</header>
+
+<div class="row">
+    <div class="col-2 pt-3 d-flex justify-content-end align-items-start">
+        <%= link_to "Zurück", lending_path, class: "link-back link-dark" %>
+    </div>
+    <div class="col-7">
+        <div class="p-3 bg-light rounded mb-3 w-100">
+          <%= render partial: "bnz_parent_item", locals: {parent_item: @parent_item} %>
+        </div>
+    </div>
+    <div class="col-3">
+    </div>
+</div>

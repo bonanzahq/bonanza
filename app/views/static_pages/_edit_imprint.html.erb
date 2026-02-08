@@ -1,0 +1,13 @@
+<%= form_with model: text, url: update_legal_text_path(text) do |form| %>
+  <h3>Impressum</h3>
+  <p class="small">Stand <%= l(text.updated_at, :format => "%d.%m.%Y %H:%M") %>. Editiert von <%= text.user.fullname %></p>
+
+  <div class="mb-3">
+    <%= form.text_area :content, class: "form-control", style: "height: 320px" %>
+  </div>
+
+  <div class="actions">
+    <%= link_to "Abbrechen", verwaltung_texte_path, class: "btn btn-outline-secondary" %>
+    <%= form.submit "Speichern", class: "btn btn-primary" %>
+  </div>
+<% end %>

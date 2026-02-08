@@ -1,0 +1,21 @@
+<div class="row justify-content-center">
+  <div class="col-6 pt-3">
+    <h3>Passwort zurücksetzen</h3>
+    <div class="bg-light p-3 rounded mb-3 position-relative">
+      <a href="/" class="link-back link-dark">Zur Startseite</a>
+      <p>Wenn Du dein Passwort vergessen hast, gib hier bitte Deine E-Mail-Adresse an. Du bekommst eine E-Mail, mit deren Hilfe du ein neues Passwort festlegen kannst.</p>
+      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+        <%= render "devise/shared/error_messages", resource: resource %>
+        <div class="mb-2">
+            <%= f.label :email, "E-Mail-Adresse", class: "form-label" %>
+            <%= f.text_field :email, autocomplete: "email", class: "form-control" %>
+        </div>
+        
+        <div class="actions d-flex">
+          <%= f.submit "E-Mail zum Passwortzurücksetzen anfordern", class: "btn btn-primary flex-fill" %>
+          </div>
+      <% end %>
+    </div>
+  </div>
+
+<%= render "devise/shared/links" %>

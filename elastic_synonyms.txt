@@ -1,0 +1,7 @@
+# copy file after updating to elasticsearch config folder!
+
+Micro, Mikrofon 
+Batterie, Akku 
+HDD, Festplatte
+Tablet, iPad
+Handy, Smartphone

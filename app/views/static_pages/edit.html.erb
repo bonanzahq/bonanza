@@ -1,0 +1,38 @@
+<header class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7 bnz-tab-navigation d-flex align-items-stretch pt-3">
+        <h3>Rechtliche Texte ändern</h3>
+    </div>
+    <div class="col-3 d-flex align-items-center">
+        <%= render 'shared/user_menu' %>
+    </div>
+</header>
+
+<div class="row">
+    <div class="col-2 pt-3 d-flex justify-content-end align-items-start">
+        <%= link_to "Verwaltung", borrowers_path, class: "link-back link-dark" %>
+    </div>
+    <div class="col-7">
+        <div class="p-3 bg-light mb-3 rounded">
+            <%= turbo_frame_tag "tos", src: edit_single_legal_text_path(@current_tos.id)  do %>
+                <% render partial: "edit_tos", locals: {text: @current_tos} %>
+            <% end %>
+        </div>
+        
+        <div class="p-3 bg-light mb-3 rounded">
+            <%= turbo_frame_tag "privacy" do %>
+                <%= render partial: "edit_privacy", locals: {text: @current_privacy} %>
+            <% end %>
+        </div>
+
+        <div class="p-3 bg-light mb-3 rounded">
+            <%= turbo_frame_tag "imprint" do %>
+                <%= render partial: "edit_imprint", locals: {text: @current_imprint} %>
+            <% end %>
+        </div>
+    </div>
+    <div class="col-3">
+    </div>
+</div>
+

@@ -1,0 +1,58 @@
+<table class="lending-week-grid">
+    <thead>
+        <tr>
+            <td>
+            </td>
+            <% prev_date =  Date.ordinal(1970, 12)
+            cw_counter = 0
+
+            weekly_activity.values.first.each_with_index do |week, index| 
+                current_date = week["week"].to_date
+                %>
+                
+                <% if prev_date && current_date.month != prev_date.month %>
+                    <td colspan="<%= cw_counter %>">
+                        <%= l(prev_date, format: '%b') %>
+                    </td>
+                    <% 
+                        prev_date = current_date
+                        cw_counter = 0 
+                    %>
+                <% end %>
+
+                <% if index == weekly_activity.values.first.values.length - 1 %>
+                    <td colspan="<%= cw_counter %>">
+                        Dez
+                    </td>
+                <% end %>
+
+                <% cw_counter += 1 %>
+            <% end %>
+
+        </tr>
+    </thead>
+
+    <tbody>
+        <% weekly_activity.each do |year, results| %>
+            <tr>
+                <td class="lending-week-label"><%= year %>
+                </td>
+                <%
+                sum = 0
+                hide = false
+                
+                results.each_with_index do |week, index| %>
+                    
+                    <% if !created_date.nil? && created_date > week["week"].to_date %>
+                        <td class="lending-week hidden"></td>
+                    <% elsif week["count"] == 0 %>
+                        <td class="lending-week tooltip activity-0" data-tooltip="Keine Ausleihen"></td>
+                    <% else %>
+                        <td class="lending-week tooltip activity-<%= (week["count"].to_f / max_week.to_f * 3.0).floor + 1%>" data-tooltip="<%= pluralize(week["count"], 'Ausleihe', plural: 'Ausleihen') %>"></td>
+                    <% end %>
+
+                <% end %>
+            </tr>
+        <% end %>
+    </tbody>
+</table>

@@ -1,0 +1,135 @@
+<header class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7 bnz-tab-navigation d-flex align-items-stretch pt-3">
+        <h4>Ausleihe</h4>
+    </div>
+    <div class="col-3 d-flex align-items-center">
+        <%= render 'shared/user_menu' %>
+    </div>
+</header>
+
+<div class="row">
+    <div class="col-2 pt-3 d-flex justify-content-end align-items-start">
+        <% if user_signed_in? %>
+            <%= link_to 'Zurück', :back, class: 'link-back link-dark' %>
+        <% end %>
+    </div>
+    <div class="col-7">
+        <div class="p-3 bg-light mb-3 rounded">
+            
+            <h3>
+              <%= @lending.line_items.count %> Artikel ausgeliehen
+            </h3>
+                
+            <% @lending.line_items.each_with_index do |line_item, line_item_index| %>
+                <div class="bnz-card">
+                    <div class="header">
+                        <div class="left fw-bold">
+                            <%= line_item.item.parent_item.name %>
+                        </div>
+                        <div class="right">
+                            <% if line_item.item.storage_location.present? %>
+                                <div class="storage-location"><%= line_item.item.storage_location %></div>
+                            <% end %>
+
+                            
+                            <% if line_item.item.uid.present? %>
+                                <div class="identifier <%= line_item.item.condition %>" title="<%= t(line_item.item.condition, :scope => 'condition') %>">
+                                    <%= line_item.item.uid %>
+                                </div>
+                            <% else %>
+                                <%= line_item.quantity %>
+                                x
+                            <% end %>
+                        </div> 
+                    </div>
+
+                    <% if line_item.item.parent_item.accessories.any? %>
+                        <div class="body">
+                            <% line_item.item.parent_item.accessories.each do |accessory| %>
+                                <div class="item">
+                                    <div class="left"><%= accessory.name %></div>
+                                    <div class="right">
+                                        <div class="form-check-inline me-0">
+                                            <input class="form-check-input" type="checkbox" disabled value="">
+                                        </div>
+                                    </div>
+                                </div>
+                            <% end %>
+                        </div>
+                    <% end %>
+                    
+                </div>
+            <% end %>
+
+            <hr class="divider">
+
+            <div class="<%= @lending.note.present? ? "mb-2" : "mb-4" %> line justify-content-between">
+                <div class="left d-flex align-items-center"><h4 class="mb-0"><%= @lending.borrower.fullname %></h4></div>
+                <div class="right" >
+                    <p>Rückgabe am <span class="fw-bold"><%= l(@lending.lent_at.to_date + @lending.duration.days, format: "%a. %d.%m.%y") %></span></p>
+                </div>
+            </div>
+
+            <% if @lending.note.present? %>
+            <div class="mb-4">
+                <div class="form-label">Anmerkung zur Ausleihe</div>
+                <div>
+                    <%= @lending.note %>
+                </div>
+            </div>
+            <% end %>
+       
+            <% if user_signed_in? and can? :update, @lending %>
+                <div class="actions">
+                    <div>
+                        <a href="#" class="btn btn-primary" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="editDurationModal">Rückgabedatum ändern</a>
+                        <a href="#" class="btn btn-outline-secondary" id="printable_agreement_link">Drucken</a>
+
+                        <iframe style="display:none" id="printable_agreement" src="<%= lending_agreement_path(@lending.id, @lending.token) %>" ></iframe>
+                        <script>
+                            document.getElementById('printable_agreement_link').addEventListener("click", function(event) {
+                                event.preventDefault()
+                                var frame = document.getElementById("printable_agreement").contentWindow
+                                frame.focus();
+                                frame.print();
+
+                                event.target.blur()
+                            })
+                        </script>
+                    </div>
+                    <div class="right">
+                        <%= button_to "Delete 2", lending_destroy_path, method: :delete, form: { data: { turbo: false } }, class: "btn btn-outline-secondary" %>
+                    </div>
+                </div>
+            <% end %>
+        </div>
+    </div>
+    <div class="col-3">
+    </div>
+
+    <div class="modal fade" id="editDurationModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Rückgabedatum ändern</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <%= form_with model: @lending, url: change_lending_duration_path(@lending), data: {turbo: false} do |form| %>
+          <div class="modal-body">
+            <div class="set-duration" data-controller="datepicker" data-datepicker-startdate-value="<%= @lending.lent_at.to_date %>">
+                <p>Neue Rückgabe am</p>
+                <%= form.hidden_field :duration, class: "form-control days", required: true, data: { "datepicker-target": "output"} %>
+                <input class="form-control date" type="text" name="" data-datepicker-target="input">
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <%= form.submit "Änderung speichern", class: "btn btn-primary" %>
+          </div>
+          <% end %>
+        </div>
+      </div>
+    </div>
+</div>

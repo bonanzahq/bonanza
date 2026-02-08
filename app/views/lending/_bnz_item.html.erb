@@ -1,0 +1,61 @@
+<%= turbo_frame_tag item do %>
+    <% if @lending.items.include?(item) && item.user_adjusted_quantity(@lending) <= 0 %>
+        <div class="item in-cart">
+            <div class="left">
+                <% if item.uid.present? %>
+                    <div class="identifier <%= item.condition %>" title="<%= t(item.condition, :scope => 'condition') %>">
+                        <%= item.uid %>
+                    </div>
+                <% else %>
+                    "#{item.user_adjusted_quantity(@lending).to_s} x" 
+                <% end %>
+            </div>
+            <div class="right">
+                <span class="label">Im Ausleihkorb</span> 
+                <span class="icon in-cart"> </span>
+            </div>
+        </div>
+    <% elsif item.lent? %>
+        <div class="item not-available">
+            <div class="left">
+                <% if item.uid.present? %>
+                    <div class="identifier <%= item.condition %>" title="<%= t(item.condition, :scope => 'condition') %>">
+                        <%= item.uid %>
+                    </div>
+                <% else %>
+                    <%= "#{item.user_adjusted_quantity(@lending).to_s} x" %>
+                <% end %>
+            </div>
+            <div class="right">
+                <div class="note">
+                    von <%= link_to item.line_items.last.lending.borrower.fullname, borrower_path(item.line_items.last.lending.borrower), data: {turbo: false} %><br>
+                    bis <%= l(item.line_items.last.lending.lent_at.to_date + item.line_items.last.lending.duration, :format => "%a. %d.%m.%y") %> ausgeliehen
+                </div>
+            </div>
+        </div>
+    <% else %>
+        <% if can? :manage, @lending %>
+            <%= form_with url: lending_populate_path(item_id: item.id) do %>
+                <div class="item">
+                    <div class="left">
+                        <% if item.uid.present? %>
+                            <div class="identifier <%= item.condition %>" title="<%= t(item.condition, :scope => 'condition') %>">
+                                <%= item.uid %>
+                            </div>
+                        <% else %>
+                            <%= "#{item.user_adjusted_quantity(@lending).to_s} x" %>
+                        <% end %>
+                    </div>
+                    <div class="right">
+                        <% if item.uid.blank? %>
+                            <input type="text" class="form-control" name="quantity" value="1">
+                        <% else %>
+                            <input type="hidden" class="form-control" name="quantity" value="1">
+                        <% end %>
+                        <%= button_tag "abschicken", type: "submit", class: "icon add-to-cart" %>
+                    </div>
+                </div>
+            <% end %>
+        <% end %>
+    <% end %>
+<% end %>

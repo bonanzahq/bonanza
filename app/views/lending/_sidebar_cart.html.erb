@@ -1,0 +1,33 @@
+<% if can? :manage, @lending %>
+
+<div id="sidebar-cart" class="sidebar-cart" data-controller="sidebar-cart">
+  <h6>Ausleihkorb</h6>
+  <% if @lending.has_line_items? %>
+      
+    <ul class="line-items">
+      <% @lending.line_items.each do |line_item| %>
+        <li>
+          <span class="amount"><%= line_item.quantity %>x</span> <%= line_item.item.parent_item.name %>
+          <%= link_to "", remove_line_item_path(line_item.id), class: "remove", data: { turbo_method: :delete, turbo_confirm: "Are you sure?" } %>
+        </li>
+      <% end %>
+    </ul>
+
+  <% else %>
+
+      <p class="no-items">Kein Artikel im Ausleihkorb</p>
+
+  <% end %>
+
+  <% if controller_name == 'lending' %>
+
+  <div class="actions">
+    <%= button_to "Verleihen", checkout_state_path(state: "borrower"), class: "btn btn-sm btn-primary", disabled: !@lending.has_line_items?, data: {turbo: false } %>
+    <%= button_to "Leeren", empty_cart_path, class: "btn btn-sm btn-outline-secondary", disabled: !@lending.has_line_items?, method: :put, data: {turbo: false} %>
+
+  </div>
+
+  <% end %>
+
+</div>
+<% end %>

@@ -1,0 +1,14 @@
+<% if user_signed_in? %>
+<div class="dropdown">
+    <button class="btn bnz-button-borderless" type="button" id="dropdownProfile" data-bs-toggle="dropdown" aria-expanded="false">
+        <img class="bnz-avatar" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACYAAAAmAQMAAACS83vtAAAABlBMVEUAAAC9ABECUfR+AAAAAnRSTlMA/1uRIrUAAAAmSURBVHicY2IAASaSSfb2BqziFUCITbyxkoM0cypwmMOI3Rx8JADLPgZN0CR9VwAAAABJRU5ErkJggg==">
+        <%= current_user.fullname %>
+    </button>
+    <ul class="dropdown-menu" aria-labelledby="dropdownProfile">
+        <li><%= link_to "Account bearbeiten", edit_user_path(current_user), class: 'dropdown-item' %></li>
+        <% if can? :manage, current_user.current_department %><li><a class="dropdown-item" href="/verwaltung">Verwaltung</a></li><% end %>
+        <li><hr class="dropdown-divider"></li>
+        <li><%= link_to 'Abmelden',  destroy_user_session_path, data: { turbo_method: :delete }, class: "dropdown-item" %></li>
+    </ul>
+</div>
+<% end %>

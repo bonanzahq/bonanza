@@ -1,0 +1,48 @@
+<div class="row">
+    <main class="col-7 pt-5">
+        <h1>Willkommen bei Bonanza!</h1>
+        <p class="lead fw-bolder mb-4">Mit Bonanza organisieren viele Werkstätten der FH Potsdam die Ausleihe. Als Student*in kannst Du dich über <%= link_to "Öffnungszeiten  der Werkstätten", departments_path %> informieren und hast Deine laufenden Ausleihen im Blick. </p>
+        <p class="mb-0">Du möchtest Artikel ausleihen können?</p>
+        <h3 class="mb-3"><%= link_to "Registriere Dich für die Ausleihe", borrower_self_registration_path %></h3>
+
+        <p class="text-muted mb-4 small">Kein Passwort bekommen oder festgelegt? – Nachdem Du etwas geliehen hast, bekommst Du zu jedem wichtigen Zeitpunkt eine E-Mail. Als Bestätigung der Ausleihen, einen Tag vor der Rückgabe und wenn Du mal verpennst, etwas rechtzeitig zurückzugeben. Du brauchst deshalb auch keinen Benutzeraccount. Deine E-Mail-Adresse und andere Daten kannst Du jederzeit bei den Mitarbeitenden der Werkstätten ändern lassen.</p>
+
+        <hr>
+        <div>
+            <h6>Ein paar weitere Links</h6>
+            <ul class="list-unstyled">
+                <li><%= link_to "Öffnungszeiten & Infos der Werkstätten", departments_path %></li>
+                <li><%= link_to "Ausleihbedingungen", ausleihbedingungen_path %></li>
+                <li><%= link_to "Datenschutz", datenschutz_path %></li>
+                <li><%= link_to "Impressum", impressum_path %></li>
+            </ul>
+        </div>
+    </main>
+    <div class="col-5 d-flex align-items-stretch">
+        <aside class="p-3 pt-5 bg-light flex-fill">
+            <h2>Anmelden</h2>
+            <p>Nur für Mitarbeitende der Werkstätten</p>
+
+            <%= form_for(:user, :url => session_path(:user), data: { turbo: false }) do |f| %>
+                <div class="mb-2">
+                    <%= f.label :email, "E-Mail-Adresse", class: "form-label" %>
+                    <%= f.text_field :email, autocomplete: "email", class: "form-control" %>
+                </div>
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between">
+                        <%= f.label :password, "Passwort", class: "form-label" %>
+                        <%= link_to 'Passwort vergessen?', new_user_password_path, class: "small" %>
+                    </div>
+                    <%= f.password_field :password, autocomplete: "current-password", class: "form-control" %>
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="form-check">
+                        <%= f.check_box :remember_me, class: "form-check-input" %>
+                        <%= f.label :remember_me, "Angemeldet bleiben", class: "form-check-label" %>
+                    </div>
+                    <%= f.submit "Anmelden", class: "btn btn-primary" %>
+                </div>
+            <% end %>
+        </aside>
+    </div>
+</div>
