@@ -22,10 +22,7 @@ Remove all `^` and `~` prefixes from dependencies:
 - Apply to all 12 dependencies
 
 ### 3. Remove yarn artifacts
-```bash
-rm yarn.lock
-rm yarn-error.log
-```
+Already done during repo setup (`yarn.lock` and `yarn-error.log` deleted).
 
 ### 4. Initialize pnpm
 ```bash
@@ -52,16 +49,7 @@ system! "pnpm install"
 ```
 
 ### 7. Update documentation files
-Update all documentation files that reference yarn:
-
-**CLAUDE.md** - "Common Development Commands" section:
-- Change `yarn install` → `pnpm install`
-- Change `yarn build --watch` → `pnpm build --watch`
-- Change `yarn build:css --watch` → `pnpm build:css --watch`
-- Change `yarn build` → `pnpm build`
-- Change `yarn build:css` → `pnpm build:css`
-
-**AGENTS.md** - Same changes as CLAUDE.md in relevant sections
+Update documentation files that reference yarn:
 
 **docs/plans/containerization.md** - Update build instructions:
 - Change `yarn install --frozen-lockfile` → `pnpm install --frozen-lockfile`
@@ -94,7 +82,7 @@ Create atomic commits:
 2. Update package.json to exact versions
 3. Add pnpm-lock.yaml and remove yarn files
 4. Update Procfile.dev and bin/setup
-5. Update documentation (CLAUDE.md, AGENTS.md, containerization.md)
+5. Update documentation (containerization.md)
 
 ## Verification Checklist
 - [ ] `.npmrc` exists with `save-exact=true`
@@ -103,8 +91,6 @@ Create atomic commits:
 - [ ] `yarn.lock` and `yarn-error.log` are deleted
 - [ ] Procfile.dev uses pnpm commands
 - [ ] bin/setup includes pnpm install
-- [ ] CLAUDE.md updated with pnpm commands
-- [ ] AGENTS.md updated with pnpm commands
 - [ ] docs/plans/containerization.md updated with pnpm commands
 - [ ] `pnpm install` runs successfully
 - [ ] `pnpm build` works

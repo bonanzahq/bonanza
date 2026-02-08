@@ -32,8 +32,6 @@ gem 'faker', '~> 3.2'                  # Realistic fake data
 gem 'capybara', '~> 3.39'             # Browser automation for system tests
 gem 'selenium-webdriver', '~> 4.10'   # WebDriver for system tests
 
-# Database cleaning
-gem 'database_cleaner-active_record', '~> 2.1'
 ```
 
 ## Directory Structure
@@ -113,15 +111,12 @@ class ActiveSupport::TestCase
   # Setup all fixtures in test/fixtures/*.yml
   # fixtures :all
 
-  # Use Database Cleaner for clean test state
+  # Use Rails transactional fixtures for clean test state
+  self.use_transactional_tests = true
+
   setup do
-    DatabaseCleaner.start
     # Set current user for thread-local tracking
     User.current_user = nil
-  end
-
-  teardown do
-    DatabaseCleaner.clean
   end
 
   # Helper to sign in users for controller tests

@@ -20,7 +20,7 @@ Clockwork (from email plan) runs rake tasks that send emails synchronously in a 
 
 ## Solution: ActiveJob with Solid Queue
 
-Rails 8 includes Solid Queue as the default job backend. For Rails 7, use it as a gem. Database-backed (PostgreSQL), no Redis required.
+Rails 8 includes Solid Queue as the default job backend. Database-backed (PostgreSQL), no Redis required.
 
 ### Why Solid Queue over Sidekiq?
 
@@ -40,9 +40,9 @@ Rails 8 includes Solid Queue as the default job backend. For Rails 7, use it as 
 
 **Tasks:**
 
-1. Add gem to Gemfile
+1. Add gem to Gemfile (Solid Queue is a default Rails 8 component; if on Rails 8, it may already be included)
    ```ruby
-   gem 'solid_queue', '~> 0.3'
+   gem 'solid_queue', '~> 1.0'
    ```
 
 2. Install and run migrations

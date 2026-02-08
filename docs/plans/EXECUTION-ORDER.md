@@ -16,8 +16,8 @@ execution sequence.
 ```
 Phase A: Foundation
   a1 Yarn to pnpm ─────────────────────────────────┐
-  a2 Dependency Updates (Ruby 3.4 + Rails 8) ───────┤
-  a3 Testing Infrastructure ────────────────────────┘
+  a3 Testing Infrastructure ───────────────────────┤
+  a2 Dependency Updates (Ruby 3.4 + Rails 8) ──────┘
                                                      │
 Phase B: Infrastructure                              ▼
   b1 Containerization (basic) ──────────────────────┐
@@ -47,26 +47,26 @@ in place before any feature work begins.
 - **Why first:** Small, self-contained. Unblocks correct build tooling for
   everything that follows.
 
-### A2. Dependency Updates
-
-- **Plan:** `a2_dependency-updates.md`
-- **Effort:** 2-3 weeks
-- **Path:** Aggressive (Ruby 3.4+ / Rails 8.0)
-- **Why early:** Ruby 3.1 has been EOL for 18+ months. This is the most
-  critical security issue in the project. Everything built on top of the
-  current stack inherits this risk.
-- **Note:** Plan needs version refresh -- check for Ruby 3.4.2+, Rails 8.0.5+,
-  and whether Ruby 3.5 is stable enough to consider.
-
-### A3. Testing Infrastructure
+### A2. Testing Infrastructure
 
 - **Plan:** `a3_testing.md`
 - **Effort:** 1 week (foundation + core model tests)
-- **Why before features:** CLAUDE.md mandates TDD. Every subsequent plan that
-  touches code needs tests. Without this, we're building on sand.
+- **Why before upgrades:** Tests must exist before the dependency upgrade so
+  they can verify it doesn't break things. TDD is mandated for all new
+  features.
 - **Scope for this phase:** Framework setup, factories, model tests for the 6
   core models. Controller and system tests can grow incrementally during
   Phase C.
+
+### A3. Dependency Updates
+
+- **Plan:** `a2_dependency-updates.md`
+- **Effort:** 2-3 weeks
+- **Path:** Aggressive (Ruby 3.4+ / Rails 8.x)
+- **Why after testing:** Ruby 3.1 is EOL (Jan 2026). This is the most
+  critical security issue in the project, but tests from the prior step
+  should verify the upgrade doesn't break things.
+- **Targets:** Ruby 3.4.x (or 3.5.x if stable), Rails 8.0.4+ or 8.1.x
 
 ## Phase B: Infrastructure
 

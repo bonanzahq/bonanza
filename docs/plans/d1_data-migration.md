@@ -1050,6 +1050,17 @@ end
 5. **Hosting**: Redux will run on the **same host** as v1, enabling parallel migration on different ports.
 6. **v1 Status**: Running with low usage. Gives flexibility on cutover timing.
 
+## Schema Dependency on a2 (Dependency Updates)
+
+This migration plan assumes the current schema.rb. If a2 (Ruby 3.4 + Rails 8 upgrade) runs before d1, schema.rb will change -- migrations may be restructured, column types may differ, and new Rails 8 defaults may alter table definitions.
+
+**This plan must be reviewed and updated after a2 completes.** Specifically:
+- Verify pgloader field mappings against the final post-upgrade schema
+- Re-test the migration script against a fresh Rails 8 database
+- Update any schema version references
+
+**Blocking dependency:** d1 execution requires a2 to be complete and schema finalized.
+
 ## Still Open
 
 - v1 Elasticsearch version (check during Phase 1)

@@ -211,7 +211,8 @@ module ErrorHandling
   extend ActiveSupport::Concern
 
   included do
-    rescue_from StandardError, with: :handle_unexpected_error
+    # Only catch StandardError in production to avoid swallowing bugs during development
+    rescue_from StandardError, with: :handle_unexpected_error if Rails.env.production?
     rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
     rescue_from CanCan::AccessDenied, with: :handle_access_denied
   end
@@ -219,6 +220,7 @@ module ErrorHandling
   private
 
   def handle_unexpected_error(exception)
+    # Always log at error level regardless of environment
     log_error(exception)
     Sentry.capture_exception(exception)
 

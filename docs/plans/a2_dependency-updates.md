@@ -1,27 +1,19 @@
 # Dependency Update Plan
 
-**Plan Date**: October 6, 2025
-**Status**: 🔴🔴 CRITICAL - Both Ruby and Rails are End-of-Life
+**Status**: CRITICAL - Both Ruby and Rails are End-of-Life
 
 ## Executive Summary
 
-**Bonanza Redux is running on unsupported, end-of-life software with known security vulnerabilities.**
+Bonanza Redux is running on unsupported, end-of-life software.
 
-- Ruby 3.1.2: EOL for **18 months** (ended March 2024)
-- Rails 7.0.4.3: EOL for **4 months** (ended June 2025)
+- Ruby 3.1.2: EOL since January 2026
+- Rails 7.0.4.3: EOL since June 2025
 
-**Immediate action required.** This document outlines a path to bring the application to supported versions.
-
-**Recommended Target Versions**:
-- Ruby 3.4.1 (EOL: March 2028 - 29 months of support)
-- Rails 8.0.x (EOL: ~December 2027 - 26 months of support)
-
-**Alternative Conservative Path**:
-- Ruby 3.3.6 (EOL: March 2027 - 17 months of support)
-- Rails 7.2.x (EOL: August 2027 - 22 months of support)
+**Target Versions**:
+- Ruby 3.4.x (or 3.5.x if stable -- released Dec 2025)
+- Rails 8.0.4+ or 8.1.x
 
 **Timeline**: 2.5-4 weeks full-time development
-**Budget**: 96-152 hours
 
 ---
 
@@ -29,16 +21,16 @@
 
 ### Ruby & Rails Versions
 
-| Component | Current Version | Released | EOL Date | Status |
-|-----------|----------------|----------|----------|--------|
-| Ruby | 3.1.2 | April 2022 | March 2024 | 🔴 EOL for 18 months |
-| Rails | 7.0.4.3 | March 2023 | June 2025 | 🔴 EOL for 4 months |
+| Component | Current Version | EOL Date | Status |
+|-----------|----------------|----------|--------|
+| Ruby | 3.1.2 | January 2026 | EOL |
+| Rails | 7.0.4.3 | June 2025 | EOL |
 
 ### Risk Assessment
 
-**Critical Security Risk**: No security patches have been released for Ruby 3.1 since March 2024. Any discovered vulnerabilities in Ruby 3.1 will not be patched.
+**Critical Security Risk**: Ruby 3.1 reached EOL in January 2026. No security patches will be released.
 
-**Rails Security Risk**: Rails 7.0 stopped receiving security patches in June 2025. Only severe security issues may receive backports.
+**Rails Security Risk**: Rails 7.0 stopped receiving security patches in June 2025.
 
 **Legal/Compliance Risk**: Running EOL software may violate:
 - Security compliance requirements
@@ -51,11 +43,10 @@
 
 ## Update Strategy
 
-This plan organizes updates into three priority tiers:
+This plan organizes updates into two priority tiers:
 
 1. **Critical Updates** - Security risks, must do immediately
 2. **Important Updates** - High value, low risk, should do soon
-3. **Future Improvements** - Can be deferred 3-6 months
 
 ---
 
@@ -63,8 +54,8 @@ This plan organizes updates into three priority tiers:
 
 ### 1.1 Ruby Version Update
 
-**Current**: Ruby 3.1.2 (EOL March 2024)
-**Target**: Ruby 3.4.1
+**Current**: Ruby 3.1.2 (EOL January 2026)
+**Target**: Ruby 3.4.x (or 3.5.x if stable)
 **Alternative**: Ruby 3.3.6 (if conservative)
 
 **Urgency**: 🔴🔴 CRITICAL - 18 months without security patches
@@ -79,7 +70,7 @@ This plan organizes updates into three priority tiers:
 | **3.4.1** | Dec 2024 | Mar 2028 | **29 months** | ✅ **Recommended** |
 | 3.5.x | Dec 2025 | Dec 2028 | Not yet released | ⏳ Coming in 2 months |
 
-**Recommendation**: Ruby 3.4.1
+**Recommendation**: Ruby 3.4.x (use latest patch at time of upgrade; evaluate 3.5.x stability)
 
 **Why?**
 - Released December 2024 (10 months ago)
@@ -700,7 +691,7 @@ These updates should be done soon after the critical updates, ideally within the
 
 3. **Update JavaScript dependencies**:
    ```bash
-   yarn upgrade
+   pnpm update
    ```
 
 4. **Test asset compilation**:
@@ -776,151 +767,6 @@ These updates should be done soon after the critical updates, ideally within the
 
 ---
 
-## Priority 3: Future Improvements (NICE TO HAVE)
-
-These can be deferred 3-6 months after the critical updates.
-
-### 3.1 Adopt Rails 8 Native Features
-
-**Timeline**: After successfully upgrading to Rails 8.0
-
-If you upgrade to Rails 8, consider adopting these features gradually:
-
-#### 3.1.1 Solid Queue (Background Jobs)
-
-**Current**: Clockwork for scheduling, synchronous email sending
-
-**Alternative**: Solid Queue (Rails 8 built-in)
-
-**Benefits**:
-- Better job management UI
-- Built-in retry logic
-- Database-backed (no Redis needed)
-- Better error handling
-- Could replace Clockwork
-
-**When**: After email notification system is implemented and stable
-
-**Estimated Effort**: 2-3 days
-- Add Solid Queue
-- Migrate scheduled tasks from Clockwork
-- Update email sending to use background jobs
-
-**Risk**: LOW - Can run alongside Clockwork initially
-
-#### 3.1.2 Rails 8 Authentication
-
-**Current**: Devise + Devise Invitable
-
-**Alternative**: Rails 8 built-in authentication
-
-**Evaluation**:
-- Rails 8 auth is simpler but less feature-rich
-- Devise has: invitations, confirmations, lockable, timeoutable, etc.
-- **Recommendation**: Keep Devise
-- Devise is well-tested and provides features you need
-
-**Decision**: Don't migrate to Rails 8 auth
-
-#### 3.1.3 Propshaft Asset Pipeline
-
-**Current**: Sprockets
-
-**Alternative**: Propshaft (Rails 8 default)
-
-**Benefits**:
-- Faster asset compilation
-- Simpler configuration
-- Better for modern JavaScript
-
-**When**: If asset pipeline becomes a bottleneck
-
-**Estimated Effort**: 2-3 days
-
-**Risk**: MEDIUM - Asset pipeline changes can be tricky
-
----
-
-### 3.2 Ruby 3.5 Upgrade (Future)
-
-**Timeline**: Q2-Q3 2026 (after Ruby 3.5 matures)
-
-**Ruby 3.5 Details**:
-- Releases: December 2025 (2 months away)
-- EOL: December 2028
-- Will provide 3 years of support
-
-**Recommendation**: Wait 3-6 months after release
-- Let ecosystem mature
-- Wait for gem compatibility
-- Wait for bug fixes (3.5.1, 3.5.2)
-
-**When to Consider**:
-- Q2-Q3 2026
-- After Ruby 3.5.2+ is released
-- When Ruby 3.4 approaches EOL
-
----
-
-### 3.3 Background Job System
-
-**Current State**: No background job system
-
-**Options**:
-1. **Solid Queue** (Rails 8 built-in) - Recommended if on Rails 8
-2. **Sidekiq** (industry standard, requires Redis)
-3. **Good Job** (PostgreSQL-based)
-
-**Why Add**:
-- Better email sending (don't block requests)
-- Better scheduled task management
-- Better reliability (retries, error handling)
-- Job monitoring and debugging
-
-**When to Add**: After email notification system is implemented
-
-**Estimated Effort**:
-- Solid Queue: 2-3 days (built-in to Rails 8)
-- Sidekiq: 3-5 days (need to add Redis)
-
----
-
-### 3.4 Testing Framework
-
-**Current State**: No test framework configured
-
-**Options**:
-- **Minitest** (Rails default, simpler)
-- **RSpec** (behavior-driven development, more features)
-
-**Why Add**:
-- Prevent regressions
-- Confidence for future updates
-- Better documentation of expected behavior
-
-**When to Add**: Before major refactoring projects
-
-**Estimated Effort**: 1-2 weeks
-- Set up testing framework
-- Write core tests
-- Set up CI pipeline
-
----
-
-### 3.5 Modern Ruby Gems
-
-**Consider replacing/updating**:
-
-1. **ruby_identicon** (0.0.6 - unmaintained since 2014)
-   - Alternative: Generate SVG identicons directly
-   - Or use jdenticon (JavaScript library)
-   - **When**: Low priority, current gem works
-
-2. **acts-as-taggable-on** (9.0.1)
-   - Update to 10.x when available
-   - Check for breaking changes
-   - **When**: After Rails 8 upgrade
-
 ---
 
 ## Update Sequence & Timeline
@@ -931,7 +777,7 @@ If you upgrade to Rails 8, consider adopting these features gradually:
 **Effort**: 56-96 hours
 
 #### Week 1: Ruby Update
-**Days 1-3**: Ruby 3.1.2 → 3.4.1
+**Days 1-3**: Ruby 3.1.2 → 3.4.x
 - Day 1: Update configuration, install
 - Day 2: Test all functionality
 - Day 3: Fix issues, final testing
@@ -1013,44 +859,7 @@ If you upgrade to Rails 8, consider adopting these features gradually:
 
 ---
 
-### Phase 4: Future Improvements (Deferred)
-
-**Timeline**: 3-6 months after Phase 3
-
-- Evaluate Solid Queue adoption
-- Consider Propshaft migration
-- Add testing framework
-- Plan for Ruby 3.5 upgrade (Q2 2026)
-
 ---
-
-## Alternative: Conservative Upgrade Path
-
-If the direct Rails 8 upgrade feels too risky, consider this alternative:
-
-### Conservative Phase 1: Minimum Updates
-
-**Week 1-2**:
-- Ruby 3.1.2 → 3.3.6 (not 3.4)
-- Rails 7.0 → 7.2.x (not 8.0)
-
-**Benefits**:
-- Lower risk
-- Smaller version jumps
-- More proven upgrade path
-
-**Drawbacks**:
-- Shorter support timeline (17-22 months)
-- Will need to upgrade again sooner
-- Miss out on Rails 8 improvements
-
-### Conservative Phase 2: Rails 8 Later
-
-**Q1 2026** (3-4 months later):
-- Rails 7.2 → 8.0
-- Ruby 3.3 → 3.4 (optional)
-
-**Total Timeline**: 2-3 weeks longer but spreads risk
 
 ---
 
@@ -1171,72 +980,11 @@ Test all mailer previews (when implemented):
 
 ## Risk Assessment
 
-### Ruby 3.4 Update
+**Combined upgrade risk**: MEDIUM. The biggest risk is doing both Ruby and Rails major updates together.
 
-**Risk Level**: ⚠️ LOW-MEDIUM
+**Risk of NOT upgrading**: HIGH. Ruby 3.1 is EOL since Jan 2026, Rails 7.0 since June 2025. No security patches for either. Compliance/legal risk with GDPR.
 
-**Risks**:
-- Ruby 3.4 is 10 months old but not as proven as 3.3
-- Potential edge case bugs
-- Gem compatibility (though all major gems support it)
-
-**Mitigation**:
-- Test thoroughly in development
-- Deploy to staging for 1 week minimum
-- Keep Ruby 3.1.2 Docker image available
-- Can fallback to Ruby 3.3.6 if serious issues
-
-**Confidence**: HIGH - Ruby 3.4 is stable and production-ready
-
----
-
-### Rails 8.0 Update
-
-**Risk Level**: ⚠️⚠️ MEDIUM-HIGH
-
-**Risks**:
-- Major version bump with significant changes
-- New defaults may affect behavior
-- Config merge process can be error-prone
-- More things to test
-
-**Mitigation**:
-- Review all config changes carefully
-- Opt-out of new features initially
-- Use compatibility mode
-- Test in staging for 1-2 weeks minimum
-- Can rollback via git
-- Can fallback to Rails 7.2 if critical issues
-
-**Confidence**: MEDIUM-HIGH - Rails 8 is proven but this app has no tests
-
-**Alternative**: If this feels too risky, do Rails 7.2 first
-
----
-
-### Other Gem Updates
-
-**Risk Level**: ✅ LOW
-
-**Risks**: Minimal - mostly minor/patch updates
-
-**Mitigation**: Standard testing, easy to rollback
-
----
-
-### Overall Risk Assessment
-
-**Combined Risk**: ⚠️⚠️ MEDIUM
-
-The biggest risk is doing both Ruby and Rails major updates together. However:
-
-**Current Risk of NOT Upgrading**: 🔴🔴 HIGH
-- 18 months without Ruby security patches
-- 4 months without Rails security patches
-- Known vulnerabilities likely exist
-- Compliance/legal risk
-
-**Verdict**: The risk of upgrading is LOWER than the risk of staying on EOL software.
+**Verdict**: The risk of upgrading is lower than the risk of staying on EOL software.
 
 ---
 
@@ -1395,8 +1143,10 @@ RUN apk add --no-cache \
     build-base \
     postgresql-dev \
     nodejs \
-    yarn \
+    npm \
     git
+
+RUN npm install -g pnpm
 
 WORKDIR /app
 
@@ -1405,8 +1155,8 @@ COPY Gemfile Gemfile.lock ./
 RUN bundle install --jobs 4 --retry 3
 
 # Install JavaScript dependencies
-COPY package.json yarn.lock ./
-RUN yarn install --frozen-lockfile
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 
 # Copy application code
 COPY . .
@@ -1420,7 +1170,6 @@ FROM ruby:3.4.1-alpine
 RUN apk add --no-cache \
     postgresql-client \
     nodejs \
-    yarn \
     tzdata
 
 WORKDIR /app
@@ -1483,12 +1232,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'yarn'
+          cache: 'pnpm'
+
+      - name: Install pnpm
+        run: npm install -g pnpm
 
       - name: Install dependencies
         run: |
           bundle install
-          yarn install
+          pnpm install --frozen-lockfile
 
       - name: Run tests
         env:
@@ -1537,82 +1289,6 @@ jobs:
 
 ---
 
-## Communication Plan
-
-### Before Updates
-
-**Notify**:
-- All developers
-- Project stakeholders
-- System administrators
-- End users (schedule maintenance window)
-
-**Communication Template**:
-```
-Subject: Critical Security Updates - Maintenance Window
-
-We will be performing critical security updates to Bonanza Redux:
-
-What: Upgrading Ruby and Rails to supported versions
-When: [Date/Time]
-Duration: [Estimated downtime]
-Impact: Application will be unavailable during maintenance
-
-Why: Our current Ruby version reached end-of-life 18 months ago,
-     and Rails reached EOL 4 months ago. This poses security risks.
-
-What to expect:
-- Application unavailable during maintenance window
-- All features will work the same after update
-- Performance may improve
-
-Rollback plan: If issues occur, we can rollback within 1 hour.
-
-Questions? Contact: [Contact info]
-```
-
-### During Updates
-
-**Communication Channel**: Slack/Email
-
-**Updates**:
-- Started maintenance window
-- Completed Ruby update
-- Started Rails update
-- Completed updates, testing
-- Issues encountered (if any)
-- Maintenance window extended (if needed)
-- Updates complete, application available
-
-### After Updates
-
-**Report Template**:
-```
-Subject: Bonanza Redux Updates Complete
-
-The security updates have been completed successfully.
-
-Updates Applied:
-- Ruby: 3.1.2 → 3.4.1
-- Rails: 7.0.4.3 → 8.0.x
-- [List other gems updated]
-
-Results:
-- All security vulnerabilities resolved
-- [Performance improvements observed]
-- [Any issues encountered and resolved]
-
-What Changed:
-- [User-visible changes, if any]
-- [Feature improvements]
-
-Monitoring:
-We will monitor the application closely for the next week.
-Please report any issues to [Contact info].
-
-Thank you for your patience.
-```
-
 ---
 
 ## Success Metrics
@@ -1654,62 +1330,6 @@ Thank you for your patience.
 
 ---
 
-## Budget Estimate
-
-### Phase 1: Critical Updates
-
-**Ruby Update**: 16-24 hours
-- Configuration: 4 hours
-- Testing: 8-12 hours
-- Fixes: 4-8 hours
-
-**Rails Update**: 32-56 hours
-- Update and config merge: 8-16 hours
-- Code updates: 8-16 hours
-- Testing: 16-24 hours
-
-**Security Audit**: 8-16 hours
-- Initial audit: 2-4 hours
-- Gem updates: 4-8 hours
-- Final verification: 2-4 hours
-
-**Phase 1 Total**: 56-96 hours
-
-### Phase 2: Important Updates
-
-**Gem Updates**: 32-48 hours
-- Searchkick/Elasticsearch: 8-16 hours
-- Authentication gems: 8 hours
-- Hotwire: 16-24 hours
-- Puma: 8 hours
-- Asset pipeline: 8 hours
-- RuboCop: 2-3 hours
-
-**Phase 2 Total**: 40-56 hours
-
-### Phase 3: Deployment & Monitoring
-
-**Deployment**: 8-16 hours
-- Pre-deployment prep: 4-8 hours
-- Deployment: 2-4 hours
-- Post-deployment: 2-4 hours
-
-**Phase 3 Total**: 8-16 hours
-
-### Grand Total
-
-**Total Hours**: 104-168 hours (2.5-4 weeks)
-
-**Breakdown**:
-- Aggressive path (direct to Ruby 3.4 + Rails 8): ~140-168 hours
-- Conservative path (staged updates): ~104-120 hours
-
-**Cost Factors**:
-- Developer hourly rate
-- Staging environment (if not existing)
-- Potential rollback time (buffer +20%)
-- Testing and QA time
-
 ---
 
 ## Dependency Matrix
@@ -1741,8 +1361,8 @@ Rails 8.0.x (Depends on Ruby 3.4+)
 
 | Gem | Current | Target | Priority |
 |-----|---------|--------|----------|
-| ruby | 3.1.2 | 3.4.1 | Critical |
-| rails | 7.0.4.3 | 8.0.x | Critical |
+| ruby | 3.1.2 | 3.4.x or 3.5.x | Critical |
+| rails | 7.0.4.3 | 8.0.4+ or 8.1.x | Critical |
 | puma | ~5.0 | ~6.4 | Important |
 
 ### Authentication & Authorization
@@ -1789,94 +1409,20 @@ Rails 8.0.x (Depends on Ruby 3.4+)
 
 ---
 
-## Resources & References
-
-### Official Documentation
-
-**Ruby**:
-- [Ruby 3.4.0 Release Notes](https://www.ruby-lang.org/en/news/2024/12/25/ruby-3-4-0-released/)
-- [Ruby 3.3.0 Release Notes](https://www.ruby-lang.org/en/news/2023/12/25/ruby-3-3-0-released/)
-- [Ruby Maintenance Schedule](https://www.ruby-lang.org/en/downloads/branches/)
-
-**Rails**:
-- [Rails 8.0 Release Notes](https://edgeguides.rubyonrails.org/8_0_release_notes.html)
-- [Rails 7.2 Release Notes](https://edgeguides.rubyonrails.org/7_2_release_notes.html)
-- [Rails Upgrade Guide](https://guides.rubyonrails.org/upgrading_ruby_on_rails.html)
-- [Rails Maintenance Policy](https://guides.rubyonrails.org/maintenance_policy.html)
-
-### Tools
+## Resources
 
 - [bundler-audit](https://github.com/rubysec/bundler-audit) - Security scanner
-- [rails-upgrade-checklist](https://github.com/fastruby/rails-upgrade-checklist)
-- [RuboCop](https://rubocop.org/) - Code quality
-
-### Community Resources
-
-- [GoRails](https://gorails.com/) - Rails screencasts
 - [RailsDiff](http://railsdiff.org/) - See changes between Rails versions
-- [Ruby on Rails Link Slack](https://www.rubyonrails.link/)
-
-### Security
-
+- [Rails Upgrade Guide](https://guides.rubyonrails.org/upgrading_ruby_on_rails.html)
 - [RubySec Advisory Database](https://rubysec.com/)
-- [Rails Security Mailing List](https://groups.google.com/g/rubyonrails-security)
 
 ---
 
-## Conclusion
+## Next Steps
 
-### Current Situation: CRITICAL
-
-Bonanza Redux is running on:
-- Ruby 3.1.2 (EOL for 18 months)
-- Rails 7.0.4.3 (EOL for 4 months)
-
-**This is a critical security risk that requires immediate action.**
-
-### Recommended Path
-
-**Priority 1: Critical Updates (Weeks 1-3)**
-1. Ruby 3.1.2 → Ruby 3.4.1
-2. Rails 7.0 → Rails 8.0
-3. Security audit and critical gem updates
-
-**Priority 2: Important Updates (Weeks 4-5)**
-4. Update remaining gems (search, auth, frontend, etc.)
-
-**Priority 3: Deploy to Production (Week 6)**
-5. Deploy with monitoring
-
-### Alternative Conservative Path
-
-If Rails 8 feels too risky:
-1. Ruby 3.1.2 → Ruby 3.3.6
-2. Rails 7.0 → Rails 7.2.x
-3. Monitor for 2-4 weeks
-4. Rails 7.2 → Rails 8.0 (later)
-
-### Timeline
-
-**Aggressive Path**: 4 weeks (104-168 hours)
-**Conservative Path**: 6 weeks (with staged Rails update)
-
-### Next Steps
-
-1. **Get stakeholder approval** for maintenance window
-2. **Schedule maintenance** window
-3. **Backup production** database and files
-4. **Begin Phase 1** (Ruby + Rails updates)
-5. **Test thoroughly** in staging
-6. **Deploy to production** after 1-2 weeks staging
-7. **Monitor closely** for 1 week post-deployment
-
-### Long-term
-
-- **Q2 2026**: Consider Ruby 3.5 upgrade
-- **2027**: Plan for next major Rails version
-- **Ongoing**: Monthly security audits with bundle-audit
-
----
-
-**This update is not optional. It is a critical security requirement.**
-
-The risk of upgrading is significantly lower than the risk of continuing to run EOL software with known vulnerabilities.
+1. Backup production database and files
+2. Begin Phase 1 (Ruby + Rails updates)
+3. Test thoroughly in staging
+4. Deploy to production after 1-2 weeks staging
+5. Monitor closely for 1 week post-deployment
+6. Monthly security audits with bundle-audit ongoing

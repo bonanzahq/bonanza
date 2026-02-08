@@ -235,7 +235,7 @@ From README.md, several TODOs mention email features:
            .where("DATE(lent_at + INTERVAL duration DAY) = ?", 5.days.from_now.to_date)
 
          lendings.each do |lending|
-           LendingMailer.upcoming_return_notification_email(lending).deliver_now
+           LendingMailer.upcoming_return_notification_email(lending).deliver_later
          end
        end
 
@@ -245,7 +245,7 @@ From README.md, several TODOs mention email features:
            .where("DATE(lent_at + INTERVAL duration DAY) = ?", 1.day.from_now.to_date)
 
          lendings.each do |lending|
-           LendingMailer.upcoming_overdue_return_notification_email(lending).deliver_now
+           LendingMailer.upcoming_overdue_return_notification_email(lending).deliver_later
          end
        end
 
@@ -255,7 +255,7 @@ From README.md, several TODOs mention email features:
            .where("DATE(lent_at + INTERVAL duration DAY) < ?", Date.today)
 
          lendings.each do |lending|
-           LendingMailer.overdue_notification_email(lending).deliver_now
+           LendingMailer.overdue_notification_email(lending).deliver_later
          end
        end
 
@@ -269,7 +269,7 @@ From README.md, several TODOs mention email features:
            next if lendings.empty?
 
            department.users.active.each do |user|
-             UserMailer.todays_returns_email(lendings, user).deliver_now
+             UserMailer.todays_returns_email(lendings, user).deliver_later
            end
          end
        end
@@ -371,25 +371,9 @@ From README.md, several TODOs mention email features:
 
 ## CRITICAL: Background Job Requirement
 
-**All mailer calls MUST use `.deliver_later` instead of `.deliver_now`.**
-
-Using `.deliver_now` will:
-- Block HTTP requests while emails send
-- Cause timeouts when sending bulk notifications (100+ emails)
-- Provide no retry logic for failed deliveries
-- Risk triggering spam filters without rate limiting
+**All mailer calls MUST use `.deliver_later`.** Synchronous delivery blocks HTTP requests, causes timeouts during bulk sends (100+ emails), provides no retry logic, and risks triggering spam filters.
 
 **Required dependency:** Complete plan `c1_background-jobs.md` before deploying email functionality.
-
-**Change all mailer calls from:**
-```ruby
-LendingMailer.confirmation_email(lending).deliver_now
-```
-
-**To:**
-```ruby
-LendingMailer.confirmation_email(lending).deliver_later(queue: :critical)
-```
 
 **Queue assignments:**
 - `:critical` - confirmation emails, password resets (user expects immediate)
@@ -599,7 +583,7 @@ See `docs/plans/c1_background-jobs.md` for full implementation details.
 
 1. **Background Jobs** (MANDATORY - see plan c1)
    - Use Solid Queue via ActiveJob for email sending
-   - All emails MUST use `.deliver_later` not `.deliver_now`
+   - All emails MUST use `.deliver_later` not `.deliver_later`
    - See `docs/plans/c1_background-jobs.md` for implementation
 
 2. **Database Queries**

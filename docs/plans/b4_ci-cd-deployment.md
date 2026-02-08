@@ -88,11 +88,11 @@ If automated versioning is needed later, use semantic-release with conventional 
 ## GitHub Container Registry (GHCR)
 
 ### Image Naming
-- Repository: `ghcr.io/philippgeuder/bonanza_redux`
-- Beta tag: `ghcr.io/philippgeuder/bonanza_redux:beta`
+- Repository: `ghcr.io/bonanzahq/bonanza_redux`
+- Beta tag: `ghcr.io/bonanzahq/bonanza_redux:beta`
 - Production tags:
-  - `ghcr.io/philippgeuder/bonanza_redux:latest`
-  - `ghcr.io/philippgeuder/bonanza_redux:v1.2.3`
+  - `ghcr.io/bonanzahq/bonanza_redux:latest`
+  - `ghcr.io/bonanzahq/bonanza_redux:v1.2.3`
 
 ### Why GHCR over Docker Hub
 - Free private repositories
@@ -354,7 +354,7 @@ set -e
 
 ENVIRONMENT=${1:-production}
 COMPOSE_FILE="docker-compose.${ENVIRONMENT}.yml"
-IMAGE_NAME="ghcr.io/philippgeuder/bonanza_redux"
+IMAGE_NAME="ghcr.io/bonanzahq/bonanza_redux"
 
 if [ "$ENVIRONMENT" = "production" ]; then
   IMAGE_TAG="latest"
@@ -508,7 +508,7 @@ chmod 600 .env
 ```bash
 # Create GitHub Personal Access Token with read:packages scope
 # Then login
-echo $GITHUB_TOKEN | docker login ghcr.io -u philippgeuder --password-stdin
+echo $GITHUB_TOKEN | docker login ghcr.io -u bonanzahq --password-stdin
 ```
 
 Store credentials for automatic pulls:
@@ -620,7 +620,7 @@ On the server:
 cd /opt/bonanza
 
 # Pull previous version
-docker pull ghcr.io/philippgeuder/bonanza_redux:v1.2.2
+docker pull ghcr.io/bonanzahq/bonanza_redux:v1.2.2
 
 # Edit docker-compose file to use specific version
 # OR set IMAGE_TAG env var
@@ -892,7 +892,7 @@ docker-compose -f docker-compose.prod.yml logs app
 docker login ghcr.io
 
 # Verify image exists
-docker manifest inspect ghcr.io/philippgeuder/bonanza_redux:latest
+docker manifest inspect ghcr.io/bonanzahq/bonanza_redux:latest
 
 # Script continues with existing image (fault tolerance)
 ```

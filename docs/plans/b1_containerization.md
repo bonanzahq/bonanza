@@ -6,7 +6,7 @@ Containerize the Bonanza Redux application with Docker to provide a consistent d
 
 ## Technology Stack
 
-- **Application**: Rails 7.0.4.2 with Ruby 3.1.2
+- **Application**: Rails 8.x with Ruby 3.4+
 - **Version Management**: mise (for Ruby, Node.js, pnpm)
 - **Package Manager**: pnpm (not yarn)
 - **Database**: PostgreSQL 15
@@ -49,7 +49,7 @@ Containerize the Bonanza Redux application with Docker to provide a consistent d
 ### 1. Rails Application Container (Web)
 **Purpose**: Run the Rails application with Puma web server
 
-**Base Image**: `ruby:3.1.2-alpine` (lightweight) or `ruby:3.1.2` (full)
+**Base Image**: `ruby:3.4-alpine` (lightweight) or `ruby:3.4` (full)
 
 **Requirements**:
 - Install mise for version management
@@ -561,7 +561,6 @@ open http://localhost:8025
 
 ### Phase 6: Documentation and Testing
 - [ ] Update README.md with Docker instructions
-- [ ] Update CLAUDE.md with Docker context
 - [ ] Create .env.example with all required variables
 - [ ] Test complete setup from scratch
 - [ ] Document troubleshooting procedures
