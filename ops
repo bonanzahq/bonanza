@@ -1,1 +1,1 @@
-{"author":{"id":"9ce646fd10346788b0ba0bb1d6d4d7df7faf6b71badbb76619d75576ac1df697"},"ops":[{"type":1,"timestamp":1770738121,"nonce":"+CXjyicDqSKyES5RzyhtTqf4yYE=","title":"lending_controller.rb:113 uses undefined cart_path","message":"LendingController#update line 113 called cart_path which doesn't exist as a route. Fixed to lending_path in commit 2fc4a34.","files":null}]}
+{"author":{"id":"9ce646fd10346788b0ba0bb1d6d4d7df7faf6b71badbb76619d75576ac1df697"},"ops":[{"type":4,"timestamp":1770738126,"nonce":"BXbRwW6lAoK78UEpz4+eAIP8/N0=","status":2}]}
