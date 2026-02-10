@@ -156,7 +156,7 @@ class LendingController < ApplicationController
         flash[:notice] = "Ausleihfirst erfolgreich geändert."
         format.html { redirect_to token_lending_path(@lending, token: @lending.token)}
       else
-        format.html { redirect_to token_lending_path(@lending), alert: @lending.errors.values.join(", ") }
+        format.html { redirect_to token_lending_path(@lending), alert: @lending.errors.full_messages.join(", ") }
       end
     end
   end

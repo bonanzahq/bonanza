@@ -37,7 +37,7 @@ class ReturnsController < ApplicationController
       else
 
         if @line_item.errors.any?
-          flash[:alert] = @line_item.errors.values.join(" ")
+          flash[:alert] = @line_item.errors.full_messages.join(" ")
         else
           flash[:alert] = "Konnte Artikel nicht zurückgenommen werden."
         end
