@@ -1,4 +1,4 @@
-# Bonanza Redux
+# Bonanza
 
 Equipment lending management system for FH Potsdam. Rewrite of Bonanza v1.
 

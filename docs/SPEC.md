@@ -1,6 +1,6 @@
-# Bonanza Redux -- Specification
+# Bonanza -- Specification
 
-Bonanza Redux is an equipment lending management system for FH Potsdam. Staff
+Bonanza is an equipment lending management system for FH Potsdam. Staff
 members organize equipment into departments (workshops/studios), manage an
 inventory of lendable items, and process checkouts and returns for borrowers
 (students and employees). The system enforces borrower verification, tracks item
