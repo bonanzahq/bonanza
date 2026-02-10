@@ -66,6 +66,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   # -- Role queries --
+  # TODO verify that all the other flags are false?
 
   test "guest? returns true for guest role" do
     user = create(:user, :guest)
@@ -93,6 +94,7 @@ class UserTest < ActiveSupport::TestCase
     assert_equal "member", @user.current_role
   end
 
+  # TODO: create an issue for the problem below
   # NOTE: current_role= setter has a design issue: find_or_initialize_by returns
   # a transient DB object, sets role on it, then discards it. The change is never
   # persisted or retained in the association cache. Needs investigation.
