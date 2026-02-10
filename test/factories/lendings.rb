@@ -8,12 +8,12 @@ FactoryBot.define do
     state { :cart }
 
     trait :with_borrower do
-      association :borrower
+      borrower { association :borrower, :with_tos }
       state { :borrower }
     end
 
     trait :completed do
-      association :borrower
+      borrower { association :borrower, :with_tos }
       state { :completed }
       lent_at { Time.current }
       duration { 14 }
