@@ -110,7 +110,7 @@ class LendingController < ApplicationController
 
         flash[:notice] = "Ausleihe erfolgreich aktualisiert."
         format.turbo_stream { flash.now[:notice] = "Ausleihe erfolgreich aktualisiert" }
-        format.html { redirect_to cart_path(:page => params[:page])}
+        format.html { redirect_to lending_path(:page => params[:page])}
       else
         format.html { render :edit }
       end
