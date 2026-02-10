@@ -78,7 +78,11 @@ class Borrower < ApplicationRecord
       where.merge!({borrower_type: b }) unless b.nil? && b.count < 1
     end
     
-    self.search(query, where: where, load: true, page: page, per_page: 4, order: [{_score: :desc}, {fullname: :asc}], misspellings: {edit_distance: 2}, fields: [{"fullname^20" => :word_middle}, {"email^14" => :word_middle}, {"student_id" => :exact}])
+    begin
+      self.search(query, where: where, load: true, page: page, per_page: 4, order: [{_score: :desc}, {fullname: :asc}], misspellings: {edit_distance: 2}, fields: [{"fullname^20" => :word_middle}, {"email^14" => :word_middle}, {"student_id" => :exact}])
+    rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED
+      Borrower.none.page(1).per(4)
+    end
   end
 
   def has_misconduct_here?
