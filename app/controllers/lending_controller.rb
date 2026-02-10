@@ -29,13 +29,8 @@ class LendingController < ApplicationController
     @lending = Lending.find(params[:id])
 
     if @lending.token != params[:token]
-      redirect_to lending_path, alert: "Diese Ausleihe existiert nicht." # TODO: redirect to generic 404 Page!
+      redirect_to lending_path, alert: "Diese Ausleihe existiert nicht." and return # TODO: redirect to generic 404 Page!
     end
-
-    # respond_to do |format|
-    #   # format.js
-    #   format.html
-    # end
 
     if user_signed_in?
       render 'show'
@@ -65,7 +60,7 @@ class LendingController < ApplicationController
     @borrower = @lending.borrower
 
     if @lending.token != params[:token]
-      redirect_to lending_path, alert: "Diese Ausleihe existiert nicht."
+      redirect_to lending_path, alert: "Diese Ausleihe existiert nicht." and return
     end
 
     render 'printable_agreement', layout: 'print'
@@ -156,7 +151,7 @@ class LendingController < ApplicationController
         flash[:notice] = "Ausleihfirst erfolgreich geändert."
         format.html { redirect_to token_lending_path(@lending, token: @lending.token)}
       else
-        format.html { redirect_to token_lending_path(@lending), alert: @lending.errors.full_messages.join(", ") }
+        format.html { redirect_to token_lending_path(@lending, token: @lending.token), alert: @lending.errors.full_messages.join(", ") }
       end
     end
   end
