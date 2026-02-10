@@ -282,6 +282,7 @@ GEM
 PLATFORMS
   arm64-darwin-21
   arm64-darwin-24
+  arm64-darwin-25
 
 DEPENDENCIES
   acts-as-taggable-on (~> 9.0.0)

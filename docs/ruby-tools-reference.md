@@ -16,8 +16,8 @@ This uses Foreman to run processes defined in `Procfile.dev`:
 Alternatively, run processes individually:
 ```bash
 bin/rails server -p 3000     # Rails server only
-yarn build --watch           # JS bundling
-yarn build:css --watch       # CSS compilation
+pnpm build --watch           # JS bundling
+pnpm build:css --watch       # CSS compilation
 ```
 
 ## Production Server

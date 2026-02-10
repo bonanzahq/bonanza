@@ -10,7 +10,7 @@ Equipment lending management system for FH Potsdam. Rewrite of Bonanza v1.
 - **Search**: Elasticsearch 8.4 via Searchkick
 - **Frontend**: Hotwire (Turbo + Stimulus), esbuild, Sass
 - **Auth**: Devise + devise_invitable, CanCanCan for authorization
-- **Package Manager**: pnpm (migration from yarn in progress, see `docs/plans/a1_yarn-to-pnpm.md`)
+- **Package Manager**: pnpm
 - **Version Manager**: mise (`mise.toml`)
 
 ## Core Models
