@@ -79,7 +79,9 @@ class Borrower < ApplicationRecord
     end
     
     begin
-      self.search(query, where: where, load: true, page: page, per_page: 4, order: [{_score: :desc}, {fullname: :asc}], misspellings: {edit_distance: 2}, fields: [{"fullname^20" => :word_middle}, {"email^14" => :word_middle}, {"student_id" => :exact}])
+      results = self.search(query, where: where, load: true, page: page, per_page: 4, order: [{_score: :desc}, {fullname: :asc}], misspellings: {edit_distance: 2}, fields: [{"fullname^20" => :word_middle}, {"email^14" => :word_middle}, {"student_id" => :exact}])
+      results.to_a # force lazy evaluation inside rescue
+      results
     rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED
       Borrower.none.page(1).per(4)
     end
