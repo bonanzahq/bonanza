@@ -41,5 +41,6 @@ class Conduct < ApplicationRecord
 
     def reindex_borrower
       borrower.reindex
+    rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED
     end
 end

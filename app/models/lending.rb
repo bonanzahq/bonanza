@@ -281,7 +281,7 @@ class Lending < ApplicationRecord
             line_item.item.save!
             begin
               line_item.item.parent_item.reindex
-            rescue Faraday::ConnectionFailed # elasticsearch couldn't be reached
+            rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED
             end
           end
           user = User.current_user
