@@ -6,6 +6,24 @@ inventory of lendable items, and process checkouts and returns for borrowers
 (students and employees). The system enforces borrower verification, tracks item
 condition and history, and supports conduct management (warnings and bans).
 
+## Technical Overview
+
+- **Language**: Ruby, **Framework**: Rails
+- **Database**: PostgreSQL
+- **Search**: Elasticsearch via Searchkick (full-text search with German synonym
+  support on equipment and borrowers)
+- **Frontend**: Server-rendered ERB with Hotwire (Turbo for page updates,
+  Stimulus for interactive behavior), Bootstrap for styling, esbuild for
+  JavaScript bundling, Sass for CSS
+- **Authentication**: Devise with invitation-based onboarding for staff
+- **Authorization**: CanCanCan with role-based abilities scoped per department
+- **File Storage**: Active Storage for equipment documentation and manuals
+- **Tagging**: Equipment categorization via tags with department-scoped context
+
+The application is a traditional server-rendered Rails app. There is no separate
+API or SPA frontend. All interactivity uses Turbo Streams and Stimulus
+controllers.
+
 ## Terminology
 
 The user interface is in German. Key terms and their English equivalents:
