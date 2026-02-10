@@ -1,6 +1,6 @@
-# Bonanza Redux
+# Bonanza
 
-Equipment lending management system for FH Potsdam.
+Equipment lending management system for FH Potsdam. v2
 
 See [docs/SPEC.md](docs/SPEC.md) for the system specification.
 
