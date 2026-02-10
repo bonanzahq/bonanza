@@ -1,1 +1,1 @@
-{"author":{"id":"cff9ab1d2ee9741039b2a60d90cca378a5320ba753398f6f3df8d03abcebee1b"},"ops":[{"type":1,"timestamp":1770708840,"nonce":"W3NDYEXW4bYLUiulKnOwpGtIiaQ=","title":"fix: Replace outdated FHP logo","message":"The current FHP logo in app/assets/images/fhp-logo.svg is outdated and needs to be replaced with the current version.","files":null}]}
+{"author":{"id":"cff9ab1d2ee9741039b2a60d90cca378a5320ba753398f6f3df8d03abcebee1b"},"ops":[{"type":5,"timestamp":1770708845,"nonce":"ySO+JIMjWxw+LihUoaVOmz7pJy0=","added":["bug"],"removed":null}]}
