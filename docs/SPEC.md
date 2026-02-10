@@ -24,6 +24,11 @@ The application is a traditional server-rendered Rails app. There is no separate
 API or SPA frontend. All interactivity uses Turbo Streams and Stimulus
 controllers.
 
+**Deployment**: Docker containers behind a Caddy reverse proxy. Services:
+web (Rails), database (PostgreSQL), search (Elasticsearch). The application
+runs on an FH Potsdam server accessible only via VPN. Email is delivered
+through the FHP SMTP relay.
+
 ## Terminology
 
 The user interface is in German. Key terms and their English equivalents:
