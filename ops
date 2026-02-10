@@ -1,0 +1,1 @@
+{"author":{"id":"9ce646fd10346788b0ba0bb1d6d4d7df7faf6b71badbb76619d75576ac1df697"},"ops":[{"type":1,"timestamp":1770738120,"nonce":"JBNMGEYE1ZMSqgoqcbuoCocttGs=","title":"checkout_controller.rb:17 uses undefined lending_route","message":"CheckoutController#index line 17 called lending_route which doesn't exist. Fixed to lending_path in commit 2fc4a34.","files":null}]}
