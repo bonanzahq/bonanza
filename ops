@@ -1,0 +1,1 @@
+{"author":{"id":"cff9ab1d2ee9741039b2a60d90cca378a5320ba753398f6f3df8d03abcebee1b"},"ops":[{"type":1,"timestamp":1770713965,"nonce":"UYb/Q19Gd2dmUOr9n3G1F8Zcy1I=","title":"bug: Blank item history entry created on return","message":"When returning an item, a blank history entry is sometimes created. Needs investigation in the item history callback logic.","files":null}]}
