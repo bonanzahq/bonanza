@@ -1,0 +1,47 @@
+<header class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7 bnz-tab-navigation d-flex align-items-stretch pt-3">
+        <h3>Neue ausleihende Person einladen</h3>
+    </div>
+    <div class="col-3 d-flex align-items-center">
+        <%= render 'shared/user_menu' %>
+    </div>
+</header>
+
+<div class="row">
+    <div class="col-2 pt-3 d-flex justify-content-end align-items-start">
+        <%= link_to "Verleihende Personen", verwaltung_verleihende_path, class: "link-back link-dark" %>
+        <!-- <a href="http://localhost:3000/verwaltung" class="link-back link-dark">Verwaltung</a> -->
+    </div>
+    <div class="col-7">
+        <div class="p-3 bg-light mb-3 rounded">
+          <p>Lade eine weitere Person per E-Mail zu Deiner Werkstatt ein. Die Person kann dann ein Benutzer-Konto anlegen und in Deiner Werkstatt Artikel verleihen.</p>
+          <p><em>Die E-Mail-Adresse, welche Du für die Einladung verwendest, kann die eingeladene Person später noch ändern.</em></p>
+
+          <%= form_for(resource, as: resource_name, url: invitation_path(resource_name), html: { method: :post }, data: {controller: "form-validation", turbo: false}) do |f| %>
+            <%= render "devise/shared/error_messages", resource: resource %>
+
+            <div class="mb-2">
+                <%= f.label :email, "E-Mail-Adresse", class: "form-label" %>
+                <%= f.email_field :email, autocomplete: 'off', class: "form-control", required: true %>
+            </div>
+
+            <div class="mb-2">
+                <%= f.label :temp_role, "Rolle", class: "form-label" %>
+                <% if current_user.admin? %>
+                    <%= f.select :temp_role, options_for_select(DepartmentMembership.roles.reject{ |k,v| v == 99 }.map { |k, v| [t( k, scope: 'role'), k] }), {}, class: "form-select" %>
+                <% else %>
+                    <%= f.select :temp_role, options_for_select(DepartmentMembership.roles.reject{ |k,v| v == 99 or v == 3 }.map { |k, v| [t( k, scope: 'role'), k] }), {}, class: "form-select" %>
+                <% end %>
+            </div>
+            <div class="actions">
+                <%= f.submit "Person einladen", class: "btn btn-primary" %>
+            </div>
+          <% end %>
+          
+        </div>
+    </div>
+    <div class="col-3">
+    </div>
+</div>

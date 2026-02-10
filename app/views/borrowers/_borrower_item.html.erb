@@ -1,0 +1,96 @@
+<% if type == "Lending" # Ausleihe
+  elements.each do |lending| %>
+    <div class="bnz-card">
+        <div class="header">
+          <div class="left">
+            <span class="icon-before arrow-right fw-bold">Ausleihe</span>
+            <span class="date"><%= t(lending.department.genderize('in_the')) %> <%= lending.department.name %> bis <%= l(lending.lent_at + lending.duration.days, :format => "%a. %d.%m.%y" ) %></span>
+          </div>
+          <div class="right">
+            <div class="user"><%= lending.user.fullname %></div>
+          </div>
+        </div>
+        <div class="body">
+          <% lending.line_items.each do |line_item| %>
+          <div class="item">
+              <div class="left">                
+                <% if line_item.item.uid.blank? %>
+                  <%= "#{line_item.quantity} x" %>
+                  <%= line_item.item.parent_item.name %>
+
+                  <% else %>
+                    <span class="fw-bold">
+                      <%= line_item.item.parent_item.name %>
+                    </span>
+                    <div class="identifier <%= "#{line_item.item_histories.first.condition}" if line_item.item_histories.first %>" title="<%= "#{line_item.item_histories.first.condition}" if line_item.item_histories.first %>">
+                      <%= line_item.item.uid %>
+                    </div>
+                 <% end %>
+
+              </div>
+              <div class="right">
+                <% if line_item.returned_at %>
+                  zurückgegeben
+                <% end %>
+              </div>
+          </div>
+
+          <% if line_item.accessories.any? %>
+            <div class="accessories">
+              <%= line_item.accessories.map(&:name).join(",") %>
+            </div>
+            <% end %>
+          <% end %>
+
+        </div>
+    </div>
+    
+    
+  <% end
+elsif type == "LineItem" # Rückgabe %>
+  
+  <% elements.group_by{|element| element.lending.department }.each do |department, elements| %>
+    <div class="bnz-card">
+      <div class="header">
+        <div class="left">
+            <span class="icon-before arrow-left fw-bold">Rückgabe</span>
+            <span class="date"><%= t(department.genderize('in_the')) %> <%= department.name %></span>
+          </div>
+        <div class="right">
+          <div class="user"><%= elements.first.lending.user.fullname %></div>
+        </div>
+      </div>
+
+      <div class="body">
+
+      <% elements.each do |line_item| %>
+        <div class="item <%= 'overdue' if line_item.lending.lent_at.to_date + line_item.lending.duration - line_item.returned_at.to_date < 0 %>">
+          <div class="left">
+            
+              <% if line_item.item.uid.blank? %>
+                <span class="fw-bold">
+                  <%= "#{line_item.quantity} x" %>
+                  <%= line_item.item.parent_item.name %>
+                
+              <% else %>
+                <span class="fw-bold">
+                  <%= line_item.item.parent_item.name %> 
+                </span>
+                <div class="identifier <%= "#{line_item.item_histories.first.condition}" if line_item.item_histories.first %>" title="<%= "#{line_item.item_histories.first.condition}" if line_item.item_histories.first %>">
+                  <%= line_item.item.uid %>
+                </div>
+              <% end %>
+            
+          </div>
+          <div class="right">
+            <% if line_item.lending.lent_at.to_date + line_item.lending.duration.days - line_item.returned_at.to_date < 0 %>
+              <span class="status overdue"><%= "#{pluralize((line_item.returned_at.to_date - line_item.lending.lent_at.to_date - line_item.lending.duration ).to_i, "Tag", "Tage")}  überzogen" %></span>
+            <% end %>
+          </div>
+        </div>
+      <% end %>
+      </div>
+    </div>
+  <% end %>
+
+<% end %>

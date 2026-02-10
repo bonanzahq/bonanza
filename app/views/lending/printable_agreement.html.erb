@@ -1,0 +1,63 @@
+<div id="wrapper">
+<div id="lender-info"><%= @borrower.fullname %> / <%= @borrower.student_id %><br/>
+<%= @borrower.phone %> / <%= @borrower.email %>
+</div>
+
+<div id="dept-info">
+  <div id="logo"><%= image_tag "fhp-logo.svg" %></div>
+  <p>FH Potsdam<br/>
+    Fachbereich Design<br/>
+    Kiepenheuerallee 5<br/>
+    14469 Potsdam
+  </p>
+</div>
+<div id="user">
+  Verleihende Person<br/>
+  <%= @lending.user.fullname %>
+  <%= @lending.department.name %>
+</div>
+
+<h1 id="heading">Leihvertrag</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Menge</th>
+      <th>Artikel</th>
+      <th>Seriennummer</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% if @lending.has_line_items? %>
+      <% @lending.line_items.each do |line_item| %>
+      <tr>
+        <td><%= line_item.quantity %></td>
+        <td><%= line_item.item.parent_item.name %>
+            <% line_item.accessories.each do |a| %>
+              <p class="name"><%= a.name %></p>
+            <% end %>
+        </td>
+        <td><%= line_item.item.uid %></td>
+      </tr>
+      <% end %>
+    <% end %>
+  </tbody>
+</table>
+
+<div id="legal">
+  <div class="note">
+    <strong>Rückgabe spätestens</strong> <%= l(@lending.lent_at + @lending.duration.days, :format =>"%a, %d.%m.%Y") %>
+  </div>
+  <% if @lending.note.present? %>
+    <div class="note">
+      <strong>Anmerkung</strong><br/>
+      <%= @lending.note %>
+    </div>
+  <% end %>
+
+  Mit meiner Unterschrift bestätige ich, die Ausleihbedingungen und die Hinweise zum Datenschutz gelesen zu haben, akzeptierte diese und hafte für Verlust oder Beschädigung der entliehenen Artikel.
+  <div id="sig">
+    Potsdam, den <%= l(Date.today) %>
+  </div>
+</div>
+</div>

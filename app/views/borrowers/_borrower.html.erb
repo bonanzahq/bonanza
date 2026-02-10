@@ -1,0 +1,183 @@
+<h3>
+  <%= borrower.fullname %>
+</h3>
+
+<div class="line">
+  <div class="email"><%= borrower.email %></div>
+  <div class="phone"><%= borrower.phone %></div>
+</div>
+<div class="line mb-4 small">
+  <div class="id"><%= borrower.student_id %></div>
+  <% if borrower.id_checked %>
+    <div class="bnz-checked-correct" title="Ausweis geprüft">Ausweis geprüft</div>
+  <% else %>
+    <div class="bnz-checked-missing" title="Ausweis nicht geprüft">Ausweis geprüft</div>
+  <% end %>
+  <% if borrower.insurance_checked %>
+    <div class="bnz-checked-correct" title="Haftpflicht geprüft">Haftpflicht geprüft</div>
+  <% else %>
+    <div class="bnz-checked-missing" title="Haftpflicht nicht geprüft">Haftpflicht geprüft</div>
+  <% end %>
+  <% if borrower.tos_accepted %>
+    <div class="bnz-checked-correct" title="Registrierung bestätigt">Reg. bestätigt</div>
+  <% else %>
+    <div class="bnz-checked-missing" title="Registrierung nicht bestätigt">Reg. bestätigt</div>
+  <% end %>
+</div>
+
+<% unless borrower.tos_accepted %>
+<div class="mb-4">
+  <% unless borrower.tos_accepted %>
+      <%= link_to send_confirm_email_path(borrower.email_token), class: "btn btn-outline-secondary btn-sm", data: { turbo_stream: true } do  %>
+          <span class="icon-before reload">Bedingungen erneut senden</span>
+      <% end %>
+  <% end %>
+</div>
+<% end %>
+
+<% if borrower.conducts.any? %>
+<div class="mb-4">
+    <ul class="conducts-list">
+        <% borrower.conducts.each do |conduct| %>
+            
+          <% if conduct.kind == "warned" %>
+          <li class="small line">
+            <div class="flex-grow-1">
+              In <%= conduct.department.name %> <strong><%= "bis #{l(conduct.created_at.to_date + conduct.duration.to_i, :format => "%a, %d.%m.%Y" )} " %></strong> verwarnt wegen überschrittener Ausleihfrist.
+          <% elsif conduct.kind == "banned" %>
+          <li class="small text-danger line">
+            <div class="flex-grow-1">
+              <% if conduct.permanent %>
+                  In <%= conduct.department.name %> 
+                  <% if conduct.user %>
+                    von <%= conduct.user.fullname %>
+                  <% end %>
+
+                  <strong>dauerhaft</strong> 
+                  
+              <% else %>
+                  In <%= conduct.department.name %> 
+                  <% if conduct.user %>
+                    von <%= conduct.user.fullname %>
+                  <% end %>
+
+                  <strong><%= "bis #{l(conduct.created_at.to_date + conduct.duration.to_i, :format => "%a, %d.%m.%Y" )} " %></strong>
+              <% end %>
+
+              gesperrt. 
+              <%= "Grund: #{conduct.reason}" if conduct.reason %>
+          <% end %>
+          
+          </div>
+
+          <% if conduct.department == current_user.current_department && conduct.kind == "banned" %>
+            <a href="#" class="btn btn-sm btn-danger" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="removeConductModal_<%= dom_id(conduct) %>">Sperre&nbsp;aufheben</a>
+          <% end %>
+          </li>
+
+          <% if conduct.department == current_user.current_department && conduct.kind == "banned" %>
+            <div class="modal fade" id="removeConductModal_<%= dom_id(conduct) %>" tabindex="-1">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title">Sperre aufheben</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                  </div>
+                  <div class="modal-body">
+                    <p>Möchtest Du die Sperre jetzt aufheben? <%= conduct.borrower.firstname %> wird darüber per E-Mail informiert und kann dann wieder Artikel ausleihen.</p>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                    <%= link_to "Sperre aufheben", borrower_remove_conduct_path(borrower, conduct), class: "btn btn-danger" if conduct.department == current_user.current_department %>
+                  </div>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        <% end %>
+    </ul>
+
+</div>
+<% end %>
+
+<div class="bnz-card">
+  <div class="header pb-0">
+    <h4>Verlauf</h4>
+  </div>
+  <div class="body history no-header">
+    <div class="inner">
+      <% if @elements.any?
+        @elements.each do |day, elements| %>
+          <h6><%= l(day, :format => "%d.%m.%y") %></h6>
+          <% elements.group_by{|element| element.class.name.demodulize}.each do |type, elements| %>
+            <%= render partial: 'borrower_item', locals: {type: type, elements: elements} %>
+          <% end %>
+        <% end
+      end %>
+
+      <h6><%= l(borrower.created_at.to_date, :format => "%d.%m.%y") %></h6>
+
+      <div class="bnz-card">
+        <div class="header">
+          <div class="left"><span class="icon-before pulse fw-bold">Registrierung</span></div>
+          <div class="right"><div class="date"><%= l(borrower.created_at.to_date, :format => "%d.%m.%y") %></div></div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<% if can? :manage, borrower %>
+  <div class="actions">
+    <%= link_to 'Bearbeiten', edit_borrower_path, class: 'btn btn-outline-secondary' %>
+      <div class="right">
+        <a href="#" class="btn btn-outline-secondary" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="addConductModal"><span class="icon-before warning">Sperren</span></a>
+      </div>
+  </div>
+
+  <div class="modal fade" id="addConductModal" tabindex="-1">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><%= borrower.fullname %> sperren?</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <% if current_user.admin? or !borrower.has_bans_here? %>
+          <%= form_with model: @conduct, url: borrower_add_conduct_path(borrower), data: {turbo: false} do |form| %>
+          <div class="modal-body">
+            <p>Ausleihende Personen können für eine gewisse Zeit oder dauerhaft gesperrt werden. Die betroffene Person wird über den Grund und die Dauer der Sperre und gegebenenfalls deren Aufhebung per E-Mail informiert.</p>
+
+            <div class="mb-2">
+              <%= form.label :reason, "Grund der Sperre", class: "form-label" %>
+              <%= form.text_area :reason, :autocomplete => 'off', class: "form-control" %>
+            </div>
+
+            <div class="set-duration mb-2" data-controller="datepicker" data-datepicker-startdate-value="<%= Date.today.to_date %>">
+              <p>Sperre bis </p>
+              <%= form.hidden_field :duration, class: "form-control days", required: true, data: { "datepicker-target": "output"} %>
+              <input class="form-control date" type="text" name="" data-datepicker-target="input">
+            </div>
+
+            <div class="mb-2 form-check">
+              <%= form.check_box :permanent, :autocomplete => 'off', class: "form-check-input" %>
+              <%= form.label :permanent, "Person dauerhaft sperren?", class: "form-check-label" %>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <%= form.submit "Person sperren", class: "btn btn-primary" %>
+          </div>
+          <% end %>
+        <% else %>
+          <div class="modal-body">
+            <p class="mb-0"><%= borrower.firstname %> ist in Deiner Werkstatt schon gesperrt. Du kannst keine erneute Sperre verhängen.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+<% end %>

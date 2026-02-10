@@ -1,0 +1,68 @@
+<%= form_with(model: department, data: {turbo: false, controller: 'validation'}) do |form| %>
+  <% if department.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(department.errors.count, "error") %> prohibited this department from being saved:</h2>
+
+      <ul>
+        <% department.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-2">
+    <%= form.label :name, "Name", class: "form-label" %>
+    <div class="row">
+      <div class="col-3">
+        <select class="form-select" name="department[genus]">
+          <option value="female" <%= "selected" if department.female? %>>die</option>
+          <option value="male" <%= "selected" if department.male? %>>der</option>
+          <option value="neuter" <%= "selected" if department.neuter? %>>das</option>
+        </select>
+      </div>
+      <div class="col-9">
+        <%= form.text_field :name, :autocomplete => 'off', class: "form-control", :required => true %>  
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-2" data-field-container>
+    <%= form.label :room, "Raum", class: "form-label" %>
+    <%= form.text_field :room, :autocomplete => 'off', class: "form-control", :required => true %>
+  </div>
+
+  <div class="mb-2" data-field-container>
+    <%= form.label :time, "Öffnungszeiten", class: "form-label" %>
+    <%= form.text_area :time, rows: "3", :autocomplete => 'off', class: "form-control" %>
+  </div>
+
+  <div class="mb-2" data-field-container>
+    <%= form.label :note, "Beschreibungstext", class: "form-label" %>
+    <%= form.text_area :note, rows: "5", :autocomplete => 'off', class: "form-control" %>
+  </div>
+
+  <div class="mb-2" data-field-container>
+    <%= form.label :default_lending_duration, "Standardausleihdauer", class: "form-label" %>
+    <%= form.number_field :default_lending_duration, :autocomplete => 'off', class: "form-control" %>
+  </div>
+
+  <% if current_user.admin? %>
+    <div class="mb-2" data-field-container>
+      <%= form.check_box :staffed, class: "form-check-input" %>
+      <%= form.label :staffed, "Geöffnet?", class: "form-check-label" %>
+    </div>
+
+    <div class="mb-4" data-field-container>
+        <div class="form-check">
+              <%= form.check_box :hidden, autocomplete: "off", class: "form-check-input" %>
+              <%= form.label :hidden, "Werkstatt versteckt?", class: "form-check-label" %>
+        </div>
+    </div>
+  <% end %>
+
+  <div class="actions">
+      <%= link_to "Abbrechen", :back, class: "btn btn-outline-secondary" %>
+      <%= form.submit "Speichern", class: "btn btn-primary" %>
+  </div>
+<% end %>

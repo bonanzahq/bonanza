@@ -1,0 +1,144 @@
+<header class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7 bnz-tab-navigation d-flex align-items-stretch pt-3">
+        <h3>Verleihende Personen <span class="badge bg-light rounded-pill text-muted ms-1"><%= User.count %></span></h3>
+    </div>
+    <div class="col-3 d-flex align-items-center">
+        <%= render 'shared/user_menu' %>
+    </div>
+</header>
+
+<div class="row">
+    <div class="col-2 pt-3 d-flex justify-content-end align-items-start">
+        <a href="http://localhost:3000/verwaltung" class="link-back link-dark">Verwaltung</a>
+    </div>
+    <div class="col-7">
+        <div class="p-3 bg-light mb-3 rounded">
+          <% @departments.each_with_index do |dept, index| %>
+            <% if !dept.hidden or current_user.admin? %>
+              <div class="<%= "mb-4" unless index == @departments.size-1 %>">
+              <h3><%= dept.name %> <%= "(primär)" if dept == current_user.current_department %></h3>
+                <% dept.department_memberships.group_by(&:role).sort_by{ |k, v|
+                    case v[0].role
+                    when 'admin'
+                      1
+                    when 'leader'
+                      2
+                    when 'member'
+                      3
+                    when 'guest'
+                      4
+                    when 'hidden'
+                      5
+                    else
+                      9999
+                    end
+                  }.each do |role, memberships| %>
+                  <% memberships.each do |membership| %>
+                    <% if membership.user.invitation_accepted? or !membership.user.created_by_invite? %>
+                      <% unless (membership.role == "hidden" && !current_user.admin? ) or (membership.user.current_department != dept && role == "guest") or (role == "deleted" && !current_user.admin?) %>
+                        <div class="bnz-card">
+                          <div class="header">
+                            <div class="left">
+                              <h4><%= membership.user.fullname %></h4>
+                              <span class="small"><%= t( role, scope: 'role') %></span> 
+                              <a class="small" href="mailto:<%= membership.user.email %>"><%= membership.user.email %></a>
+                            </div>
+                            <div class="right">
+                              <% if current_user.admin? or current_user == membership.user or (current_user.current_department == membership.department && current_user.leader?) %>
+                              <%= link_to 'bearbeiten', edit_user_path(membership.user), class: "icon edit", data: { "turbo": "false"} %>
+                              <% end %>
+                            </div>
+                          </div>
+                        </div>
+                      <% end %>
+                    <% end %>
+                  <% end %>
+                <% end %>
+
+                <% dept.users.invitation_not_accepted.each do |user| %>
+                  <div class="bnz-card invitation">
+                    <div class="header">
+                      <div class="left">
+                        <h4>Einladung</h4>
+                        <span class="small"><%= t( user.current_role, scope: 'role') %></span>
+                        <span class="small"><%= l(user.invitation_sent_at, format: "%a. %d.%m.%y") %></span> 
+                        <a class="small" href="mailto:<%= user.email %>"><%= user.email %></a>
+                      </div>
+                      <div class="right">
+                        <% if current_user.admin? %>
+                          <a href="#" class="icon trash" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="removeInvitationModal_<%= dom_id(user) %>">löschen</a>
+                        <% end %>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="modal fade" id="removeInvitationModal_<%= dom_id(user) %>" tabindex="-1">
+                    <div class="modal-dialog">
+                      <div class="modal-content">
+                        <div class="modal-header">
+                          <h5 class="modal-title">Einladung löschen</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                          <p>Möchtest Du die Einladung von <%= user.email %> wirklich löschen?</p>
+                        </div>
+                        <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                          <%= button_to 'Einladung löschen', delete_user_invitation_path(user), method: :delete, class: "btn btn-danger", data: { turbo: :false } %>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          <% end %>
+        </div>
+    </div>
+    <div class="col-3">
+      <div class="side-menu">
+        <ul>
+          <% if current_user.admin? or current_user.leader? %>
+            <li>
+              <%= link_to "Verleihende Person einladen", new_user_invitation_path, class: 'icon-before email' %>
+            </li>
+          <% end %>
+          <% if current_user.admin? %>
+            <li>
+              <%= link_to "Verleihende Person anlegen",  new_user_path , class: 'icon-before add-user' %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </div>
+</div>
+
+
+<div class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7">
+        <div class="p-3 bg-light mb-3 rounded">
+          <h3>Admins</h3>
+          <% @admins.each do |admin| %>
+            <div class="bnz-card">
+              <div class="header">
+                <div class="left">
+                  <h4><%= admin.fullname %></h4>
+                  <a class="small" href="mailto:<%= admin.email %>"><%= admin.email %></a>
+                </div>
+                <div class="right">
+                  <% if current_user.admin? %>
+                    <%= link_to 'bearbeiten', edit_user_path(admin), class: "icon edit" %>
+                  <% end %>
+                </div>
+              </div>
+            </div>
+          <% end %>
+        </div>
+    </div>
+    <div class="col-3">
+    </div>
+</div>

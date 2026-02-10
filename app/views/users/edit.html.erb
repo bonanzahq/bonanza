@@ -1,0 +1,33 @@
+<header class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7 bnz-tab-navigation d-flex align-items-stretch pt-3">
+        <% if current_user == @user %>
+            <h3>Account bearbeiten</h3>
+        <% else %>
+            <h3>Verleihende Person ändern</h3>
+        <% end %>
+    </div>
+    <div class="col-3 d-flex align-items-center">
+        <%= render 'shared/user_menu' %>
+    </div>
+</header>
+
+<div class="row">
+    <div class="col-2 pt-3 d-flex justify-content-end align-items-start">
+        <% if can? :read, User %>
+            <a href="/verwaltung/verleihende" class="link-back link-dark">Alle Verleihende</a>
+        <% else %>
+            <a href="/ausleihe" class="link-back link-dark">Ausleihe</a>
+        <% end %>
+    </div>
+    <div class="col-7">
+        <div class="p-3 bg-light mb-3 rounded">
+          
+          <%= render "form", user: @user %>
+          
+        </div>
+    </div>
+    <div class="col-3">
+    </div>
+</div>

@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Bonanza Redux | Das Ausleihsystem an der FH Potsdam</title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
+  </head>
+
+  <body class="<% if Rails.env.development? || (user_signed_in? && current_user.admin?) %> is-admin <% end %> <% if user_signed_in? && current_user.current_department.staffed == false %> unstaffed <% end %>">
+    <% if Rails.env.development? || (user_signed_in? && current_user.admin?) %>
+      <div style="padding: 10px 20px; background-color: <%= Rails.env.production? ? "#FA6400;" : "#AAEB28" %>">
+        <strong><%= Rails.env.humanize %> Environment</strong> <%= user_signed_in? ? current_user.current_department.name : "Bonanza" %> | </div>
+      </div>
+    <% end %>
+
+    <% if user_signed_in? && current_user.current_department.staffed == false %>
+      <%= render "layouts/unstaffed_message" %>
+    <% end %>
+
+    <% unless request.path == root_path %>
+        <h1 id="logo">
+          <%= link_to root_path, class: "link-dark text-decoration-none" do %>
+            Bonanza<br>
+            <% if user_signed_in? %>
+              <span><%= current_user.current_department.name %></span>
+            <% end %>
+          <% end %>
+        </h1>
+    <% end %>
+    <div class="container">
+        <%= yield %>
+    </div>
+    <div id="flash" class="toast-container position-fixed bottom-0 end-0 p1" data-turbo-permanent>
+      <%= render partial: "shared/flash" %>  
+    </div>
+  </body>
+</html>

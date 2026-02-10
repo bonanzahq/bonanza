@@ -1,0 +1,58 @@
+<header class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7 bnz-tab-navigation d-flex align-items-stretch pt-3">
+        <h3>Registrierung abschließen</h3>
+    </div>
+    <div class="col-3 d-flex align-items-center">
+        <%= render 'shared/user_menu' %>
+    </div>
+</header>
+
+<div class="row">
+    <div class="col-2 pt-3 d-flex justify-content-end align-items-start">
+    </div>
+    <div class="col-7">
+        <div class="p-3 bg-light mb-3 rounded">
+          <p><%= resource.invited_by.fullname %> hat Dich zu <%= resource.current_department.name %> eingeladen. Schließe Deine Registierung ab, um dort Artikel verleihen zu können.</p>
+          <p>Falls Du eine andere E-Mail-Adresse für Bonanza verwenden möchtest, kannst Du diese unten ändern.</p>
+
+          <%= form_for(resource, as: resource_name, url: invitation_path(resource_name), html: { method: :put }, data: {controller: "form-validation", turbo: false}) do |f| %>
+            <%= render "devise/shared/error_messages", resource: resource %>
+            <%= f.hidden_field :invitation_token, readonly: true %>
+
+            <div class="mb-2">
+              <%= f.label :firstname, "Vorname", class: "form-label" %>
+              <%= f.text_field :firstname, :autocomplete => 'off', class: "form-control", required: true %>
+            </div>
+            <div class="mb-2">
+              <%= f.label :lastname, "Nachname", class: "form-label"%>
+              <%= f.text_field :lastname, :autocomplete => 'off', class: "form-control", required: true %>
+            </div>
+            <div class="mb-2">
+              <%= f.label :email, "E-Mail-Adresse", class: "form-label" %>
+              <%= f.email_field :email, :autocomplete => 'off', class: "form-control", required: true %>
+            </div>
+
+            <% if f.object.class.require_password_on_accepting %>
+              <div class="mb-2">
+                <%= f.label :password, "Passwort", class: "form-label" %>
+                <%= f.password_field :password, class: "form-control", minlength: "8", required: true %>
+              </div>
+
+              <div class="mb-2">
+                <%= f.label :password_confirmation, "Passwort wiederholen", class: "form-label" %>
+                <%= f.password_field :password_confirmation, class: "form-control", data: {validates: "equalTo"}, required: true %>
+              </div>
+            <% end %>
+
+            <div class="actions">
+              <%= f.submit "Registrierung abschließen", class: "btn btn-primary" %>
+            </div>
+          <% end %>
+          
+        </div>
+    </div>
+    <div class="col-3">
+    </div>
+</div>

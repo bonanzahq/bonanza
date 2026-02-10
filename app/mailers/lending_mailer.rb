@@ -1,0 +1,2 @@
+class LendingMailer < ApplicationMailer
+end

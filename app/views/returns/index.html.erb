@@ -1,0 +1,19 @@
+<header class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7 bnz-tab-navigation d-flex align-items-stretch">
+        <%= link_to lending_path, class: "lending" do %>
+            Ausleihe
+        <% end %>
+        <a href="" class="returning active">
+            Rücknahme <span class="badge bg-light rounded-pill text-muted ms-1"><%= @returns_count %></span>
+        </a>
+    </div>
+    <div class="col-3 d-flex align-items-center">
+        <%= render 'shared/user_menu' %>
+    </div>
+</header>
+
+<div id="main">
+<%= render partial: "main" %>
+</div>

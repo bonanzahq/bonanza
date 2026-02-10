@@ -1,0 +1,40 @@
+    
+<% if line_item.item.uid.present? %>
+<div class="item flex-column <%= "overdue" if line_item.lending.is_overdue? && line_item.returned_at.nil?  %>">
+    <div class="line">
+        <span class="fw-bold"><%= line_item.item.parent_item.name %></span>
+    </div>
+    <div class="line">
+    <div class="left">
+        <%= line_item.item.uid %>
+    </div>
+
+<% else %>
+<div class="item">
+    <div class="line">
+        <div class="left">
+            <%= "#{line_item.quantity.to_s}x <span class='fw-bold'>#{line_item.item.parent_item.name}</span>".html_safe %>
+        </div>
+<% end %>
+        
+        <%= form_tag take_back_path, data: { turbo_frame: "_top"} do %>
+            <%= hidden_field_tag(:line_item_id, line_item.id) %>
+    
+            <div class="right">
+                <% if can? :take_back, line_item %>
+                    <% if line_item.returned_at.nil? %>
+                        <% if line_item.item.uid.blank? %>
+                            <input type="text" class="form-control" name="quantity" value="<%= line_item.quantity %>">
+                        <% else %>
+                            <input type="hidden" class="form-control" name="quantity" value="1">
+                        <% end %>
+                        <%= button_tag "abschicken", type: "submit", class: "icon return" %>
+                    <% else %>
+                        zurückgegeben
+                    <% end %>
+                <% end %>
+            </div>
+        <% end %>
+    </div>
+   
+</div>

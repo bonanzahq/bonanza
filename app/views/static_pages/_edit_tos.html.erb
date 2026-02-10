@@ -1,0 +1,34 @@
+  <h3><%# @lending.line_items.count %>Ausleihbedingungen</h3>
+  <div class="mb-3">
+    <%= select_tag "legal_text[tos_version]", options_for_select( @tos_versions.collect { |p| 
+      if p == LegalText.current_tos
+        [ "Aktuelle Version", edit_single_legal_text_path(p.id) ]
+      else
+        [ "#{l(p.created_at, :format => "%d.%m.%Y %H:%M")} #{p.user.fullname}", edit_single_legal_text_path(p.id) ] 
+      end
+      
+    }, edit_single_legal_text_path(text.id) ), class: "form-select", data: { controller: "version-select", action: "change->version-select#change" } %>
+  </div>
+  
+  <p class="small">Stand <%= l(text.created_at, :format => "%d.%m.%Y %H:%M") %>. Editiert von <%= text.user.fullname %></p>
+
+<%= form_with model: text, url: update_legal_text_path(text) do |form| %>
+  <div class="mb-3">
+      <%= form.text_area :content, class: "form-control", disabled: text != LegalText.current_tos, style: "height: 320px" %>
+  </div>
+  <div class="form-check">
+    <%= form.check_box "notify_borrowers", class: "form-check-input", id: "saveNewVersionCheck" %>
+    <label class="form-check-label" for="saveNewVersionCheck">
+      Als neue Version speichern <!-- und Ausleihende zur Zustimmung auffordern -->
+    </label>
+  </div>
+
+  <div class="actions">
+    <%= link_to "Abbrechen",  verwaltung_texte_path, class: "btn btn-outline-secondary" %>
+    <% if text == LegalText.current_tos %>
+      <%= form.submit "Speichern", class: "btn btn-primary" %>
+    <% else %>
+      <%= form.submit "Version wiederherstellen", class: "btn btn-primary" %>
+    <% end %>
+  </div>
+<% end %>

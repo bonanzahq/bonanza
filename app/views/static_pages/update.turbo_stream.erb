@@ -1,0 +1,3 @@
+<%= turbo_stream.update @legalText.kind, partial: "edit_#{@legalText.kind}", locals: { text: @legalText } %>
+
+<%= turbo_stream.prepend "flash", partial: "shared/flash" %>

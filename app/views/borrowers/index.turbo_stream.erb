@@ -1,0 +1,16 @@
+<%= turbo_stream.append "results" do %>
+  <% if @borrowers.count > 0 %>
+    <%= render partial: "result_item", collection: @borrowers, as: :borrower %>
+  <% else %>
+    Keine ausleihende Personen gefunden
+  <% end %>
+<% end %>
+
+<%= turbo_stream.replace "load-more" do %>
+  <% unless @borrowers.last_page? %>
+    <div id="load-more" class="d-flex justify-content-center mt-3">
+      <%= link_to_next_page @borrowers, 'Mehr anzeigen', class: "btn btn-outline-secondary btn-sm", data: { turbo_stream: true } 
+      %>
+    </div>
+  <% end %>
+<% end %>

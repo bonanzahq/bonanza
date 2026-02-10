@@ -1,0 +1,15 @@
+<%= turbo_stream.append "results" do %>
+<% if @parent_items.count > 0 %>
+    <%= render partial: "result", collection: @parent_items, as: :parent_item %>
+  <% else %>
+    Keine Artikel gefunden
+  <% end %>
+<% end %>
+
+<%= turbo_stream.replace "load-more" do %>
+  <% unless @parent_items.last_page? %>
+    <div id="load-more" class="d-flex justify-content-center mt-3">
+      <%= link_to_next_page @parent_items, 'Mehr anzeigen', class: "btn btn-outline-secondary btn-sm", data: { turbo_stream: true } %>
+    </div>
+  <% end %>
+<% end %>

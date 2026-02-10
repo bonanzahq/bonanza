@@ -1,0 +1,21 @@
+<div class="bnz-card <%= "overdue" if lending.is_overdue? %>">
+    <div class="header">
+        <div class="left">
+            <h4><%= lending.borrower.fullname %></h4>
+        </div>
+        <div class="right">
+            <span class="date"><%= link_to "Ausleihe",  token_lending_path(lending, token: lending.token), data: { "turbo-frame": "_top"} %> vom <%= l(lending.lent_at, :format => "%d.%m.%y") %>
+            </span>
+        </div>
+    </div>
+
+    <% if lending.is_overdue? %>
+    <div class="header border-top border-white">
+        <div class="note icon-before warning">Festgelegte Rückgabe 04.08.2020, 569 Tage überfällig</div>
+    </div>
+    <% end %>
+
+    <div class="body">
+        <%= render partial: "bnz_item", collection: lending.line_items, as: :line_item, locals: {lending: lending} %>
+    </div>
+</div>

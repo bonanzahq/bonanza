@@ -1,0 +1,22 @@
+<div class="side-menu">
+    <ul>
+        <li>
+            <%= link_to "Artikel anlegen", new_parent_item_path, class: 'icon-before add-new' %>
+        </li>
+        <li>
+            <%= link_to "Ausleihende hinzufügen", new_borrower_path, class: 'icon-before add-new' %>
+        </li>
+        <li>
+            <%= link_to "Verleihende verwalten", verwaltung_verleihende_path, class: 'icon-before users' %>
+        </li>
+        <li>
+            <hr class="dropdown-divider">
+        </li>
+        <li>
+            <%= link_to "Werkstattinfos bearbeiten", edit_department_path(current_user.current_department), class: 'icon-before edit' %>
+        </li>
+        <li>
+            <%= link_to "Werkstatt vorübergehend schließen", verwaltung_verleihende_path, class: 'icon-before umbrella' %>
+        </li>
+    </ul>
+</div>

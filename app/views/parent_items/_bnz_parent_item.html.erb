@@ -1,0 +1,101 @@
+  <h3>
+    <%= parent_item.name %>
+  </h3>
+
+  <div class="mb-2">
+    <div class="form-label">Beschreibung</div>
+    <% if parent_item.description.blank?  %>
+    <div class="note"><i class="text-muted small">Keine Beschreibung angegeben</i></div>
+    <% else %>
+      <%= render_markdown(parent_item.description) %>
+    <% end %>
+  </div>
+
+  <% unless parent_item.all_tags_list.blank? %>
+  <div class="mb-2 tags">
+    <div class="form-label">Schlagwörter</div>
+    <% parent_item.all_tags_list.each do |tag| %>
+
+      <%= link_to tag, lending_path(q: tag), class: "badge rounded-pill fw-normal me-1" %>
+
+    <% end %>
+  </div>
+  <% end %>
+
+  <% unless parent_item.price.blank? %>
+  <div class="mb-2">
+    <div class="form-label">Anschaffungspreis</div>
+    <%= parent_item.price %>
+  </div>
+  <% end %>
+  
+  <% unless parent_item.accessories.count == 0 %>
+  <div class="mb-2">
+    <div class="form-label">Zubehör</div>
+    <%= parent_item.accessories.pluck(:name).join(", ") %>
+  </div>
+  <% end %>
+
+  <% if parent_item.files.attached? %>
+  <div class="mb-2">
+    <div class="form-label">Dateien</div>
+    <ul class="files">
+      <% parent_item.files.each do |file| %>
+        <li>
+          <a href="<%= url_for(file) %>" title="<%= file.filename %>" class="filename icon-before <%= file.content_type.include?("image") ? "picture" : "document" %>">
+              <span><%= file.filename %></span>
+            </a>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+  <% end %>
+
+  <div class="mt-3">
+    <% parent_item.items.each_with_index do |item, index| %>
+        <div class="bnz-card" data-controller="show-details">
+          <div class="header">
+            <div class="left">
+              <%- if item.uid.blank? %>
+                <div class="fw-bold"><%= item.quantity %> x</div>
+              <% else %>
+                <div class="identifier fw-bold <%= item.condition %>"><%= item.uid %></div>
+              <% end %>
+              <% if item.storage_location.present? %><div class="storage-location"><%= item.storage_location %></div><% end %>
+              <% if item.note.present? %><div class="note"><%= item.note %></div><% end %>
+            </div>
+            <div class="right">
+              <a href="#" data-action="show-details#toggleDetails">
+                Verlauf
+              </a>
+            </div>
+          </div>
+          <div class="body history d-none">
+            <div class="inner">
+              <div class="form-label">Verlauf</div>
+
+                <%= render partial: "item_history", collection: item.item_histories.all %>
+
+            </div>
+            
+          </div>
+        </div>
+    <% end %>
+  </div>
+
+  <div class="mt-3 mb-2">
+    <h4>
+      Ausleihstatistik
+      <span class="badge bg-light rounded-pill text-muted ms-1">
+        <%= parent_item.items.joins(:line_items).count %>
+      </span>
+    </div>
+    
+    <%= render partial: 'shared/weekly_activity_grid', locals: {max_week: @max_week, weekly_activity: @weekly_activity, created_date: parent_item.created_at} %>
+  </div>
+
+  <% if can? :update, parent_item %>
+    <div class="actions">
+      <%= link_to "Bearbeiten", edit_parent_item_path(parent_item), class: "btn btn-outline-secondary" %>
+    </div>
+  <% end %>

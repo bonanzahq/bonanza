@@ -1,0 +1,5 @@
+<%= turbo_stream.replace "main" do %>
+	<%= render partial: "main" %>
+<% end %>
+
+<%= turbo_stream.prepend "flash", partial: "shared/flash" %>

@@ -1,0 +1,22 @@
+inherit_from: .rubocop_todo.yml
+
+# RuboCop configuration
+# This config is set to match the current codebase style
+
+AllCops:
+  NewCops: enable
+  TargetRubyVersion: 3.1
+  Exclude:
+    - "bin/*"
+    - "db/schema.rb"
+    - "db/migrate/*"
+    - "node_modules/**/*"
+    - "vendor/**/*"
+    - "tmp/**/*"
+    - "log/**/*"
+    - "storage/**/*"
+    - "public/**/*"
+
+plugins:
+  - rubocop-rails
+  - rubocop-performance

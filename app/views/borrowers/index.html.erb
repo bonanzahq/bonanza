@@ -1,0 +1,49 @@
+<header class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7 bnz-tab-navigation d-flex align-items-stretch pt-3">
+        <h4>Verwaltung</h4>
+    </div>
+    <div class="col-3 d-flex align-items-center">
+        <%= render 'shared/user_menu' %>
+    </div>
+</header>
+
+<div class="row">
+    <div class="col-2 pt-3 d-flex justify-content-end align-items-start">
+        <%= link_to "Ausleihe", lending_path, class: "link-back link-dark" %>
+    </div>
+    <div class="col-7 mgmt-links">
+        <%= link_to "Artikel anlegen", new_parent_item_path, class: 'icon-before add-new' %>
+        <%= link_to "Verleihende verwalten", verwaltung_verleihende_path, class: 'icon-before users' %>
+        <%= link_to "Werkstattinfos bearbeiten", edit_department_path(current_user.current_department), class: 'icon-before edit' %>
+
+        <% if current_user.current_department.staffed %>
+            <%= link_to "Werkstatt vorübergehend schließen",  unstaff_department_path(current_user.current_department), class: 'icon-before umbrella' %>
+        <% else %>
+            <%= link_to "Werkstatt wieder öffnen", staff_department_path(current_user.current_department), class: 'icon-before umbrella' %>
+        <% end %>
+        <% if current_user.admin? or current_user.leader? %>
+            <%= link_to "Rechtstexte bearbeiten",  verwaltung_texte_path, class: 'icon-before edit' %>
+        <% end %>
+
+        <%= link_to "Statistik", verwaltung_statistik_path, class: 'icon-before presentation' %>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h4 class="mb-0">Ausleihende <span class="fw-normal"><%= Borrower.all.count %></span></h4>
+            <%= link_to "Ausleihende anlegen", new_borrower_path, class: 'icon-before add-new fs-6' %>
+        </div>
+        
+        <div class="p-3 bg-light rounded mb-3">
+            <%= render 'search' %>
+        </div>
+    </div>
+    <div class="col-3">
+    </div>
+</div>

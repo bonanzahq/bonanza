@@ -1,0 +1,135 @@
+class CheckoutController < ApplicationController
+  before_action :authenticate_user!
+  
+  before_action :set_department
+  before_action :set_lending
+
+  authorize_resource :class => false
+
+  before_action :ensure_line_items
+  before_action :ensure_department_is_staffed
+  before_action :ensure_checkout_flow_started
+  before_action :ensure_valid_state
+  before_action :ensure_state_access_allowed
+  before_action :ensure_lending_not_completed
+
+  def index
+    redirect_to lending_route unless @lending.has_line_items?
+
+    if params[:b].present? && params[:b].length > 0
+      begin
+        @borrowers = Borrower.search_people(params[:b], nil, nil, true, 1)
+      rescue Faraday::ConnectionFailed # elasticsearch couldn't be reached
+        @borrowers = [Borrower.first]
+      end
+    else
+      if params[:state] == "borrower"
+        @borrowers = []
+      end
+    end
+  end
+
+  def update
+    logger.debug("return early??")
+    redirect_to checkout_state_path(@lending.state), alert: "Fehler! Du müsst eine ausleihende Person angeben." and return unless params[:lending]
+
+    logger.debug("return early NOOOO")
+
+    if @lending.update_from_checkout_params(checkout_params, current_user, params[:lending][:accessories])
+
+      if @lending.completed?
+        session[:lending_id] = nil
+
+        flash[:printable_agreement] = lending_agreement_path(@lending.id, @lending.token)
+        flash[:notice] = "Die Ausleihe wurde erfolgreich angelegt!"
+
+        begin
+          LendingMailer.confirmation_email(@lending).deliver_now
+        rescue Exception => e
+          # TODO log exception
+        end
+        
+        redirect_to completion_route
+      else
+
+        logger.debug("lending not completed. redirecting to last page")
+
+        redirect_to checkout_state_path(@lending.state)
+      end
+    else
+      @borrowers = [@lending.borrower] unless @lending.borrower.nil?
+
+      flash.now[:alert] = "Die Ausleihe konnte nicht fertiggestellt werden. #{@lending.errors.messages.values.join(", ")}"
+      render :index
+      
+      # TODO: redirect to appropriate state and show reason
+    end
+  end
+
+  private
+    def set_department
+      @department = current_user.current_department
+    end
+
+    def set_lending
+      @lending = current_lending
+    end
+
+    def ensure_line_items
+      unless @lending.has_line_items?
+        @lending.cart!
+        redirect_to lending_path
+      end
+    end
+
+    def ensure_checkout_flow_started
+      if @lending.cart? || !params[:state] || params[:state] == 'cart'
+        @lending.borrower!
+        redirect_to checkout_state_path('borrower')
+      end
+    end
+
+    def ensure_valid_state
+      if (params[:state] && !@lending.has_checkout_step?(params[:state]))
+        redirect_to lending_path
+      end
+    end
+
+    def ensure_state_access_allowed
+      redirect_to checkout_state_path(@lending.state), alert: 'Nicht so schnell. Du darfst keine Schritte überspringen.' unless @lending.can_go_to_state?(params[:state])
+      @lending.state = params[:state] # TODO: save?
+    end
+
+    def ensure_lending_not_completed
+      redirect_to lending_path if @lending.completed?
+    end
+
+    def ensure_department_is_staffed
+      redirect_to lending_path, alert: "Werkstatt muss besetzt sein, um Artikel zu verleihen." unless current_user.current_department.staffed
+    end
+
+    def completion_route
+      lending_path
+    end
+
+    def checkout_params
+      return false unless params[:lending]
+      
+      cleaned_params = params
+
+      if params[:lending] && params[:lending][:borrower_attributes]
+        if params[:lending][:borrower_id]
+          cleaned_params[:lending][:borrower_attributes].each do |k, v|
+            cleaned_params[:lending][:borrower_attributes] = v if v["id"] == params[:lending][:borrower_id]
+          end
+        else
+          cleaned_params[:lending].delete(:borrower_attributes)
+        end
+      end
+
+      return false if params[:lending].empty?
+      
+      cleaned_params.require(:lending).permit(:borrower_id, :note, :duration, :line_items_attributes => [:id, :quantity, :accessory_ids => []], :borrower_attributes => [:id, :id_checked, :insurance_checked])
+    end
+
+end

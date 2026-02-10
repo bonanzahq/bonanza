@@ -1,0 +1,55 @@
+<header class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7 bnz-tab-navigation d-flex align-items-stretch pt-3">
+        <h3>Statistik</h3>
+    </div>
+    <div class="col-3 d-flex align-items-center">
+        <%= render 'shared/user_menu' %>
+    </div>
+</header>
+
+<div class="row">
+    <div class="col-2 pt-3 d-flex justify-content-end align-items-start">
+        <a href="http://localhost:3000/verwaltung" class="link-back link-dark">Verwaltung</a>
+    </div>
+    <div class="col-7">
+        <div class="p-3 bg-light mb-3 rounded">
+
+            <h4>Ausleihen</h4>
+
+            <%= render partial: 'shared/weekly_activity_grid', locals: {max_week: @max_week, weekly_activity: @weekly_activity, created_date: nil} %>
+
+        </div>
+
+        <div class="row">
+            <div class="col-6">
+                <div class="p-3 bg-light mb-3 rounded">
+                    <h4>Beliebteste Artikel</h4>
+                    <% @top_parent_items.each do |item| %>
+                        <div class="d-flex justify-content-between">
+                            <span><%= item[0].name %></span>
+                            <span class="text-muted"><%=  item[1] %>x</span>
+                        </div>
+                    <% end %>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="p-3 bg-light mb-3 rounded">
+                    <h4>Top-Ausleihende</h4>
+
+                    <% @top_borrowers.each do |item| %>
+                        <div class="d-flex justify-content-between">
+                            <span><%= item[0].fullname %></span>
+                            <span class="text-muted"><%=  item[1] %>x</span>
+                        </div>
+                    <% end %>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-3">
+      <div class="side-menu">
+      </div>
+    </div>
+</div>

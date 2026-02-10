@@ -1,0 +1,230 @@
+<%= form_with(model: parent_item, data: {controller: "parent-item-edit-form form-validation"}) do |form| %>
+  <% if parent_item.errors.any? %>
+    <div style="color: red">
+      <h2><%= pluralize(parent_item.errors.count, "error") %> prohibited this parent_item from being saved:</h2>
+
+      <ul>
+        <% parent_item.errors.each do |error| %>
+          <li><%= error.full_message %></li>
+        <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="mb-2">
+    <%= form.label :name, "Name", class: "form-label" %>
+    <%= form.text_field :name, class: "form-control", required: true %>
+  </div>
+
+  <div class="mb-2">
+    <%= form.label :description, class: "form-label" do %>
+      Beschreibung <em>optional</em>
+    <% end %>
+    <%= form.text_area :description, class: "form-control" %>
+  </div>
+
+  <div class="mb-2">
+    <%= form.label :all_tags_list, class: "form-label" do %>
+      Schlagwörter <em>optional</em>
+    <% end %>
+    <%= form.text_field :all_tags_list, value: form.object.all_tags_list.join(","), class: "form-control", data: {controller: "tags-input"} %>
+  </div>
+
+  <div class="mb-2">
+    <%= form.label :price, class: "form-label" do %>
+      Anschaffungspreis <em>optional</em>
+    <% end %>
+    <%= form.text_field :price, class: "form-control" %>
+  </div>
+
+  <div class="mb-3">
+    <%= form.label :new_files, class: "form-label" do %>
+      Dateien <em>optional</em>
+    <% end %>
+    <% if parent_item.files.attached? %>
+      <ul class="files">
+        <% parent_item.files.each do |file| %>
+          <%= tag.li id: dom_id(file) do %>
+            <a href="<%= url_for(file) %>" title="<%= file.filename %>" class="filename icon-before <%= file.content_type.include?("image") ? "picture" : "document" %>">
+              <span><%= file.filename %></span>
+            </a> 
+            <%= link_to "", delete_parent_item_file_path(file_id: file.id), class: "icon remove", data: {turbo_method: :delete, turbo_confirm: "Datei wirklich löschen?"} %>
+          <% end %>
+        <% end %>
+      </ul>
+    <% end %>
+    <%= form.file_field :new_files, class: "form-control", multiple: true %>
+  </div>
+
+  <div class="mb-3 accessories" data-controller="accessories-input">
+    <%= form.label :accessories, class: "form-label" do %>
+      Zubehör <em>optional</em>
+    <% end %>
+    <%= form.fields_for :accessories, include_id: false do |a_fields| %>
+      <% if a_fields.object.new_record? %>
+        <div class="note"><i class="text-muted">Kein Zubehör hinterlegt</i></div>
+        <div class="input-group mb-1 d-none">
+      <% else %>
+        <div class="note d-none"><i class="text-muted">Kein Zubehör hinterlegt</i></div>
+        <div class="input-group mb-1">
+      <% end %>
+      
+        <%= a_fields.text_field :name, placeholder: "Zubehör", class: "form-control" %>
+        <%= a_fields.hidden_field :_destroy, class: "bnz-input-text" %>
+        <%= a_fields.hidden_field :id %>
+        <a href="#" class="btn btn-outline-secondary" data-action="accessories-input#removeAccessory">entfernen</a>
+      </div>
+    <% end %>
+
+    <div class="actions">
+      <a class="btn btn-link add-item icon-before add-new" data-action="accessories-input#addAccessory">Weiteres Zubehör</a>
+    </div>
+  </div>
+
+  <div data-controller="inline-tabs" data-inline-tabs-lent-value="<%= parent_item.has_lent_items? %>">
+
+    <div class="bnz-tab-navigation small inline d-flex align-items-stretch mb-2">
+      <a class="<%= 'active' if parent_item.new_record? or not parent_item.items.first.uid.blank? %>" data-action="click->inline-tabs#confirmChange" data-inline-tabs-tab-param="#unique">
+          Unterscheidbare Artikel
+      </a>
+      <a class="<%= 'active' if (not parent_item.new_record?) && parent_item.items.first.uid.blank? %>" data-action="click->inline-tabs#confirmChange" data-inline-tabs-tab-param="#amount">
+          Mengenartikel
+      </a>
+    </div>
+
+    <div class="tab-content" data-controller="unique-items">
+      <div id="unique" class="tab-pane <%= 'show active' if parent_item.new_record? or not parent_item.items.first.uid.blank? %>" >
+        <div class="items" data-unique-items-target="items">
+
+          <%= form.fields_for :items, include_id: false do |item_fields| %>
+            <div class="item">
+              <div class="header">
+                <div class="left">
+                  <h5>Artikel #<span><%= item_fields.index + 1 %></span></h5>
+                </div>
+                <div class="right">
+                  <span class="lent"><%= "verliehen" if item_fields.object.lent? %></span> 
+                  <a class="remove btn btn-link btn-sm" style="<%= 'display:none;' if (item_fields.index == 0) %>" data-action="click->unique-items#removeItem">entfernen</a>
+                </div>
+              </div>
+              <div class="mb-2">
+                <%= item_fields.label :uid, "Seriennummer", class: "form-label" %>
+                <%= item_fields.text_field :uid, autocomplete: 'off', class: "form-control", required: true, "data-value-missing": "Bitte gib eine Seriennummer an.", disabled: item_fields.object.lent? %>
+              </div>
+              <div>
+                <%= item_fields.label :condition, "Zustand", class: "form-label" %>
+              </div>
+              <div class="mb-2 check-input-container">
+                <div class="form-check form-check-inline">
+                  <%= item_fields.radio_button :condition, "flawless", class: "form-check-input flawless", required: true, "data-value-missing": "Bitte gib einen Zustand an.", disabled: item_fields.object.lent? %>
+                  <%= item_fields.label :condition_flawless, "mangelfrei", class: "form-check-label" %>
+                </div>
+                <div class="form-check form-check-inline">
+                  <%= item_fields.radio_button :condition, "flawed", class: "form-check-input flawed", disabled: item_fields.object.lent? %>
+                  <%= item_fields.label :condition_flawed, "beschädigt", class: "form-check-label" %>
+                </div>
+                <div class="form-check form-check-inline">
+                  <%= item_fields.radio_button :condition, "broken", class: "form-check-input broken", disabled: item_fields.object.lent? %>
+                  <%= item_fields.label :condition_broken, "defekt", class: "form-check-label" %>
+                </div>
+              </div>
+              <div class="mb-2">
+                <%= item_fields.label :storage_location, class: "form-label" do %>
+                  Lagerort <em>optional</em>
+                <% end %>
+                <%= item_fields.text_field :storage_location, class: "form-control", disabled: item_fields.object.lent? %>
+              </div>
+              <div class="mb-2">
+                <%= item_fields.label :note, class: "form-label" do %>
+                  Interne Notiz <em>optional</em>
+                <% end %>
+                <%= item_fields.text_area :note, class: "form-control", disabled: item_fields.object.lent? %>
+              </div>
+              <%= item_fields.hidden_field :quantity, value: 1 %>
+              <%= item_fields.hidden_field :id %>
+              <%= item_fields.hidden_field :_destroy, value: false %>
+            </div>
+          <% end %>  
+          
+        </div>
+        <div class="actions mb-2">
+          <a class="btn btn-link add-item icon-before add-new" data-action="click->unique-items#addItem">Weitere Artikel</a>
+        </div>
+      </div>
+
+      <div id="amount" class="tab-pane <%= 'show active' if (not parent_item.new_record?) && parent_item.items.first.uid.blank? %>">
+        <div class="items" data-unique-items-target="items">
+          <% firsttime = true %>
+          <%= form.fields_for :items do |item_fields| %>
+            <% if firsttime %>
+              <div class="item mb-3">
+                <div class="mb-2">
+                  <%= item_fields.label :quantity, "Menge", class: "form-label" %>
+                  <%= item_fields.text_field :quantity, class: "form-control", required: true, pattern: "^[0-9]+$", "data-value-missing": "Bitte gib eine Menge an.", "data-pattern-mismatch": "Bitte nur ganze Zahlen angeben." %>
+                </div>
+                <div class="mb-2">
+                  <%= item_fields.label :storage_location, class: "form-label" do %>
+                    Lagerort <em>optional</em>
+                  <% end %>
+                  <%= item_fields.text_field :storage_location, class: "form-control" %>
+                </div>
+                <div class="mb-2">
+                  <%= item_fields.label :note, class: "form-label" do %>
+                    Interne Notiz <em>optional</em>
+                  <% end %>
+                  <%= item_fields.text_area :note, class: "form-control" %>
+                </div>
+                <%= item_fields.hidden_field :uid, value: "" %>
+              </div>
+              <% firsttime = false %>
+            <% else %>
+              <%= item_fields.hidden_field :_destroy, value: true %>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Artikelart ändern?</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            Wenn Du die Artikelart änderst, geht die bisherige Konfiguration der Artikel verloren.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <button type="button" class="btn btn-primary" data-action="click->inline-tabs#show">Artikelart trotzdem ändern</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="lentModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Artikelart kann nicht geändert werden</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            Du kannst die Artikelart nicht ändern, da noch Artikel verliehen sind.
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ok</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <%= link_to "Abbrechen", path, class: "btn btn-outline-secondary" %>
+    <%= form.submit "Speichern", class: "btn btn-primary", data: { action: "click->parent-item-edit-form#submitForm"} %>
+  </div>
+<% end %>

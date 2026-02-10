@@ -1,0 +1,35 @@
+de:
+    true_value: "ja"
+    false_value: "nein"
+    lending person:
+        zero: "Keine verleihende Personen"
+        one: "Verleihende Person"
+        other: "Verleihende Personen"
+    role:
+        guest: "Gast"
+        member: "Mitarbeitend"
+        leader: "Leitend"
+        admin: "Admin"
+        hidden: "Versteckt"
+    status:
+        available: "verfügbar"
+        lent: "verliehen"
+        returned: "zurückgegeben"
+        unavailable: "nicht verfügbar"
+        deleted: "gelöscht"
+    condition:
+        flawless: "mangelfrei"
+        flawed: "beschädigt"
+        broken: "defekt"
+    type:
+        employee: "Mitarbeitende Person"
+        student: "Studierende Person"
+    the_female: "die"  # die Modellbauwerkstatt
+    the_male: "der"  # der Video Club
+    the_neuter: "das"  # das Interface Lab
+    in_the_female: "in der" # wo? in der Modellbauwerkstatt 
+    in_the_male: "im" # wo? im Video Club
+    in_the_neuter: "im" # wo? im Interface Lab
+    of_the_female: "der %{department}" # der Modellbauwerkstatt
+    of_the_male: "des %{department}s" # des Video Club
+    of_the_neuter: "des %{department}s" # des Interface Lab

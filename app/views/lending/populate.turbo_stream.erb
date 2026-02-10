@@ -1,0 +1,11 @@
+<% unless @lending.errors.any?  %>
+	<%= turbo_stream.replace @line_item.item do %>
+		<%= render partial: "bnz_item", locals: { item: @line_item.item } %>
+	<% end %>
+<% end %>
+
+<%= turbo_stream.replace 'sidebar-cart' do %>
+	<%= render partial: "sidebar_cart" %>
+<% end %>
+
+<%= turbo_stream.prepend "flash", partial: "shared/flash" %>

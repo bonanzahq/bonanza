@@ -1,0 +1,28 @@
+<!-- <%= turbo_frame_tag item do %>
+    <% if @lending.items.include?(item) %>
+    <div class="article in-cart">
+        <div class="identifier broken">9x-219090</div>
+        <div class="right">
+            <span class="label">Im Ausleihkorb</span> 
+            <span class="icon"> </span>
+        </div>
+    </div>
+    <% else %>
+    <div class="article">
+
+        <div class="identifier <%= item.condition %>" title="<%= t(item.condition, :scope => 'condition') %>">
+            <%= if item.uid.present? 
+                    item.uid 
+                else
+                    "#{item.user_adjusted_quantity(@lending).to_s} mal verfügbar" 
+                end %>
+        </div>
+        <div class="right">
+            <% if item.uid.blank? %> <input type="text" class="form-control " placeholder="1"><% end %>
+            <a href="#" class="add-to-cart">
+            </a>
+        </div>
+    </div>
+    <% end %>
+<% end %> -->
+
