@@ -106,42 +106,28 @@ Known gaps (tracked as issues or TODOs):
 - `current_role=` setter is broken (git-bug filed)
 - Lending methods `eradicate`, `update_cart`, `update_from_checkout_params` untested at model level
 
-### Phase 3: Controller Tests -- NEXT
+### Phase 3: Controller Tests (Core) -- DONE
 
-Controller tests use `ActionDispatch::IntegrationTest` with Devise test helpers.
-Each test file covers: authentication, authorization (CanCanCan), happy paths,
-error paths, and parameter handling.
+57 tests covering four controllers:
 
-Priority order (by business value and complexity):
+1. ~~**ReturnsController** (9 tests) -- index auth/rendering, take_back, guest access~~
+2. ~~**LendingController** (19 tests) -- index, show (public/auth), populate, remove, empty, destroy, change_duration~~
+3. ~~**CheckoutController** (10 tests) -- before-action guards, state machine, update completion~~
+4. ~~**BorrowersController** (19 tests) -- CRUD, conduct, self-registration, email confirmation~~
 
-1. **LendingController** -- the core workflow
-   - Unauthenticated access redirects to sign-in
-   - `populate` adds items to cart, rejects invalid (wrong department, unavailable, exceeds stock)
-   - `remove_line_item` removes from cart
-   - `update` modifies cart quantities
-   - `empty` clears cart
-   - `destroy` deletes lending and restores item availability
-   - `show` with token works without authentication (public lending receipt)
-   - Search fallback when Elasticsearch is down
+Bugs fixed during Phase 3:
+- `lending_route` -> `lending_path`, `cart_path` -> `lending_path`
+- `errors.values` -> `errors.full_messages` (Rails 6.1 removal)
+- Double render in show/show_printable_agreement (missing `and return`)
+- Missing `token:` in change_duration error redirect
+- Searchkick 5.x lazy evaluation in fallback rescue
+- Added mailer `default_url_options` for test environment
 
-2. **CheckoutController** -- state machine advancement
-   - Before-action guards: requires line items, staffed department, valid state
-   - `update` advances state (cart -> borrower -> confirmation -> completed)
-   - Borrower assignment and TOS validation
-   - Completion sets `lent_at`, decreases item quantities
-   - Authorization: only lending owner or admin can checkout
+Known issues filed as git-bug:
+- `ensure_lending_not_completed` bypassed by in-memory state mutation
+- `add_conduct` crashes due to `lending_id NOT NULL` / `optional: true` mismatch
 
-3. **ReturnsController** -- item return workflow
-   - `index` groups returns by due date, shows overdue
-   - `take_back` marks line items returned, restores quantities
-   - Authorization: scoped to user's department
-
-4. **BorrowersController** -- CRUD + self-registration
-   - Standard CRUD with authorization
-   - `self_register`/`self_create` -- public registration flow
-   - `confirm_email` -- email confirmation with token
-   - `add_conduct`/`remove_conduct` -- ban/warn management
-   - Search with pagination and status filters
+### Phase 3b: Controller Tests (Remaining) -- NEXT
 
 5. **ParentItemsController** -- equipment type management
    - CRUD with department-scoped authorization
