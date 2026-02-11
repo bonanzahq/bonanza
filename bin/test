@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# ABOUTME: Entry point for running the test suite.
+# ABOUTME: Ensures PostgreSQL is running via Docker and the test database is prepared.
+
+set -euo pipefail
+
+CONTAINER_NAME="bonanza-test-db"
+POSTGRES_IMAGE="postgres:15-alpine"
+POSTGRES_USER="postgres"
+POSTGRES_PASSWORD="postgres"
+POSTGRES_PORT="5432"
+
+ensure_postgres() {
+  if docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+    return
+  fi
+
+  if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+    echo "Starting existing ${CONTAINER_NAME} container..."
+    docker start "${CONTAINER_NAME}" > /dev/null
+  else
+    echo "Creating ${CONTAINER_NAME} container..."
+    docker run -d --name "${CONTAINER_NAME}" \
+      -e POSTGRES_USER="${POSTGRES_USER}" \
+      -e POSTGRES_PASSWORD="${POSTGRES_PASSWORD}" \
+      -p "${POSTGRES_PORT}:5432" \
+      "${POSTGRES_IMAGE}" > /dev/null
+  fi
+
+  echo "Waiting for PostgreSQL..."
+  until docker exec "${CONTAINER_NAME}" pg_isready -q 2>/dev/null; do
+    sleep 0.5
+  done
+}
+
+ensure_postgres
+
+export RAILS_ENV=test
+
+# Create the database if it doesn't exist, then load/migrate schema
+bin/rails db:prepare > /dev/null 2>&1 || bin/rails db:create db:schema:load
+
+exec bin/rails test "$@"

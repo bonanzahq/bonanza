@@ -14,7 +14,7 @@ class CheckoutController < ApplicationController
   before_action :ensure_lending_not_completed
 
   def index
-    redirect_to lending_route unless @lending.has_line_items?
+    redirect_to lending_path unless @lending.has_line_items?
 
     if params[:b].present? && params[:b].length > 0
       begin

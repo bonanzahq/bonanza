@@ -1,14 +1,5 @@
 # Testing Infrastructure Plan
 
-## Current State
-
-- Rails 7.0.4.2 with Ruby 3.1.2
-- `test/` directory exists with minimal structure
-- One mailer test stub exists
-- No test framework gems configured
-- No test factories or fixtures
-- CLAUDE.md mandates TDD for all new features
-
 ## Framework Choice: Minitest
 
 Using Rails' default Minitest framework because:
@@ -18,49 +9,53 @@ Using Rails' default Minitest framework because:
 - Perfectly adequate for rigorous TDD
 - Smaller dependency footprint
 
-## Required Gems
+## Gems
 
-Add to Gemfile `group :development, :test`:
+In Gemfile `group :development, :test`:
 
 ```ruby
-# Testing framework and tools
-gem 'factory_bot_rails', '~> 6.2'      # Test data factories
-gem 'shoulda-matchers', '~> 5.3'      # Cleaner model test syntax
-gem 'faker', '~> 3.2'                  # Realistic fake data
-
-# System testing (already in Rails 7, but explicitly declare)
-gem 'capybara', '~> 3.39'             # Browser automation for system tests
-gem 'selenium-webdriver', '~> 4.10'   # WebDriver for system tests
-
+gem 'factory_bot_rails'
+gem 'faker'
+gem 'capybara'
+gem 'selenium-webdriver'
 ```
 
 ## Directory Structure
 
 ```
 test/
-├── application_system_test_case.rb  # Base class for system tests
 ├── test_helper.rb                   # Global test configuration
+├── application_system_test_case.rb  # Base class for system tests
 ├── factories/                       # FactoryBot factories
-│   ├── users.rb
-│   ├── departments.rb
 │   ├── borrowers.rb
-│   ├── parent_items.rb
+│   ├── conducts.rb
+│   ├── departments.rb
 │   ├── items.rb
-│   └── lendings.rb
+│   ├── lendings.rb
+│   ├── line_items.rb
+│   ├── parent_items.rb
+│   └── users.rb
 ├── models/                          # Model unit tests
-│   ├── user_test.rb
-│   ├── department_test.rb
+│   ├── ability_test.rb
 │   ├── borrower_test.rb
-│   ├── parent_item_test.rb
+│   ├── conduct_test.rb
+│   ├── department_test.rb
 │   ├── item_test.rb
 │   ├── lending_test.rb
 │   ├── line_item_test.rb
-│   └── ability_test.rb
+│   ├── parent_item_test.rb
+│   └── user_test.rb
 ├── controllers/                     # Controller tests
-│   ├── admin/
-│   ├── items_controller_test.rb
-│   ├── lendings_controller_test.rb
-│   └── borrowers_controller_test.rb
+│   ├── lending_controller_test.rb
+│   ├── checkout_controller_test.rb
+│   ├── returns_controller_test.rb
+│   ├── borrowers_controller_test.rb
+│   ├── parent_items_controller_test.rb
+│   ├── departments_controller_test.rb
+│   ├── users_controller_test.rb
+│   ├── autocomplete_controller_test.rb
+│   ├── health_controller_test.rb
+│   └── static_pages_controller_test.rb
 ├── integration/                     # Integration tests
 │   ├── lending_workflow_test.rb
 │   └── authorization_test.rb
@@ -70,256 +65,102 @@ test/
     └── borrower_registration_test.rb
 ```
 
-## Setup Steps
-
-### 1. Install Gems
-```bash
-# Add gems to Gemfile, then:
-bundle install
-```
-
-### 2. Configure test_helper.rb
-
-Update `test/test_helper.rb`:
-
-```ruby
-ENV["RAILS_ENV"] ||= "test"
-require_relative "../config/environment"
-require "rails/test_help"
-
-# FactoryBot setup
-require 'factory_bot_rails'
-
-# Shoulda Matchers setup
-require 'shoulda/matchers'
-Shoulda::Matchers.configure do |config|
-  config.integrate do |with|
-    with.test_framework :minitest
-    with.library :rails
-  end
-end
-
-# Searchkick test mode
-Searchkick.disable_callbacks
-
-class ActiveSupport::TestCase
-  include FactoryBot::Syntax::Methods
-
-  # Run tests in parallel with specified workers
-  parallelize(workers: :number_of_processors)
-
-  # Setup all fixtures in test/fixtures/*.yml
-  # fixtures :all
-
-  # Use Rails transactional fixtures for clean test state
-  self.use_transactional_tests = true
-
-  setup do
-    # Set current user for thread-local tracking
-    User.current_user = nil
-  end
-
-  # Helper to sign in users for controller tests
-  def sign_in(user)
-    user.update(current_department_id: user.departments.first&.id)
-    User.current_user = user
-    @current_user = user
-  end
-end
-
-class ActionDispatch::IntegrationTest
-  include Devise::Test::IntegrationHelpers
-end
-```
-
-### 3. Configure Searchkick for Tests
-
-Add to `config/environments/test.rb`:
-
-```ruby
-# Searchkick test mode - don't talk to Elasticsearch
-Searchkick.disable_callbacks = true
-```
-
-### 4. Create application_system_test_case.rb
-
-```ruby
-require "test_helper"
-
-class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
-  driven_by :selenium, using: :headless_chrome, screen_size: [1400, 1400]
-
-  def sign_in_as(user)
-    visit new_user_session_path
-    fill_in "E-Mail", with: user.email
-    fill_in "Passwort", with: "password123"
-    click_button "Anmelden"
-  end
-end
-```
-
-## Testing Patterns for Bonanza Redux
-
-### Model Tests Priority
-
-Test in this order (highest business value first):
-
-1. **Item** - status changes, soft delete, validation rules, lent state
-2. **Lending** - state machine, workflow transitions
-3. **Borrower** - registration validation, email confirmation
-4. **ParentItem** - item relationships, search
-5. **User** - department memberships, role logic
-6. **Ability** - authorization rules per role
-
-### Critical Test Cases
-
-#### Item Model
-- Cannot edit/delete when lent
-- Soft delete creates `deleted` status instead of destroying
-- History records created on save
-- Status transitions (available → lent → returned)
-- Condition validation
-
-#### Lending Model
-- State machine: cart → borrower → confirmation → completed
-- Cannot complete without borrower
-- Line items are properly associated
-- `lent_at` timestamp set on completion
-- Return process works correctly
-
-#### Borrower Model
-- Registration requires TOS, insurance check, ID check (students only)
-- Email confirmation flow
-- Soft delete via `borrower_type: :deleted`
-
-#### Ability Model (CanCanCan)
-- Admin: full access all departments
-- Leader: manage users/borrowers/items/lendings in own department, send invitations
-- Member: manage borrowers/items/lendings in own department
-- Guest: read-only own department
-- Hidden: like guest, only visible to admins
-- Scoping to `current_department_id`
-
-### Factory Examples
-
-#### User Factory
-```ruby
-FactoryBot.define do
-  factory :user do
-    email { Faker::Internet.email }
-    password { 'password123' }
-    password_confirmation { 'password123' }
-    firstname { Faker::Name.first_name }
-    lastname { Faker::Name.last_name }
-
-    trait :admin do
-      after(:create) do |user, evaluator|
-        create(:department_membership, user: user, role: :admin)
-      end
-    end
-
-    trait :leader do
-      after(:create) do |user, evaluator|
-        dept = create(:department)
-        create(:department_membership, user: user, department: dept, role: :leader)
-        user.update(current_department_id: dept.id)
-      end
-    end
-  end
-end
-```
-
-#### Item Factory
-```ruby
-FactoryBot.define do
-  factory :item do
-    association :parent_item
-    association :department
-    amount { 1 }
-    status { :available }
-    condition { :flawless }
-
-    trait :lent do
-      status { :lent }
-    end
-
-    trait :broken do
-      condition { :broken }
-    end
-  end
-end
-```
-
-### System Test Example: Complete Lending Flow
-
-```ruby
-require "application_system_test_case"
-
-class LendingFlowTest < ApplicationSystemTestCase
-  test "complete lending workflow from cart to checkout" do
-    user = create(:user, :leader)
-    department = user.departments.first
-    parent_item = create(:parent_item, department: department)
-    item = create(:item, parent_item: parent_item, department: department)
-    borrower = create(:borrower, department: department)
-
-    sign_in_as(user)
-
-    # Add item to cart
-    visit root_path
-    fill_in "search-items", with: parent_item.name
-    click_on parent_item.name
-
-    # Select borrower
-    fill_in "search-borrower", with: borrower.email
-    click_on borrower.full_name
-
-    # Confirm and complete
-    click_button "Bestätigen"
-
-    assert_text "Ausleihe erfolgreich"
-    assert_equal :completed, Lending.last.state.to_sym
-  end
-end
-```
-
 ## Running Tests
 
 ```bash
-# Run all tests
-rails test
-
-# Run specific test file
-rails test test/models/item_test.rb
-
-# Run specific test at line number
-rails test test/models/item_test.rb:12
-
-# Run all model tests
-rails test test/models
-
-# Run system tests only
-rails test:system
-
-# Run with verbose output
-rails test -v
-
-# Run in parallel (default in Rails 7)
-rails test --parallel
+bin/test                              # Reproducible test runner script
+rails test                            # Run all tests
+rails test test/models                # Run all model tests
+rails test test/models/item_test.rb   # Run specific file
+rails test test/models/item_test.rb:12 # Run specific test at line
+rails test:system                     # System tests only
 ```
 
-## Test Database Management
+## Implementation Order
 
-```bash
-# Prepare test database (after migrations)
-rails db:test:prepare
+### Phase 1: Foundation -- DONE
 
-# Reset test database
-rails db:test:reset
+1. ~~Add gems and run bundle install~~
+2. ~~Configure test_helper.rb (FactoryBot, Devise helpers, Searchkick disabled)~~
+3. ~~Create bin/test script for reproducible test runs~~
+4. ~~Write factories for core models~~
+5. ~~Write smoke tests for Department and User to verify setup~~
 
-# Load schema into test database
-rails db:schema:load RAILS_ENV=test
-```
+### Phase 2: Model Tests -- DONE
+
+9 model test files covering:
+
+1. ~~Item (enums, validations, lent protection, soft/hard delete, resurrect, history tracking, user_adjusted_quantity)~~
+2. ~~Lending (enums, token, state machine, overdue, has_line_items, scopes, populate with all guards, all_items_returned, validations)~~
+3. ~~Borrower (enums, validations, student/employee paths, email/student_id uniqueness, TOS context, fullname, soft delete, conduct queries)~~
+4. ~~User (validations, fullname, role queries, current_role, role_in, is_guest_everywhere, ensure_current_department, thread-local current_user)~~
+5. ~~Ability (admin, leader, member, guest, unauthenticated -- department-scoped permissions)~~
+6. ~~ParentItem (factory, has_lent_items, dependent destroy, item ordering)~~
+7. ~~LineItem (validations, decrease_item_quantity, apply_line_item_data_to_item, take_back with edge cases)~~
+8. ~~Department (genus enum, staffed setter, get_all_visible_ids, genderize, auto-membership callback)~~
+9. ~~Conduct (kind enum, validations, duration_or_perma custom validation)~~
+
+Known gaps (tracked as issues or TODOs):
+- Hidden role not tested in user_test or ability_test
+- Role query exclusivity (guest? true implies member? false, etc.)
+- `current_role=` setter is broken (git-bug filed)
+- Lending methods `eradicate`, `update_cart`, `update_from_checkout_params` untested at model level
+
+### Phase 3: Controller Tests (Core) -- DONE
+
+57 tests covering four controllers:
+
+1. ~~**ReturnsController** (9 tests) -- index auth/rendering, take_back, guest access~~
+2. ~~**LendingController** (19 tests) -- index, show (public/auth), populate, remove, empty, destroy, change_duration~~
+3. ~~**CheckoutController** (10 tests) -- before-action guards, state machine, update completion~~
+4. ~~**BorrowersController** (19 tests) -- CRUD, conduct, self-registration, email confirmation~~
+
+Bugs fixed during Phase 3:
+- `lending_route` -> `lending_path`, `cart_path` -> `lending_path`
+- `errors.values` -> `errors.full_messages` (Rails 6.1 removal)
+- Double render in show/show_printable_agreement (missing `and return`)
+- Missing `token:` in change_duration error redirect
+- Searchkick 5.x lazy evaluation in fallback rescue
+- Added mailer `default_url_options` for test environment
+
+Known issues filed as git-bug:
+- `ensure_lending_not_completed` bypassed by in-memory state mutation
+- `add_conduct` crashes due to `lending_id NOT NULL` / `optional: true` mismatch
+
+### Phase 3b: Controller Tests (Remaining) -- NEXT
+
+5. **ParentItemsController** -- equipment type management
+   - CRUD with department-scoped authorization
+   - File attachment and removal
+   - Nested items and accessories
+   - Tagging
+
+6. **UsersController** -- user management
+   - CRUD with role-based authorization (leaders can't edit admins)
+   - Nested department membership management
+   - Password handling (blank password in update = no change)
+
+7. **DepartmentsController** -- department management
+   - Public index (no auth required)
+   - CRUD for admins/leaders
+   - `staff`/`unstaff` toggle
+
+8. **AutocompleteController** -- JSON search endpoints
+   - `items` returns parent item names scoped to department
+   - `borrowers` returns borrower names (excludes deleted)
+   - Requires authentication
+
+9. **HealthController** -- simple smoke test
+   - Returns 200 when app is up
+   - No authentication required
+
+10. **StaticPagesController** -- public pages + legal text admin
+    - Public pages render without auth
+    - Legal text editing requires admin
+
+### Phase 4: Integration/System Tests
+
+After controller tests are solid:
 
 ## Implementation Order
 
@@ -353,23 +194,21 @@ rails db:schema:load RAILS_ENV=test
 ## Test Coverage Goals
 
 - **Models**: 100% coverage on business logic, validations, callbacks
-- **Controllers**: Cover happy paths and authorization checks
-- **System tests**: Cover critical user workflows (lending, returns, registration)
+- **Controllers**: Happy paths, error paths, and authorization checks
+- **System tests**: Critical user workflows (lending, returns, registration)
 
-Don't aim for 100% coverage everywhere - focus on business-critical paths and complex logic.
+Focus on business-critical paths and complex logic over raw coverage numbers.
 
 ## Elasticsearch Testing Strategy
 
-For tests that need search:
+Most tests run with `Searchkick.disable_callbacks` (set in test_helper.rb).
+For tests that need search, re-enable per test:
 
 ```ruby
-# In specific test files where search is needed
 class ParentItemSearchTest < ActiveSupport::TestCase
   setup do
-    # Re-enable callbacks for this test
     Searchkick.enable_callbacks
     ParentItem.reindex
-    Borrower.reindex
   end
 
   teardown do
@@ -385,31 +224,3 @@ class ParentItemSearchTest < ActiveSupport::TestCase
   end
 end
 ```
-
-Avoid testing Elasticsearch in most tests - it's slow and most logic doesn't require it.
-
-## CI/CD Considerations
-
-For future GitHub Actions or similar:
-
-```yaml
-# .github/workflows/test.yml
-- name: Run tests
-  env:
-    RAILS_ENV: test
-    DATABASE_URL: postgresql://postgres:postgres@localhost:5432/bonanza_test
-  run: |
-    bundle exec rails db:schema:load
-    bundle exec rails test
-```
-
-Elasticsearch not required in CI for most tests due to disabled callbacks.
-
-## Next Steps
-
-1. Review this plan with Fabian
-2. Add gems to Gemfile
-3. Configure test environment
-4. Create first factory
-5. Write first test following TDD workflow
-6. Iterate and expand coverage

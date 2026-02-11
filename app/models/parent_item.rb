@@ -55,7 +55,13 @@ class ParentItem < ApplicationRecord
       where.merge!({conditions: c }) unless c.nil? && c.count < 1
     end
 
-    self.search(query, where: where, load: true, page: page, per_page: 6, order: [{_score: :desc}, {lendings_count: :desc}, {name: :asc}], boost_by: [:lendings_count], misspellings: {edit_distance: 2}, aggs: { tags: { where: { department: depts}}}, fields: [{"name^20" => :word_middle}, {"description^10" => :word_middle}, "uids", {"tags^12" => :word_middle}])
+    begin
+      results = self.search(query, where: where, load: true, page: page, per_page: 6, order: [{_score: :desc}, {lendings_count: :desc}, {name: :asc}], boost_by: [:lendings_count], misspellings: {edit_distance: 2}, aggs: { tags: { where: { department: depts}}}, fields: [{"name^20" => :word_middle}, {"description^10" => :word_middle}, "uids", {"tags^12" => :word_middle}])
+      results.to_a # force lazy evaluation inside rescue
+      results
+    rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED, Elastic::Transport::Transport::Error
+      ParentItem.none.page(1).per(6)
+    end
   end
 
   def attach_files

@@ -71,7 +71,7 @@ class User < ApplicationRecord
   private
     def ensure_current_department
       if current_department.nil?
-          current_department = departments.first
+          self.current_department = departments.first
       end
     end
 
