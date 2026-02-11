@@ -70,6 +70,6 @@ Rails.application.configure do
   # Uncomment if you wish to allow Action Cable access from any origin.
   # config.action_cable.disable_request_forgery_protection = true
 
-  # Allow Tailscale hostnames for testing over the tailnet
-  config.hosts << ".ts.net"
+  # Disable host authorization for development (allows access from any hostname)
+  config.hosts.clear
 end
