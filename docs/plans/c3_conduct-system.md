@@ -408,17 +408,6 @@ validates :duration, numericality: {
 | `app/views/borrower_mailer/` | Add email templates |
 | `app/views/conducts/` | Update display views |
 
-## Timeline
-
-| Phase | Duration |
-|-------|----------|
-| Phase 1: Fix expiration logic | 0.5 day |
-| Phase 2: Helper methods | 0.25 day |
-| Phase 3: Warning escalation | 0.5 day |
-| Phase 4: Scheduled task | 0.25 day |
-| Phase 5-6: Views and emails | 0.5 day |
-| **Total** | **1-2 days** |
-
 ## Dependencies
 
 - **Requires:** Background jobs plan (c1) for `.deliver_later`

@@ -323,14 +323,14 @@ rails db:schema:load RAILS_ENV=test
 
 ## Implementation Order
 
-### Phase 1: Foundation (Week 1)
+### Phase 1: Foundation
 1. Add gems and run bundle install
 2. Configure test_helper.rb
 3. Create application_system_test_case.rb
 4. Write factories for core models (User, Department, Borrower, ParentItem, Item, Lending)
 5. Write first simple model test to verify setup
 
-### Phase 2: Model Tests (Week 2-3)
+### Phase 2: Model Tests
 1. Item model tests (status, soft delete, validations)
 2. Lending model tests (state machine)
 3. Borrower model tests (registration, validation)
@@ -338,13 +338,13 @@ rails db:schema:load RAILS_ENV=test
 5. Ability tests (authorization per role)
 6. ParentItem model tests
 
-### Phase 3: Controller Tests (Week 4)
+### Phase 3: Controller Tests
 1. LendingsController (cart flow, state transitions)
 2. ItemsController (CRUD, authorization)
 3. BorrowersController (registration, CRUD)
 4. Admin controllers
 
-### Phase 4: Integration/System Tests (Week 5)
+### Phase 4: Integration/System Tests
 1. Complete lending workflow system test
 2. Borrower registration and email confirmation
 3. Item management flows

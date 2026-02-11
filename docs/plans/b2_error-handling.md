@@ -365,18 +365,6 @@ services:
 | `config/routes.rb` | Add health check routes |
 | `app/views/errors/` | New error pages |
 
-## Timeline
-
-| Phase | Duration |
-|-------|----------|
-| Phase 1: Structured logging | 0.5 day |
-| Phase 2: Sentry setup | 0.5 day |
-| Phase 3: Health checks | 0.5 day |
-| Phase 4: Request ID tracking | 0.25 day |
-| Phase 5: Fix TODOs | 0.5 day |
-| Phase 6: Error pages | 0.25 day |
-| **Total** | **2-3 days** |
-
 ## Testing
 
 ```ruby
