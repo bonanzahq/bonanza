@@ -1,7 +1,7 @@
 <div id="<%= dom_id borrower %>" class="bnz-card <%= "warning" if borrower.has_bans_here? or not borrower.tos_accepted %>" data-controller="show-details">
     <div class="header">
         <div class="left">
-            <%= link_to borrower_path(borrower), class: "name" do %>
+            <%= link_to borrower_path(borrower), class: "name", data: { turbo_frame: "_top" } do %>
                 <h4><%= borrower.fullname %></h4>
             <% end %>
             <% if borrower.has_bans_here? %>
