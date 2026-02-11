@@ -22,6 +22,10 @@ mkdir -p tmp/pids tmp/cache tmp/storage
 # Remove stale PID file left by a crashed container
 rm -f tmp/pids/server.pid
 
+# Build assets (volume mount overlays image-built assets with host directory)
+echo "Building assets..."
+pnpm build && pnpm build:css
+
 echo "Running db:create and db:migrate..."
 bundle exec rails db:create 2>/dev/null || true
 bundle exec rails db:migrate
