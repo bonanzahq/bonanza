@@ -39,6 +39,23 @@ jobs:
           ruby-version: "3.1.2"
           bundler-cache: true
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: pnpm
+
+      - name: Install JS dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build assets
+        run: pnpm build && pnpm build:css
+
       - name: Setup database
         run: bundle exec rails db:create db:schema:load
 
