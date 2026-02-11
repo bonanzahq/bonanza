@@ -408,17 +408,6 @@ end
 | `app/controllers/borrowers_controller.rb` | Add export_data, request_deletion |
 | `config/routes.rb` | Add member routes |
 
-## Timeline
-
-| Phase | Duration |
-|-------|----------|
-| Phase 1: Anonymization | 0.5 day |
-| Phase 2: Cleanup tasks | 0.5 day |
-| Phase 3: Data export | 0.5 day |
-| Phase 4: Scheduler | 0.25 day |
-| Phase 5: Manual deletion | 0.25 day |
-| Phase 6: Audit logging | 0.25 day |
-| **Total** | **1-2 days** |
 
 ## Legal Notes
 

@@ -1017,13 +1017,6 @@ end
 5. Configure SMTP settings
 6. Setup scheduled tasks (clockwork)
 
-## Timeline Summary
-
-- **Week 1**: Setup, test migration, initial validation
-- **Week 2**: Fixes, final testing, prepare for cutover
-- **Weekend (Saturday)**: Production cutover (2-4 hours)
-- **Week 3**: Monitor, address issues, decommission v1
-
 ## Documentation
 
 ### Files Created
