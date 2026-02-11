@@ -909,37 +909,37 @@ ls -la /opt/bonanza/deploy/deploy.sh
 tail -f /var/log/syslog
 ```
 
-## Implementation Timeline
+## Implementation Order
 
-### Week 1: GitHub Actions Setup
+### 1. GitHub Actions Setup
 - Create `.github/workflows/` directory
 - Implement test.yml workflow
 - Test PR workflow locally with `act` (optional)
 - Implement deploy-beta.yml workflow
 - Implement release.yml workflow
 
-### Week 2: Server Provisioning
+### 2. Server Provisioning
 - Provision beta server
 - Install Docker and dependencies
 - Setup SSH keys
 - Setup application directories
 - Create .env files with secrets
 
-### Week 3: Beta Deployment
+### 3. Beta Deployment
 - Add GitHub secrets for beta
 - Test manual deployment
 - Test automated deployment via GitHub Actions
 - Configure backups
 - Document any issues
 
-### Week 4: Production Setup
+### 4. Production Setup
 - Provision production server
 - Clone beta setup to production
 - Add GitHub secrets for production
 - Configure monitoring
 - Test production deployment
 
-### Week 5: Hardening and Documentation
+### 5. Hardening and Documentation
 - Implement rollback procedures
 - Test disaster recovery
 - Create runbook for operations

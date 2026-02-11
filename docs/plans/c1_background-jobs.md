@@ -288,12 +288,3 @@ end
 - **Updates:** Containerization plan (b1) - add worker container
 - **Integrates with:** Error handling plan (b2) - job failure reporting
 
-## Timeline
-
-| Phase | Duration |
-|-------|----------|
-| Phase 1-2: Install, basic conversion | 1-2 days |
-| Phase 3-4: Queues, retry logic | 1 day |
-| Phase 5-6: Rate limiting, Docker | 1 day |
-| Phase 7: Monitoring | 0.5 day |
-| **Total** | **3-4 days** |

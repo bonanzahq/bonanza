@@ -162,10 +162,34 @@ Known issues filed as git-bug:
 
 After controller tests are solid:
 
-1. Complete lending workflow (cart -> checkout -> return)
-2. Borrower self-registration and email confirmation
-3. Item management (create parent item, add items, lend, return)
-4. Authorization enforcement across workflows (role-based access)
+## Implementation Order
+
+### Phase 1: Foundation
+1. Add gems and run bundle install
+2. Configure test_helper.rb
+3. Create application_system_test_case.rb
+4. Write factories for core models (User, Department, Borrower, ParentItem, Item, Lending)
+5. Write first simple model test to verify setup
+
+### Phase 2: Model Tests
+1. Item model tests (status, soft delete, validations)
+2. Lending model tests (state machine)
+3. Borrower model tests (registration, validation)
+4. User model tests (department memberships)
+5. Ability tests (authorization per role)
+6. ParentItem model tests
+
+### Phase 3: Controller Tests
+1. LendingsController (cart flow, state transitions)
+2. ItemsController (CRUD, authorization)
+3. BorrowersController (registration, CRUD)
+4. Admin controllers
+
+### Phase 4: Integration/System Tests
+1. Complete lending workflow system test
+2. Borrower registration and email confirmation
+3. Item management flows
+4. Authorization enforcement across workflows
 
 ## Test Coverage Goals
 

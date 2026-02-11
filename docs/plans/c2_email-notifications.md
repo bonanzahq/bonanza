@@ -689,39 +689,6 @@ Each phase should meet these criteria before moving to next:
    - User language preference
    - Language detection from browser
 
-## Timeline Estimate
-
-**Phase 1**: 1-2 days
-- SMTP configuration
-- Base mailer setup
-- Layout templates
-
-**Phase 2**: 3-4 days
-- Three mailer methods
-- Six view templates
-- Integration and testing
-
-**Phase 3**: 2-3 days
-- Rake tasks
-- Scheduling setup
-- Testing
-
-**Phase 4**: 3-4 days
-- Four additional emails
-- Integration
-
-**Phase 5**: 2-3 days
-- BorrowerMailer
-- Email confirmation flow
-
-**Phase 6**: 1-2 days
-- UserMailer
-- Staff daily email
-
-**Total**: 12-18 days of development work
-
-**Note**: Timeline assumes one developer working full-time. Testing and refinement may add additional time.
-
 ## References
 
 - Old Bonanza v1 mailers: `docs/repomix-output-bonanza_v1.xml`
