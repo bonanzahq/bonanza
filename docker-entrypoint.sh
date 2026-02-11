@@ -16,6 +16,9 @@ until curl -sf http://elasticsearch:9200/_cluster/health > /dev/null; do
 done
 echo "Elasticsearch is ready."
 
+# Ensure tmp directories exist (volume mount may overlay image filesystem)
+mkdir -p tmp/pids tmp/cache tmp/storage
+
 # Remove stale PID file left by a crashed container
 rm -f tmp/pids/server.pid
 
