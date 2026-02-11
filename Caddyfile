@@ -1,0 +1,22 @@
+# ABOUTME: Caddy reverse proxy configuration for development.
+# ABOUTME: Proxies HTTP :8080 to Rails, adds security headers, logs as JSON.
+
+{
+	auto_https off
+}
+
+:8080 {
+	reverse_proxy rails:3000
+
+	header {
+		X-Frame-Options "SAMEORIGIN"
+		X-Content-Type-Options "nosniff"
+		X-XSS-Protection "1; mode=block"
+		Referrer-Policy "strict-origin-when-cross-origin"
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}
