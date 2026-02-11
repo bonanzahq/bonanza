@@ -1,1 +1,1 @@
-{"author":{"id":"9ce646fd10346788b0ba0bb1d6d4d7df7faf6b71badbb76619d75576ac1df697"},"ops":[{"type":5,"timestamp":1770808666,"nonce":"8lQu6OezzezQ5VpQMD257K8LAL0=","added":["in-progress"],"removed":null}]}
+{"author":{"id":"9ce646fd10346788b0ba0bb1d6d4d7df7faf6b71badbb76619d75576ac1df697"},"ops":[{"type":3,"timestamp":1770821672,"nonce":"/GjJOMGyvyF809yac9vb4jjFc0o=","message":"Sub-task: Configure ActionMailer for Mailpit (dev) and SMTP relay (prod) (cc7f2a6)","files":null}]}
