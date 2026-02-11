@@ -30,4 +30,7 @@ echo "Running db:create and db:migrate..."
 bundle exec rails db:create 2>/dev/null || true
 bundle exec rails db:migrate
 
+echo "Reindexing Elasticsearch..."
+bundle exec rails runner "ParentItem.reindex; Borrower.reindex"
+
 exec "$@"
