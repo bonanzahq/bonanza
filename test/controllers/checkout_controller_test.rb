@@ -45,7 +45,7 @@ class CheckoutControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "index redirects when department is unstaffed" do
-    lending_id = populate_cart
+    populate_cart
     @department.update_column(:staffed, false)
 
     get checkout_state_path("borrower")
@@ -53,7 +53,7 @@ class CheckoutControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "index auto-advances cart state to borrower and redirects" do
-    lending_id = populate_cart
+    populate_cart
 
     get checkout_path
     assert_redirected_to checkout_state_path("borrower")

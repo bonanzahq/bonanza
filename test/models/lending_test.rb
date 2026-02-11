@@ -207,7 +207,7 @@ class LendingTest < ActiveSupport::TestCase
   test "all_items_returned? sets returned_at when all line items returned" do
     parent_item = create(:parent_item, department: @department)
     item = create(:item, parent_item: parent_item)
-    line_item = create(:line_item, lending: @lending, item: item, returned_at: Time.current)
+    create(:line_item, lending: @lending, item: item, returned_at: Time.current)
 
     @lending.all_items_returned?
 

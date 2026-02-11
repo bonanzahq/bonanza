@@ -1,5 +1,5 @@
 # ABOUTME: Tests for CanCanCan authorization rules.
-# ABOUTME: Covers admin, leader, member, guest, hidden, and cross-department scoping.
+# ABOUTME: Covers admin, leader, member, guest, and cross-department scoping.
 
 require "test_helper"
 

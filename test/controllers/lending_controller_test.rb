@@ -166,7 +166,7 @@ class LendingControllerTest < ActionDispatch::IntegrationTest
   test "destroy eradicates lending and restores items" do
     sign_in @user
     lending = create(:lending, :completed, user: @user, department: @department)
-    line_item = create(:line_item, lending: lending, item: @item, quantity: 2)
+    create(:line_item, lending: lending, item: @item, quantity: 2)
     @item.update_columns(quantity: 3, status: Item.statuses[:lent])
 
     delete lending_destroy_path(lending)
