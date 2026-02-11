@@ -43,14 +43,12 @@ in place and the application actually running before any feature work begins.
 ### A1. Yarn to pnpm Migration
 
 - **Plan:** `a1_yarn-to-pnpm.md`
-- **Effort:** Half a day
 - **Why first:** Small, self-contained. Unblocks correct build tooling for
   everything that follows.
 
 ### A2. Testing Infrastructure
 
 - **Plan:** `a3_testing.md`
-- **Effort:** 1 week (foundation + core model tests)
 - **Why before upgrades:** Tests must exist before the dependency upgrade so
   they can verify it doesn't break things. TDD is mandated for all new
   features.
@@ -61,7 +59,6 @@ in place and the application actually running before any feature work begins.
 ### A3. Containerization
 
 - **Plan:** `b1_containerization.md`
-- **Effort:** 2-3 weeks
 - **Why before dependency updates:** We need the app actually running before
   making any further changes. Tests alone are not sufficient -- they run
   with Elasticsearch disabled and never boot the full application stack.
@@ -77,7 +74,6 @@ in place and the application actually running before any feature work begins.
 ### A4. Dependency Updates
 
 - **Plan:** `a2_dependency-updates.md`
-- **Effort:** 2-3 weeks
 - **Path:** Aggressive (Ruby 3.4+ / Rails 8.x)
 - **Why after containerization:** Ruby 3.1 is EOL (Jan 2026). This is the
   most critical security issue in the project, but now we can verify the
@@ -92,21 +88,18 @@ in place and the application actually running before any feature work begins.
 ### B1. Error Handling & Observability
 
 - **Plan:** `b2_error-handling.md`
-- **Effort:** 2-3 days
 - **Why now:** Get structured logging and Sentry in place before adding features.
   Debugging production issues without observability is painful.
 
 ### B2. Devise + Turbo Review
 
 - **Plan:** `b3_devise-turbo.md`
-- **Effort:** 1-2 days
 - **Why now:** Authentication must work correctly before deploying to users.
   Pragmatic approach: disable Turbo on Devise forms (Option A).
 
 ### B3. CI/CD & Deployment
 
 - **Plan:** `b4_ci-cd-deployment.md`
-- **Effort:** 2-3 weeks
 - **Requires:** Containerization complete, tests running
 - **Note:** Since same host as v1, the deployment script needs to handle port
   conflicts. Beta can run on a different port on the same machine.
@@ -118,7 +111,6 @@ in place and the application actually running before any feature work begins.
 ### C1+C2. Background Jobs + Email Notifications (Combined)
 
 - **Plans:** `c1_background-jobs.md` + `c2_email-notifications.md`
-- **Effort:** 2-3 weeks combined
 - **Why combined:** c2 depends entirely on c1. Implementing email without
   background jobs means synchronous `.deliver_now` which blocks requests.
   Build them together.
@@ -133,7 +125,6 @@ in place and the application actually running before any feature work begins.
 ### C3. Conduct System
 
 - **Plan:** `c3_conduct-system.md`
-- **Effort:** 1-2 days
 - **Requires:** Background jobs (for `.deliver_later` in ban notifications)
 - **Key work:** Replace commented-out `remove_old_automatic_conducts` with
   working PostgreSQL queries, add warning escalation logic.
@@ -141,7 +132,6 @@ in place and the application actually running before any feature work begins.
 ### C4. GDPR & Data Retention
 
 - **Plan:** `c4_gdpr-data-retention.md`
-- **Effort:** 1-2 days
 - **Requires:** Conduct system (for conduct cleanup logic)
 - **Note:** Consult legal counsel on retention periods before deploying.
 
@@ -152,7 +142,6 @@ in place and the application actually running before any feature work begins.
 ### D1. Data Migration
 
 - **Plan:** `d1_data-migration.md`
-- **Effort:** 2-3 weeks (including prep, test runs, and cutover weekend)
 - **Key decisions already made:**
   - v1 role=2 → Redux "leader" (admins designated manually)
   - Same host: parallel migration on different ports

@@ -13,8 +13,6 @@ Bonanza Redux is running on unsupported, end-of-life software.
 - Ruby 3.4.x (or 3.5.x if stable -- released Dec 2025)
 - Rails 8.0.4+ or 8.1.x
 
-**Timeline**: 2.5-4 weeks full-time development
-
 ---
 
 ## Current State Analysis
@@ -147,11 +145,6 @@ This plan organizes updates into two priority tiers:
    RUBYOPT="-W:deprecated" bin/rails console
    ```
 
-**Estimated Effort**: 2-3 days
-- 4 hours: Update configuration
-- 8-12 hours: Test all functionality
-- 4-8 hours: Fix any compatibility issues (expect minimal)
-
 **Testing Checklist**:
 - [ ] Application starts without errors
 - [ ] All routes accessible
@@ -275,14 +268,12 @@ Cons:
 - Larger version jump
 - Need to configure opt-outs for new features
 
-Timeline: 4-7 days
-
 **Approach B: Staged Upgrade (Conservative)**
 
-1. Rails 7.0 → 7.2 (3-4 days)
-2. Test in staging (1 week)
-3. Rails 7.2 → 8.0 (3-4 days)
-4. Test in staging (1-2 weeks)
+1. Rails 7.0 → 7.2
+2. Test in staging
+3. Rails 7.2 → 8.0
+4. Test in staging
 
 Pros:
 - Lower risk per step
@@ -290,11 +281,8 @@ Pros:
 - Easier to identify issues
 
 Cons:
-- Takes 2+ weeks longer
 - Two separate testing cycles
 - More total work
-
-Timeline: 6-8 days + 3 weeks staging
 
 **Recommendation**: Approach A (Direct to Rails 8)
 
@@ -353,12 +341,6 @@ Rails 8 has been out for 10 months, the community has validated it, and most iss
    ```bash
    RUBYOPT="-W:deprecated" bin/rails console
    ```
-
-**Estimated Effort**: 4-7 days
-- 1 day: Update Rails, run app:update
-- 1-2 days: Review and merge config changes
-- 1-2 days: Update deprecated code
-- 1-2 days: Full testing
 
 **Testing Checklist**:
 - [ ] Application starts without errors
@@ -432,12 +414,6 @@ These gems commonly have security updates:
 - **devise** - Authentication
 - **loofah** - HTML sanitizer
 
-**Estimated Effort**: 4-8 hours
-- 1 hour: Setup and run audit
-- 2-4 hours: Review vulnerabilities
-- 1-2 hours: Update gems and test
-- 1 hour: Re-audit and verify
-
 ---
 
 ## Priority 2: Important Updates (SHOULD DO SOON)
@@ -490,11 +466,6 @@ These updates should be done soon after the critical updates, ideally within the
    - Filters
    - Synonyms
 
-**Estimated Effort**: 1-2 days
-- 2 hours: Update gems
-- 2-4 hours: Reindex and test
-- 2-4 hours: Fix any search issues
-
 **Risk**: LOW - Well-maintained gems, backward compatible
 
 ---
@@ -539,10 +510,6 @@ These updates should be done soon after the critical updates, ideally within the
    - User invitations
    - Email confirmations
    - Authorization rules (all roles)
-
-**Estimated Effort**: 1 day
-- 2 hours: Update gems
-- 4-6 hours: Test all auth flows
 
 **Risk**: LOW - Patch/minor updates, well-tested
 
@@ -598,11 +565,6 @@ These updates should be done soon after the critical updates, ideally within the
    - Navigation
    - Modals
 
-**Estimated Effort**: 2-3 days
-- 2 hours: Update gems
-- 8-16 hours: Test all Turbo interactions
-- 4-8 hours: Fix any issues
-
 **Risk**: MEDIUM - Turbo can have subtle breaking changes
 
 **Recommendation**: This overlaps with the Devise + Turbo review plan. Consider doing both together.
@@ -650,10 +612,6 @@ These updates should be done soon after the critical updates, ideally within the
    # Load test if possible
    ```
 
-**Estimated Effort**: 1 day
-- 2 hours: Update and test
-- 2-4 hours: Load testing and monitoring
-
 **Risk**: LOW - Minor version update
 
 ---
@@ -698,10 +656,6 @@ These updates should be done soon after the critical updates, ideally within the
    ```bash
    bin/rails assets:precompile
    ```
-
-**Estimated Effort**: 1 day
-- 2 hours: Update gems
-- 2-4 hours: Test asset pipeline
 
 **Risk**: LOW
 
@@ -761,81 +715,51 @@ These updates should be done soon after the critical updates, ideally within the
    bundle exec rubocop --auto-gen-config
    ```
 
-**Estimated Effort**: 2-3 hours
-
 **Risk**: NONE (development-only tools)
 
 ---
 
 ---
 
-## Update Sequence & Timeline
+## Update Sequence
 
-### Phase 1: Critical Updates (Week 1-3)
+### Phase 1: Critical Updates
 
-**Duration**: 2.5-3.5 weeks
-**Effort**: 56-96 hours
+1. Ruby 3.1.2 → 3.4.x
+2. Rails 7.0 → 8.0
+3. Security audit (bundle audit, update vulnerable gems)
 
-#### Week 1: Ruby Update
-**Days 1-3**: Ruby 3.1.2 → 3.4.x
-- Day 1: Update configuration, install
-- Day 2: Test all functionality
-- Day 3: Fix issues, final testing
-
-**Staging**: Run test suite, deploy to staging, monitor for 2-3 days
-
-#### Week 2-3: Rails Update
-**Days 4-10**: Rails 7.0 → 8.0
-- Day 4: Update Rails, run app:update
-- Day 5-6: Review and merge config changes
-- Day 7-8: Update deprecated code
-- Day 9-10: Full testing
-
-**Staging**: Run test suite, deploy to staging, monitor for 1-2 weeks
-
-#### Day 11-12: Security Audit
-- Run bundle audit
-- Update critical gems
-- Final security review
+Deploy to staging and test manually after each step.
 
 **Success Criteria**:
 - [ ] Ruby 3.4.1 running in staging
 - [ ] Rails 8.0.x running in staging
-- [ ] All manual tests pass
+- [ ] All tests pass
 - [ ] Zero critical security vulnerabilities
 - [ ] No deprecation warnings
-- [ ] Performance metrics stable or improved
 
 ---
 
-### Phase 2: Important Updates (Week 4-5)
+### Phase 2: Important Updates
 
-**Duration**: 1.5-2 weeks
-**Effort**: 40-56 hours
+1. Searchkick & Elasticsearch
+2. Devise & Authentication gems
+3. Hotwire Stack (Turbo/Stimulus)
+4. Puma
+5. Asset Pipeline
+6. Development Tools (RuboCop)
 
-#### Week 4
-- Days 1-2: Searchkick & Elasticsearch
-- Day 3: Devise & Authentication
-- Days 4-5: Hotwire Stack (Turbo/Stimulus)
-
-#### Week 5
-- Day 1: Puma
-- Day 2: Asset Pipeline
-- Day 3: Development Tools (RuboCop)
-- Days 4-5: Final testing and staging
+Deploy to staging and test manually after each batch.
 
 **Success Criteria**:
 - [ ] All gems updated
 - [ ] All features working
 - [ ] No deprecation warnings
-- [ ] Performance improved
 - [ ] Ready for production
 
 ---
 
-### Phase 3: Production Deployment (Week 6)
-
-**Duration**: 1 week (including monitoring)
+### Production Deployment
 
 #### Pre-Deployment
 - [ ] Backup production database
@@ -849,13 +773,10 @@ These updates should be done soon after the critical updates, ideally within the
 - [ ] Monitor error logs
 - [ ] Check performance metrics
 - [ ] Verify all critical flows
-- [ ] Monitor for 24 hours
 
 #### Post-Deployment
-- [ ] Monitor for 1 week
 - [ ] Address any issues
 - [ ] Document lessons learned
-- [ ] Update runbooks
 
 ---
 
@@ -1275,34 +1196,14 @@ jobs:
 
 ## Post-Update Monitoring
 
-### Week 1: Intensive Monitoring
-
-**Daily Tasks**:
+**After deployment, check regularly**:
 - [ ] Review error logs
 - [ ] Check application performance
 - [ ] Monitor memory usage
 - [ ] Review slow queries
 - [ ] Check for deprecation warnings
-- [ ] Monitor scheduled tasks (if implemented)
 
-**Metrics to Track**:
-- Error rate (should be near zero)
-- Response times (should be same or better)
-- Memory usage (should be same or less)
-- Database query performance
-- Search performance
-
-### Week 2-4: Regular Monitoring
-
-**2-3x per week**:
-- [ ] Review error logs
-- [ ] Check performance metrics
-- [ ] Review user feedback
-- [ ] Monitor background jobs (if implemented)
-
-### Ongoing
-
-**Monthly**:
+**Ongoing**:
 - [ ] Run bundle audit
 - [ ] Check for gem updates
 - [ ] Review deprecation warnings
@@ -1443,7 +1344,6 @@ Rails 8.0.x (Depends on Ruby 3.4+)
 
 1. Backup production database and files
 2. Begin Phase 1 (Ruby + Rails updates)
-3. Test thoroughly in staging
-4. Deploy to production after 1-2 weeks staging
-5. Monitor closely for 1 week post-deployment
-6. Monthly security audits with bundle-audit ongoing
+3. Test in staging after each step
+4. Deploy to production
+5. Monthly security audits with bundle-audit ongoing
