@@ -1,0 +1,17 @@
+# ABOUTME: Excludes files from Docker build context that are not needed in the image.
+# ABOUTME: Keeps build context small and avoids leaking secrets or dev-only files.
+
+.git/
+node_modules/
+tmp/
+log/
+storage/
+docs/
+test/
+
+.env
+.env.*
+!.env.example
+
+.DS_Store
+.claude/
