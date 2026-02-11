@@ -527,33 +527,33 @@ open http://localhost:8025
 ## Implementation Phases
 
 ### Phase 1: Basic Containerization
-- [ ] Create Dockerfile for Rails application
-- [ ] Create docker-compose.yml with all services
-- [ ] Create .dockerignore
-- [ ] Create docker-entrypoint.sh
-- [ ] Test local build and startup
+- [x] Create Dockerfile for Rails application
+- [x] Create docker-compose.yml with all services
+- [x] Create .dockerignore
+- [x] Create docker-entrypoint.sh
+- [x] Test local build and startup
 
 ### Phase 2: Service Configuration
-- [ ] Configure PostgreSQL with proper initialization
-- [ ] Configure Elasticsearch with synonyms and templates
-- [ ] Configure Mailpit for email testing
-- [ ] Create Caddyfile for reverse proxy
-- [ ] Wire up all services in docker-compose
+- [x] Configure PostgreSQL with proper initialization
+- [x] Configure Elasticsearch with synonyms and templates
+- [x] Configure Mailpit for email testing
+- [x] Create Caddyfile for reverse proxy
+- [x] Wire up all services in docker-compose
 
 ### Phase 3: Asset Pipeline
-- [ ] Implement multi-stage build for assets
-- [ ] Configure esbuild and Sass compilation
-- [ ] Test asset precompilation in container
+- [x] Implement multi-stage build for assets
+- [x] Configure esbuild and Sass compilation
+- [x] Test asset precompilation in container
 - [ ] Optional: Implement PurgeCSS (from TODO list)
 
 ### Phase 4: Development Experience
 - [ ] Create docker-compose.override.yml for development
-- [ ] Add volume mounts for live code reloading
+- [x] Add volume mounts for live code reloading
 - [ ] Document development workflow
 - [ ] Create helper scripts for common tasks
 
 ### Phase 5: Production Readiness
-- [ ] Implement health checks for all services
+- [x] Implement health checks for all services
 - [ ] Configure resource limits
 - [ ] Enable Elasticsearch security
 - [ ] Configure Caddy HTTPS for production
@@ -562,8 +562,8 @@ open http://localhost:8025
 
 ### Phase 6: Documentation and Testing
 - [ ] Update README.md with Docker instructions
-- [ ] Create .env.example with all required variables
-- [ ] Test complete setup from scratch
+- [x] Create .env.example with all required variables
+- [x] Test complete setup from scratch
 - [ ] Document troubleshooting procedures
 
 ---
@@ -751,13 +751,13 @@ For now, rely on:
 
 ## Success Criteria
 
-- [ ] Can run `docker-compose up` on fresh clone and access working application
-- [ ] All services start and pass health checks
-- [ ] Database migrations run successfully
+- [x] Can run `docker-compose up` on fresh clone and access working application
+- [x] All services start and pass health checks
+- [x] Database migrations run successfully
 - [ ] Elasticsearch indexes are created and searchable
-- [ ] Application accessible via Caddy on http://localhost
-- [ ] Mailpit UI accessible on http://localhost:8025 and captures emails sent from Rails
-- [ ] Asset pipeline produces correct JS and CSS bundles
-- [ ] Logs are accessible via `docker-compose logs`
-- [ ] Data persists across container restarts
-- [ ] Development workflow allows code changes without rebuild
+- [x] Application accessible via Caddy on http://localhost:8080
+- [x] Mailpit UI accessible on http://localhost:8025 and captures emails sent from Rails
+- [x] Asset pipeline produces correct JS and CSS bundles
+- [x] Logs are accessible via `docker-compose logs`
+- [x] Data persists across container restarts
+- [x] Development workflow allows code changes without rebuild
