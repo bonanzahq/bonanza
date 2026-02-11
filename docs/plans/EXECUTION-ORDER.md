@@ -17,11 +17,11 @@ execution sequence.
 Phase A: Foundation
   a1 Yarn to pnpm ─────────────────────────────────┐
   a3 Testing Infrastructure ───────────────────────┤
+  b1 Containerization (get the app running) ───────┤
   a2 Dependency Updates (Ruby 3.4 + Rails 8) ──────┘
                                                      │
 Phase B: Infrastructure                              ▼
-  b1 Containerization (basic) ──────────────────────┐
-  b2 Error Handling & Observability ────────────────┤
+  b2 Error Handling & Observability ────────────────┐
   b3 Devise + Turbo Review ─────────────────────────┤
   b4 CI/CD & Deployment ───────────────────────────┘
                                                      │
@@ -38,7 +38,7 @@ Phase D: Cutover                                     ▼
 ## Phase A: Foundation
 
 **Goal:** Get the codebase onto supported, secure versions with a test framework
-in place before any feature work begins.
+in place and the application actually running before any feature work begins.
 
 ### A1. Yarn to pnpm Migration
 
@@ -58,45 +58,52 @@ in place before any feature work begins.
   core models. Controller and system tests can grow incrementally during
   Phase C.
 
-### A3. Dependency Updates
+### A3. Containerization
+
+- **Plan:** `b1_containerization.md`
+- **Effort:** 2-3 weeks
+- **Why before dependency updates:** We need the app actually running before
+  making any further changes. Tests alone are not sufficient -- they run
+  with Elasticsearch disabled and never boot the full application stack.
+  Containerizing first gives us a working baseline we can verify visually
+  and functionally, then the dependency upgrade can be validated against a
+  running application, not just a test suite.
+- **Scope:** Dockerfile, docker-compose with web + db + elasticsearch +
+  caddy. Targets current Ruby 3.1.2 / Rails 7.0. Worker and scheduler
+  containers are deferred to Phase C.
+- **Note:** Since Redux deploys to the same host as v1, use non-conflicting
+  ports during development/testing.
+
+### A4. Dependency Updates
 
 - **Plan:** `a2_dependency-updates.md`
 - **Effort:** 2-3 weeks
 - **Path:** Aggressive (Ruby 3.4+ / Rails 8.x)
-- **Why after testing:** Ruby 3.1 is EOL (Jan 2026). This is the most
-  critical security issue in the project, but tests from the prior step
-  should verify the upgrade doesn't break things.
+- **Why after containerization:** Ruby 3.1 is EOL (Jan 2026). This is the
+  most critical security issue in the project, but now we can verify the
+  upgrade by running the full test suite AND booting the containerized
+  application to confirm it works end-to-end.
 - **Targets:** Ruby 3.4.x (or 3.5.x if stable), Rails 8.0.4+ or 8.1.x
 
 ## Phase B: Infrastructure
 
-**Goal:** Containerize, add observability, set up deployment pipeline.
+**Goal:** Add observability and set up deployment pipeline.
 
-### B1. Containerization (Basic)
-
-- **Plan:** `b1_containerization.md`
-- **Effort:** 2-3 weeks
-- **Scope for this phase:** Dockerfile, docker-compose with web + db +
-  elasticsearch + caddy. The worker and scheduler containers are deferred to
-  Phase C when background jobs are implemented.
-- **Note:** Since Redux deploys to the same host as v1, use non-conflicting
-  ports during development/testing.
-
-### B2. Error Handling & Observability
+### B1. Error Handling & Observability
 
 - **Plan:** `b2_error-handling.md`
 - **Effort:** 2-3 days
 - **Why now:** Get structured logging and Sentry in place before adding features.
   Debugging production issues without observability is painful.
 
-### B3. Devise + Turbo Review
+### B2. Devise + Turbo Review
 
 - **Plan:** `b3_devise-turbo.md`
 - **Effort:** 1-2 days
 - **Why now:** Authentication must work correctly before deploying to users.
   Pragmatic approach: disable Turbo on Devise forms (Option A).
 
-### B4. CI/CD & Deployment
+### B3. CI/CD & Deployment
 
 - **Plan:** `b4_ci-cd-deployment.md`
 - **Effort:** 2-3 weeks

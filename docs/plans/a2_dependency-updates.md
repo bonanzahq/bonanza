@@ -782,7 +782,7 @@ These updates should be done soon after the critical updates, ideally within the
 - Day 2: Test all functionality
 - Day 3: Fix issues, final testing
 
-**Staging**: Deploy to staging, monitor for 2-3 days
+**Verify**: Run test suite, boot containerized app, confirm login page renders
 
 #### Week 2-3: Rails Update
 **Days 4-10**: Rails 7.0 → 8.0
@@ -791,7 +791,7 @@ These updates should be done soon after the critical updates, ideally within the
 - Day 7-8: Update deprecated code
 - Day 9-10: Full testing
 
-**Staging**: Deploy to staging, monitor for 1-2 weeks
+**Verify**: Run test suite, boot containerized app, test critical flows
 
 #### Day 11-12: Security Audit
 - Run bundle audit
@@ -799,8 +799,8 @@ These updates should be done soon after the critical updates, ideally within the
 - Final security review
 
 **Success Criteria**:
-- [ ] Ruby 3.4.1 running in staging
-- [ ] Rails 8.0.x running in staging
+- [ ] Ruby 3.4.1 running in containers
+- [ ] Rails 8.0.x running in containers
 - [ ] All manual tests pass
 - [ ] Zero critical security vulnerabilities
 - [ ] No deprecation warnings
@@ -822,7 +822,7 @@ These updates should be done soon after the critical updates, ideally within the
 - Day 1: Puma
 - Day 2: Asset Pipeline
 - Day 3: Development Tools (RuboCop)
-- Days 4-5: Final testing and staging
+- Days 4-5: Final testing (test suite + containerized app)
 
 **Success Criteria**:
 - [ ] All gems updated
@@ -865,13 +865,34 @@ These updates should be done soon after the critical updates, ideally within the
 
 ## Testing Strategy
 
-### Challenge: No Automated Tests
+### Automated Test Suite
 
-The application has no test suite, so we rely entirely on manual testing.
+The test suite from a3 (testing infrastructure) covers model tests, controller
+tests, and factories for all core models. After each major upgrade step (Ruby
+version, Rails version, gem batches), run:
+
+```bash
+bin/rails test
+```
+
+All tests must pass before proceeding to the next step.
+
+### Container Smoke Test
+
+Since the application is containerized before the dependency upgrade, verify
+after each step that the full stack boots and serves pages:
+
+```bash
+docker compose up -d
+# Wait for health checks to pass, then:
+curl -f http://localhost/users/sign_in
+# Should return 200 with the login page
+```
 
 ### Manual Testing Checklist
 
-Create a comprehensive checklist and test before each deployment:
+In addition to automated tests and the container smoke test, manually verify
+critical flows before each deployment:
 
 #### Authentication & Authorization
 - [ ] Admin login/logout
@@ -1422,7 +1443,7 @@ Rails 8.0.x (Depends on Ruby 3.4+)
 
 1. Backup production database and files
 2. Begin Phase 1 (Ruby + Rails updates)
-3. Test thoroughly in staging
-4. Deploy to production after 1-2 weeks staging
+3. Verify with test suite and containerized app after each step
+4. Deploy to production
 5. Monitor closely for 1 week post-deployment
 6. Monthly security audits with bundle-audit ongoing
