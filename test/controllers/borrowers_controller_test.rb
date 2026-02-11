@@ -157,6 +157,7 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
         }
       }
     end
+    assert_redirected_to public_home_page_path
   end
 
   # -- Public: self_register --
