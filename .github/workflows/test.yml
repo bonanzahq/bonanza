@@ -40,7 +40,7 @@ jobs:
           bundler-cache: true
 
       - name: Setup database
-        run: bundle exec rails db:schema:load
+        run: bundle exec rails db:prepare
 
       - name: Run tests
         run: bundle exec rails test
