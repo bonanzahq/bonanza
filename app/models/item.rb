@@ -44,7 +44,7 @@ class Item < ApplicationRecord
     end
     begin
       parent_item.reindex
-    rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED
+    rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED, Elastic::Transport::Transport::Error
     end
 
     return_value
@@ -55,7 +55,7 @@ class Item < ApplicationRecord
       available!
       begin
         parent_item.reindex
-      rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED
+      rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED, Elastic::Transport::Transport::Error
       end
       logger.debug("item resurrected!")
     else
@@ -140,7 +140,7 @@ class Item < ApplicationRecord
     def reindex_parent_item
       begin
         parent_item.reindex unless parent_item.nil?
-      rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED
+      rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED, Elastic::Transport::Transport::Error
       end
     end
 
