@@ -36,7 +36,6 @@ services:
 
   rails:
     build: .
-    env_file: .env
     environment:
       RAILS_ENV: development
       DATABASE_URL: postgresql://postgres:password@db:5432/bonanza_redux_development
