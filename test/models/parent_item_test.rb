@@ -27,7 +27,7 @@ class ParentItemTest < ActiveSupport::TestCase
   end
 
   test "destroying parent_item destroys associated items" do
-    item = create(:item, parent_item: @parent_item)
+    create(:item, parent_item: @parent_item)
 
     assert_difference "Item.count", -1 do
       @parent_item.destroy
