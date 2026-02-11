@@ -26,11 +26,10 @@ rm -f tmp/pids/server.pid
 echo "Building assets..."
 pnpm build && pnpm build:css
 
-echo "Running db:create and db:migrate..."
-bundle exec rails db:create 2>/dev/null || true
-bundle exec rails db:migrate
+echo "Setting up database..."
+bundle exec rails db:prepare 2>&1 || echo "db:prepare had errors (seeds may have failed, non-fatal)"
 
 echo "Reindexing Elasticsearch..."
-bundle exec rails runner "ParentItem.reindex; Borrower.reindex"
+bundle exec rails runner "ParentItem.reindex; Borrower.reindex" || echo "Reindex failed (non-fatal, run manually if needed)"
 
 exec "$@"
