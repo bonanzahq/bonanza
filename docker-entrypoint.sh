@@ -19,7 +19,8 @@ echo "Elasticsearch is ready."
 # Remove stale PID file left by a crashed container
 rm -f tmp/pids/server.pid
 
-echo "Running db:prepare..."
-bundle exec rails db:prepare
+echo "Running db:create and db:migrate..."
+bundle exec rails db:create 2>/dev/null || true
+bundle exec rails db:migrate
 
 exec "$@"
