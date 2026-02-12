@@ -142,6 +142,29 @@ git bug bridge push          # Then push new issues to GitHub
 **Important:** `bridge push` will silently export 0 issues if you haven't done
 `bridge pull` first. Always pull before push to sync bridge state.
 
+### Identity Setup
+
+The GitHub bridge only exports issues authored by the identity that has
+`github-login` metadata matching the bridge token. All agents must use the
+**Claude identity** (`cff9ab1`) for bridge sync to work.
+
+```bash
+# Verify current identity
+git config git-bug.identity
+
+# Must be: cff9ab1d2ee9741039b2a60d90cca378a5320ba753398f6f3df8d03abcebee1b
+# If not, set it:
+git config git-bug.identity cff9ab1d2ee9741039b2a60d90cca378a5320ba753398f6f3df8d03abcebee1b
+```
+
+**Why:** The bridge was configured with the Claude identity tagged as
+`github-login: fmzbot`. git-bug's exporter silently skips issues authored by
+any identity without this metadata. This is an immutable metadata limitation
+in git-bug -- the tag cannot be moved to another identity via CLI.
+
+If issues aren't syncing to GitHub (`exported 0 issues`), check the identity
+first. As a fallback, use `gh issue create` to push directly to GitHub.
+
 ## Migration Plans
 
 Plans are in `docs/plans/`, executed in order per `docs/plans/EXECUTION-ORDER.md`:
