@@ -16,6 +16,11 @@ until curl -sf http://elasticsearch:9200/_cluster/health > /dev/null; do
 done
 echo "Elasticsearch is ready."
 
+# Sync dependencies into persistent volumes (no-ops when unchanged)
+echo "Installing dependencies..."
+bundle install
+CI=true pnpm install --frozen-lockfile
+
 # Ensure tmp directories exist (volume mount may overlay image filesystem)
 mkdir -p tmp/pids tmp/cache tmp/storage
 
