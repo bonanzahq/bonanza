@@ -135,8 +135,12 @@ git bug bug status close <ID>
 
 # End of session
 git bug push
-git bug bridge push
+git bug bridge pull          # Pull first to reconcile state
+git bug bridge push          # Then push new issues to GitHub
 ```
+
+**Important:** `bridge push` will silently export 0 issues if you haven't done
+`bridge pull` first. Always pull before push to sync bridge state.
 
 ## Migration Plans
 
