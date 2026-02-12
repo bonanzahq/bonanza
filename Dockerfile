@@ -18,14 +18,12 @@ RUN corepack enable && corepack prepare pnpm@10 --activate
 WORKDIR /app
 
 COPY Gemfile Gemfile.lock ./
-RUN bundle install
+RUN gem install foreman && bundle install
 
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-RUN pnpm build && pnpm build:css
-
 ENTRYPOINT ["./docker-entrypoint.sh"]
-CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
+CMD ["foreman", "start", "-f", "Procfile.dev"]
