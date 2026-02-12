@@ -49,6 +49,16 @@ together using Playwright MCP for browser automation.
 - No admin UI to create new departments from Verwaltung area
 - Backend exists (controller + routes) but only link is on public workshops page
 
+### Leihvertrag print experience (git-bug 3e5fa64, GitHub synced)
+- Print CSS is missing/broken -- output looks awful
+- Clicking "Drucken" immediately opens print dialog via hidden iframe
+- No PDF download option
+- No option to email agreement to borrower
+
+### Return comment field (git-bug e9e4713, GitHub synced)
+- No way to add comments about item condition when returning (e.g. "cable
+  missing", "scratched lens")
+
 ## git-bug Bridge Sync Issue
 
 Major discovery: `git bug bridge push` was silently exporting 0 issues.
@@ -73,16 +83,32 @@ Manually pushed 5 issues to GitHub via `gh issue create` as backfill.
 
 - `a1f3fb2` fix: disable host authorization in development
 - `9ea4856` fix: guard against nil email_token in borrower views
+- `4f95036` revert: borrower Turbo Frame fix (tracking only, not fixing)
 - `c6a645c` docs: note bridge pull requirement before bridge push
 - `cf23e25` docs: add git-bug identity setup for bridge sync
+- `bbfc970` docs(b1): journal for bug hunting session
+
+## Containerization Remaining Work
+
+Per `docs/plans/b1_containerization.md`, still open:
+- Phase 4: docker-compose.override.yml, helper scripts, dev workflow docs
+- Phase 5: resource limits, ES security, Caddy HTTPS, backup/restore
+- Phase 6: README update, troubleshooting docs
 
 ## For Next Session
 
-- Configure ActionMailer for Mailpit (cc7f2a6) -- most impactful, blocks
-  borrower creation flow
-- Fix Turbo Frame mismatch on borrower links (3886815)
-- Fix autocomplete CORS (8be4096)
-- Relocate Verwaltung navigation (7913dbe)
-- Add department creation UI (82b4fc0)
-- Clean up 8 duplicate git-bug issues created by bridge pull re-importing
+**Bugs to fix (priority order):**
+1. Configure ActionMailer for Mailpit (cc7f2a6 / #44) -- most impactful,
+   blocks borrower creation flow
+2. Fix autocomplete CORS (8be4096 / #46) -- hardcoded localhost:3000
+3. Fix Turbo Frame borrower links (3886815 / #45) -- "Content missing"
+
+**Features/enhancements:**
+- Relocate Verwaltung navigation (7913dbe / #42)
+- Add department creation UI (82b4fc0 / #41)
+- Improve Leihvertrag: print CSS, PDF download, email (3e5fa64)
+- Add return comment field (e9e4713)
+
+**Housekeeping:**
+- Clean up 8 duplicate git-bug issues from bridge pull re-importing
 - Update `/git-bug` skill with identity verification and bridge sync docs
