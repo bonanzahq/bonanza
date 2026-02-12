@@ -1,6 +1,9 @@
 require "active_support/core_ext/integer/time"
 
-Rails.application.default_url_options = { host: 'localhost', port: 3000 }
+Rails.application.default_url_options = {
+  host: ENV.fetch("APP_HOST", "localhost"),
+  port: ENV.fetch("APP_PORT", 3000).to_i
+}
 
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
