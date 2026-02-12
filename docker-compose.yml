@@ -3,7 +3,7 @@
 
 services:
   db:
-    image: postgres:15-alpine
+    image: postgres:17.7
     environment:
       POSTGRES_PASSWORD: password
     ports:
@@ -63,7 +63,7 @@ services:
       start_period: 60s
 
   caddy:
-    image: caddy:2-alpine
+    image: caddy:2.10.2
     ports:
       - "8080:8080"
     volumes:
@@ -73,7 +73,7 @@ services:
       - rails
 
   mailpit:
-    image: axllent/mailpit
+    image: axllent/mailpit:v1.29.0
     ports:
       - "8025:8025"
 
