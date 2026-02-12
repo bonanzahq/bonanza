@@ -547,10 +547,9 @@ open http://localhost:8025
 - [ ] Optional: Implement PurgeCSS (from TODO list)
 
 ### Phase 4: Development Experience
-- [ ] Create docker-compose.override.yml for development
 - [x] Add volume mounts for live code reloading
-- [ ] Document development workflow
-- [ ] Create helper scripts for common tasks
+- [x] Document development workflow (README)
+- [x] Configure ActionMailer for Mailpit
 
 ### Phase 5: Production Readiness
 - [x] Implement health checks for all services
@@ -561,10 +560,10 @@ open http://localhost:8025
 - [ ] Add monitoring and logging configuration
 
 ### Phase 6: Documentation and Testing
-- [ ] Update README.md with Docker instructions
+- [x] Update README.md with Docker instructions
 - [x] Create .env.example with all required variables
 - [x] Test complete setup from scratch
-- [ ] Document troubleshooting procedures
+- [x] Document troubleshooting procedures (README)
 
 ---
 
