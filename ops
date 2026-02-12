@@ -1,1 +1,1 @@
-{"author":{"id":"9ce646fd10346788b0ba0bb1d6d4d7df7faf6b71badbb76619d75576ac1df697"},"ops":[{"type":1,"timestamp":1770885092,"nonce":"yDSOhNqR1BQoawtbVPbjIGstHPg=","title":"TEST: bridge push diagnostic","message":"This is a test issue to diagnose bridge push. Created by fmzbot identity. Delete after testing.","files":null}]}
+{"author":{"id":"9ce646fd10346788b0ba0bb1d6d4d7df7faf6b71badbb76619d75576ac1df697"},"ops":[{"type":4,"timestamp":1770885300,"nonce":"L8C2wGGygzwYvM08nVDqMc8a1PA=","status":2}]}
