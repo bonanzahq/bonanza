@@ -40,6 +40,8 @@ services:
       RAILS_ENV: development
       DATABASE_URL: postgresql://postgres:password@db:5432/bonanza_redux_development
       ELASTICSEARCH_URL: http://elasticsearch:9200
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
     ports:
       - "3000:3000"
     volumes:
