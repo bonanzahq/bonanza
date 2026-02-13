@@ -1,11 +1,10 @@
-# ABOUTME: Caddy reverse proxy configuration for development.
-# ABOUTME: Proxies HTTP :8080 to Rails, adds security headers, logs as JSON.
+# ABOUTME: Caddy reverse proxy configuration for Bonanza.
+# ABOUTME: Uses env vars for address config (set via docker-compose).
+#
+# In development: CADDY_ADDRESS=":8080" serves plain HTTP.
+# In production: CADDY_ADDRESS="example.com" enables automatic HTTPS.
 
-{
-	auto_https off
-}
-
-:8080 {
+{$CADDY_ADDRESS} {
 	reverse_proxy rails:3000
 
 	header {
