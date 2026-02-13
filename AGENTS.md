@@ -57,19 +57,10 @@ docker compose down -v    # -v removes volumes (DB data, ES data)
 docker compose up -d      # Fresh start
 ```
 
-**DANGER: `db/schema.rb` is the only source of truth for the database schema.**
-There are no migration files. If any Rails command runs `db:schema:dump`
-against an empty or partial database (this happens implicitly after
-`db:migrate`, `db:schema:load` on a failed load, etc.), it silently
-overwrites schema.rb with an empty schema. This is catastrophic -- the
-next `db:prepare` or Docker build will create an empty database.
-
-If schema.rb shows `version: 0` or is missing tables, restore immediately:
-```bash
-git checkout -- db/schema.rb
-```
-Never commit a truncated schema.rb. Always verify `version: 2023_04_03_060517`
-is present before building Docker images or pushing.
+**Note on `db/schema.rb`:** Rails can silently overwrite schema.rb with an
+empty schema if `db:schema:dump` runs against an empty database. This is
+harmless now because `db/migrate/` has the initial migration, but don't
+commit a truncated schema.rb. If it happens: `git checkout -- db/schema.rb`.
 
 ### Running tests locally
 
