@@ -2,7 +2,7 @@
 
 ## Goal
 
-Begin Phase A2: upgrade Ruby and Rails to supported versions, then remaining gems.
+Phase A2: upgrade Ruby and Rails to supported versions, then remaining gems.
 Target path: Ruby 3.4.8, Rails 7.0 -> 7.2.3 -> 8.0.4, then Phase 2 gems.
 
 ## What We Did
@@ -82,27 +82,58 @@ afa207e feat: upgrade Ruby from 3.1.2 to 3.4.8
 249a93f docs: archive completed plan files (a3, b1, b1b, b1c)
 ```
 
-## Uncommitted changes (working tree)
+---
+
+## Session 2 (continued)
+
+### Rails 7.2.3 upgrade (DONE, committed)
+
+Resolved the test hang and completed the 7.2 upgrade:
+
+- **Parallel test hang**: Tests hung with `parallelize(workers: :number_of_processors)` on Rails 7.2. Fixed by setting `parallelize(workers: 1)` -- small test suite doesn't benefit from parallelization.
+- **Enum deprecation warnings**: Updated all 10 enum declarations across 8 model files from keyword-arg to positional-arg syntax.
+- **load_defaults bumped to 7.2**: No `serialize` usage or `to_time` calls, so safe to bump directly. Tests pass.
+- **Docker rebuilt and smoke tested**: App boots, login page returns 200.
+
+### Rails 7.2.3 -> 8.0.4 (DONE, committed)
+
+- **acts-as-taggable-on**: v11 required `activerecord < 8.0`, had to bump to v13.0.0
+- **Removed stdlib shims**: `mutex_m`, `bigdecimal`, `drb` -- Rails 8 handles these
+- **Devise mapping issue**: Rails 8 doesn't eagerly load routes in test env, causing `sign_in` to fail with "Could not find a valid mapping". Fixed by adding `Rails.application.reload_routes!` in test_helper.rb.
+- **to_time deprecation**: Added `config.active_support.to_time_preserves_timezone = :zone` to application.rb
+- **Tests**: 200 runs, 0 failures, 2 pre-existing ES errors, 0 deprecation warnings
+- **Docker rebuilt and smoke tested**: App boots, login page returns 200
+- **Security audit**: 0 vulnerabilities
+
+### Commits (session 2)
 
 ```
-Gemfile          - rails 7.2.3, puma 6.6.0, acts-as-taggable-on 11.0.0, minitest 5.25.4
-Gemfile.lock     - regenerated
-config/environments/development.rb  - enable_reloading
-config/environments/production.rb   - enable_reloading, logger
-config/environments/test.rb         - enable_reloading, show_exceptions
+5bd0bf5 fix: reload routes in test setup for Devise mapping compatibility
+4d06e14 chore: set to_time_preserves_timezone for Rails 8.1 compat
+5e870a4 chore: upgrade Rails from 7.2.3 to 8.0.4
+fe9a723 chore: bump load_defaults from 7.0 to 7.2
+bb7e381 fix: set parallel test workers to 1 to prevent hang on Rails 7.2
+a34994f refactor: update enum declarations to positional arg syntax
+f481a29 chore: upgrade Rails from 7.0.4.3 to 7.2.3
 ```
 
-## Next session checklist
+All pushed to origin/feat-dependency-updates.
 
-1. Debug the test hang (start with single test, verbose, no parallelization)
-2. Get all 200 tests passing on Rails 7.2.3
-3. Commit the Rails 7.2 upgrade
-4. Rebuild Docker, smoke test, get Fabian's confirmation
-5. Then: Rails 7.2.3 -> 8.0.4
-6. Then: security audit, Phase 2 gems
+## Next steps
+
+Phase 1 (critical) is complete: Ruby 3.4.8, Rails 8.0.4.
+
+Phase 2 (important gem updates) remains:
+1. Searchkick & Elasticsearch update
+2. Devise/cancancan/devise_invitable update
+3. Turbo/Stimulus update
+4. Puma update
+5. Asset pipeline gems
+6. RuboCop update
+7. Bump `config.load_defaults` to 8.0 (incremental, use new_framework_defaults_8_0.rb)
 
 ## Docker state
 
 - Containers running on feat-dependency-updates (ports 3000, 5432, 9200, 8025)
-- App is on Ruby 3.4.8 / Rails 7.0.4.3 in the container (not yet rebuilt with 7.2)
-- Test DB needs to be on the Docker PG: `TEST_DATABASE_PASSWORD=password`
+- App is on Ruby 3.4.8 / Rails 8.0.4
+- Test DB needs `TEST_DATABASE_PASSWORD=password`
