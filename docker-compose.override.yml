@@ -13,6 +13,7 @@ services:
       - "9200:9200"
 
   rails:
+    user: root
     environment:
       RAILS_ENV: development
       DATABASE_URL: postgresql://postgres:password@db:5432/bonanza_redux_development
@@ -40,6 +41,7 @@ services:
 
   mailpit:
     image: axllent/mailpit:v1.29.0
+    restart: unless-stopped
     ports:
       - "8025:8025"
 

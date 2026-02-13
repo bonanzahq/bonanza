@@ -51,8 +51,7 @@ docs/bonanza-dev-notes
 
 **/.DS_Store
 
-# Docker Compose dev override (track .example instead)
-docker-compose.override.yml
+
 
 # Claude Code local settings
 .claude/settings.local.json
