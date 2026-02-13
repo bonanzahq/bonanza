@@ -47,6 +47,7 @@ docs/bonanza-dev-notes
 !/app/assets/builds/printable_agreement.css
 
 /node_modules
+/.pnpm-store
 
 **/.DS_Store
 
