@@ -41,13 +41,12 @@ RUN apt-get update -qq && \
 
 RUN corepack enable && corepack prepare pnpm@10 --activate
 
+RUN useradd -m -u 1000 rails
+
 COPY --from=build /usr/local/bundle /usr/local/bundle
 
 WORKDIR /app
-COPY --from=build /app /app
-
-RUN useradd -m -u 1000 rails && \
-    chown -R rails:rails /app
+COPY --chown=rails:rails --from=build /app /app
 
 USER rails
 
