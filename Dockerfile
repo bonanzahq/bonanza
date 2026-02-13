@@ -25,5 +25,9 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
+RUN SECRET_KEY_BASE=precompile-placeholder \
+    RAILS_ENV=production \
+    bundle exec rails assets:precompile
+
 ENTRYPOINT ["./docker-entrypoint.sh"]
-CMD ["foreman", "start", "-f", "Procfile.dev"]
+CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
