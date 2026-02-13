@@ -9,7 +9,8 @@ gem "bigdecimal"
 gem "drb"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "~> 7.0.4.2"
+gem "rails", "7.2.3"
+gem "minitest", "5.25.4"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
 gem "sprockets-rails"
@@ -18,7 +19,7 @@ gem "sprockets-rails"
 gem "pg", "~> 1.1"
 
 # Use the Puma web server [https://github.com/puma/puma]
-gem "puma", "~> 5.0"
+gem "puma", "6.6.0"
 
 # Bundle and transpile JavaScript [https://github.com/rails/jsbundling-rails]
 gem "jsbundling-rails"
@@ -70,7 +71,7 @@ gem "kaminari", "~> 1.2.0"
 gem "pg_search", "~> 2.3.0"
 
 # tags
-gem "acts-as-taggable-on", "~> 9.0.0"
+gem "acts-as-taggable-on", "11.0.0"
 
 # profile pics
 gem 'ruby_identicon', "0.0.6"
