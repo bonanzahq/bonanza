@@ -74,6 +74,7 @@ GEM
     awesome_print (1.9.2)
     base64 (0.3.0)
     bcrypt (3.1.18)
+    bigdecimal (4.0.1)
     bindex (0.8.1)
     bootsnap (1.16.0)
       msgpack (~> 1.2)
@@ -106,6 +107,7 @@ GEM
     devise_invitable (2.0.7)
       actionmailer (>= 5.0)
       devise (>= 4.6)
+    drb (2.2.3)
     elastic-transport (8.2.1)
       faraday (< 3)
       multi_json
@@ -167,9 +169,11 @@ GEM
     matrix (0.4.3)
     method_source (1.0.0)
     mini_mime (1.1.2)
+    mini_portile2 (2.8.9)
     minitest (5.18.0)
     msgpack (1.7.0)
     multi_json (1.15.0)
+    mutex_m (0.3.0)
     net-imap (0.3.4)
       date
       net-protocol
@@ -180,11 +184,8 @@ GEM
     net-smtp (0.3.3)
       net-protocol
     nio4r (2.5.9)
-    nokogiri (1.14.3-aarch64-linux)
-      racc (~> 1.4)
-    nokogiri (1.14.3-arm64-darwin)
-      racc (~> 1.4)
-    nokogiri (1.14.3-x86_64-linux)
+    nokogiri (1.14.3)
+      mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     oj (3.14.3)
     orm_adapter (0.5.0)
@@ -327,6 +328,7 @@ DEPENDENCIES
   acts-as-taggable-on (~> 9.0.0)
   awesome_print
   bcrypt (~> 3.1.7)
+  bigdecimal
   bootsnap
   cancancan (~> 3.3.0)
   capybara (~> 3.39)
@@ -334,12 +336,14 @@ DEPENDENCIES
   debug
   devise (~> 4.9.0)
   devise_invitable (~> 2.0)
+  drb
   elasticsearch (~> 8.4.0)
   factory_bot_rails (~> 6.2)
   faker (~> 3.2)
   jbuilder
   jsbundling-rails
   kaminari (~> 1.2.0)
+  mutex_m
   oj (~> 3.13)
   pg (~> 1.1)
   pg_search (~> 2.3.0)
@@ -360,7 +364,7 @@ DEPENDENCIES
   web-console
 
 RUBY VERSION
-   ruby 3.1.2p20
+   ruby 3.4.8p72
 
 BUNDLED WITH
    2.3.7

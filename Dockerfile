@@ -1,7 +1,7 @@
 # ABOUTME: Builds the Rails application image for development and production.
 # ABOUTME: Installs Ruby gems, Node/pnpm packages, and compiles frontend assets.
 
-FROM ruby:3.1.2 AS build
+FROM ruby:3.4.8 AS build
 
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends \
@@ -28,7 +28,7 @@ RUN SECRET_KEY_BASE=precompile-placeholder \
     RAILS_ENV=production \
     bundle exec rails assets:precompile
 
-FROM ruby:3.1.2 AS production
+FROM ruby:3.4.8 AS production
 
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends \

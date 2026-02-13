@@ -1,7 +1,12 @@
 source "https://rubygems.org"
 git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
-ruby "3.1.2"
+ruby "3.4.8"
+
+# Gems extracted from Ruby stdlib in 3.4, required by Rails 7.0
+gem "mutex_m"
+gem "bigdecimal"
+gem "drb"
 
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
 gem "rails", "~> 7.0.4.2"
