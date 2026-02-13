@@ -3,13 +3,8 @@ git_source(:github) { |repo| "https://github.com/#{repo}.git" }
 
 ruby "3.4.8"
 
-# Gems extracted from Ruby stdlib in 3.4, required by Rails 7.0
-gem "mutex_m"
-gem "bigdecimal"
-gem "drb"
-
 # Bundle edge Rails instead: gem "rails", github: "rails/rails", branch: "main"
-gem "rails", "7.2.3"
+gem "rails", "8.0.4"
 gem "minitest", "5.25.4"
 
 # The original asset pipeline for Rails [https://github.com/rails/sprockets-rails]
@@ -71,7 +66,7 @@ gem "kaminari", "~> 1.2.0"
 gem "pg_search", "~> 2.3.0"
 
 # tags
-gem "acts-as-taggable-on", "11.0.0"
+gem "acts-as-taggable-on", "13.0.0"
 
 # profile pics
 gem 'ruby_identicon', "0.0.6"
