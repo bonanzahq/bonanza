@@ -18,6 +18,8 @@ Phase A: Foundation
   a1 Yarn to pnpm ─────────────────────────────────┐
   a3 Testing Infrastructure ───────────────────────┤
   b1 Containerization (get the app running) ───────┤
+  b1b Production Compose Split ───────────────────┤
+  b1c Production Deployment ──────────────────────┤
   a2 Dependency Updates (Ruby 3.4 + Rails 8) ──────┘
                                                      │
 Phase B: Infrastructure                              ▼
@@ -70,6 +72,26 @@ in place and the application actually running before any feature work begins.
   containers are deferred to Phase C.
 - **Note:** Since Redux deploys to the same host as v1, use non-conflicting
   ports during development/testing.
+
+### A3b. Production Compose Split
+
+- **Plan:** `b1b_production-compose.md`
+- **Why now:** The development containerization is complete but everything
+  is in a single docker-compose.yml with dev settings. Split into a
+  production base + development override before the dependency upgrade so
+  both environments can be tested.
+- **Scope:** Restructure docker-compose.yml, add docker-compose.override.yml,
+  update Caddyfile and entrypoint for environment awareness.
+
+### A3c. Production Deployment
+
+- **Plan:** `b1c_production-deployment.md`
+- **Why now:** With the production compose split done, document the actual
+  server setup steps. This is manual first-time deployment -- CI/CD (b4)
+  automates it later.
+- **Scope:** Install Docker, clone repo, create .env, build, start, verify.
+- **Open decisions:** SMTP relay details, server access. Needs Fabian +
+  FHP IT input. TLS handled automatically by Caddy (Let's Encrypt).
 
 ### A4. Dependency Updates
 

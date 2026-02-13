@@ -25,9 +25,10 @@
   <% end %>
 </div>
 
+<%# BUG: email_token is nil when ActionMailer isn't configured (see git-bug cc7f2a6) %>
 <% unless borrower.tos_accepted %>
 <div class="mb-4">
-  <% unless borrower.tos_accepted %>
+  <% if borrower.email_token.present? %>
       <%= link_to send_confirm_email_path(borrower.email_token), class: "btn btn-outline-secondary btn-sm", data: { turbo_stream: true } do  %>
           <span class="icon-before reload">Bedingungen erneut senden</span>
       <% end %>

@@ -826,6 +826,14 @@ Typical build times:
 - First build: ~5-10 minutes
 - Cached build: ~2-3 minutes
 
+**Known bottleneck:** The Dockerfile's `chown -R rails:rails /app` step
+takes ~107s locally because it recurses over all precompiled assets and
+copied source files. With Docker layer caching this only runs when the
+app code changes, but it will still be the slowest step in CI builds.
+Consider mitigating with:
+- `COPY --chown=rails:rails` instead of a separate `RUN chown` step
+- Or restructuring the multi-stage build to copy files as the rails user
+
 ### Deployment Optimization
 
 - Health checks prevent premature completion

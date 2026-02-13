@@ -47,8 +47,12 @@ docs/bonanza-dev-notes
 !/app/assets/builds/printable_agreement.css
 
 /node_modules
+/.pnpm-store
 
 **/.DS_Store
 
+
+
 # Claude Code local settings
 .claude/settings.local.json
+.playwright-mcp/*.log

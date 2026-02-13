@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# ABOUTME: Backs up the bonanza_redux_production database via Docker Compose.
+# ABOUTME: Creates timestamped gzipped SQL dumps and prunes old backups.
+
+set -e
+
+# Configuration
+BACKUP_DIR="${BACKUP_DIR:-./backups}"
+RETENTION_DAYS="${RETENTION_DAYS:-30}"
+DATABASE="bonanza_redux_production"
+DB_USER="postgres"
+TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+BACKUP_FILE="${BACKUP_DIR}/bonanza_${TIMESTAMP}.sql.gz"
+
+# Ensure backup directory exists
+mkdir -p "${BACKUP_DIR}"
+
+echo "Starting database backup..."
+echo "Database: ${DATABASE}"
+echo "Backup file: ${BACKUP_FILE}"
+
+# Run pg_dump via docker compose and gzip the output
+docker compose exec -T db pg_dump -U "${DB_USER}" "${DATABASE}" | gzip > "${BACKUP_FILE}"
+
+echo "✓ Backup created: ${BACKUP_FILE}"
+
+# Prune old backups
+echo "Pruning backups older than ${RETENTION_DAYS} days..."
+PRUNED_COUNT=$(find "${BACKUP_DIR}" -name "bonanza_*.sql.gz" -type f -mtime "+${RETENTION_DAYS}" -delete -print | wc -l)
+
+if [ "${PRUNED_COUNT}" -gt 0 ]; then
+  echo "✓ Removed ${PRUNED_COUNT} old backup(s)"
+else
+  echo "✓ No old backups to prune"
+fi
+
+echo "Backup complete!"
