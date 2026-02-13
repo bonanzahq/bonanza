@@ -1,13 +1,11 @@
-# ABOUTME: Orchestrates all services for the Bonanza development environment.
-# ABOUTME: Runs Rails, PostgreSQL, Elasticsearch, Caddy reverse proxy, and Mailpit.
+# ABOUTME: Production Docker Compose configuration for Bonanza.
+# ABOUTME: Development overrides are in docker-compose.override.yml (auto-merged).
 
 services:
   db:
     image: postgres:17.7
     environment:
-      POSTGRES_PASSWORD: password
-    ports:
-      - "5432:5432"
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - bonanza_postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -22,8 +20,6 @@ services:
       discovery.type: single-node
       xpack.security.enabled: "false"
       ES_JAVA_OPTS: "-Xms512m -Xmx512m"
-    ports:
-      - "9200:9200"
     volumes:
       - bonanza_elasticsearch_data:/usr/share/elasticsearch/data
       - ./elastic_synonyms.txt:/usr/share/elasticsearch/config/elastic_synonyms.txt:ro
@@ -37,19 +33,17 @@ services:
   rails:
     build: .
     environment:
-      RAILS_ENV: development
-      DATABASE_URL: postgresql://postgres:password@db:5432/bonanza_redux_development
+      RAILS_ENV: production
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/bonanza_redux_production
       ELASTICSEARCH_URL: http://elasticsearch:9200
-      APP_HOST: localhost
-      APP_PORT: 8080
-      SMTP_HOST: mailpit
-      SMTP_PORT: 1025
-    ports:
-      - "3000:3000"
-    volumes:
-      - .:/app
-      - bonanza_node_modules:/app/node_modules
-      - bonanza_rails_storage:/app/storage
+      APP_HOST: ${APP_HOST}
+      APP_PORT: ${APP_PORT:-443}
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+      RAILS_SERVE_STATIC_FILES: "true"
+      RAILS_LOG_TO_STDOUT: "true"
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
     depends_on:
       db:
         condition: service_healthy
@@ -65,21 +59,17 @@ services:
   caddy:
     image: caddy:2.10.2
     ports:
-      - "8080:8080"
+      - "80:80"
+      - "443:443"
+    environment:
+      CADDY_ADDRESS: ${APP_HOST}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - bonanza_caddy_data:/data
     depends_on:
       - rails
 
-  mailpit:
-    image: axllent/mailpit:v1.29.0
-    ports:
-      - "8025:8025"
-
 volumes:
   bonanza_postgres_data:
   bonanza_elasticsearch_data:
   bonanza_caddy_data:
-  bonanza_node_modules:
-  bonanza_rails_storage:
