@@ -18,19 +18,25 @@ services:
       resources:
         limits:
           memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   elasticsearch:
     image: elasticsearch:8.4.0
     restart: unless-stopped
     environment:
       discovery.type: single-node
-      xpack.security.enabled: "false"
+      xpack.security.enabled: "true"
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
       ES_JAVA_OPTS: "-Xms512m -Xmx512m"
     volumes:
       - bonanza_elasticsearch_data:/usr/share/elasticsearch/data
       - ./elastic_synonyms.txt:/usr/share/elasticsearch/config/elastic_synonyms.txt:ro
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:9200/_cluster/health || exit 1"]
+      test: ["CMD-SHELL", "curl -sf -u elastic:${ELASTIC_PASSWORD} http://localhost:9200/_cluster/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -39,6 +45,11 @@ services:
       resources:
         limits:
           memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   rails:
     build: .
@@ -46,7 +57,7 @@ services:
     environment:
       RAILS_ENV: production
       DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/bonanza_redux_production
-      ELASTICSEARCH_URL: http://elasticsearch:9200
+      ELASTICSEARCH_URL: http://elastic:${ELASTIC_PASSWORD}@elasticsearch:9200
       APP_HOST: ${APP_HOST}
       APP_PORT: ${APP_PORT:-443}
       SMTP_HOST: ${SMTP_HOST}
@@ -70,6 +81,11 @@ services:
       resources:
         limits:
           memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
   caddy:
     image: caddy:2.10.2
@@ -88,6 +104,11 @@ services:
       resources:
         limits:
           memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
 
 volumes:
   bonanza_postgres_data:
