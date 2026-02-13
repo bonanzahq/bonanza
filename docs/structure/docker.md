@@ -11,6 +11,8 @@
 | `Caddyfile` | Reverse proxy config with env var substitution |
 | `Procfile.dev` | Foreman process file: puma + esbuild + sass watchers |
 | `.env.example` | Documents required env vars for both environments |
+| `bin/backup` | PostgreSQL backup script (gzipped dumps, 30-day retention) |
+| `bin/restore` | PostgreSQL restore from backup file |
 
 ## Two-Environment Design
 
@@ -44,6 +46,7 @@ Only the base file, no override.
 Production requires these env vars (via `.env` file or host environment):
 
 - `POSTGRES_PASSWORD` -- database password
+- `ELASTIC_PASSWORD` -- Elasticsearch password (xpack security enabled in production)
 - `APP_HOST` -- domain name (also used as Caddy address for HTTPS)
 - `SMTP_HOST`, `SMTP_PORT` -- mail relay
 - `RAILS_MASTER_KEY` -- decrypts Rails credentials
