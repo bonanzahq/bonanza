@@ -5,8 +5,8 @@ class Item < ApplicationRecord
   has_many :line_items
   has_many :lendings, :through => :line_items
 
-	enum condition: { flawless: 0, flawed: 1, broken: 2 }
-  enum status: { available: 0, lent: 1, returned: 2, unavailable: 3, deleted: 4 }
+	enum :condition, { flawless: 0, flawed: 1, broken: 2 }
+  enum :status, { available: 0, lent: 1, returned: 2, unavailable: 3, deleted: 4 }
 
   validates :quantity, numericality: { only_integer: true }
   validates :quantity, numericality: { greater_than_or_equal_to: 0 }

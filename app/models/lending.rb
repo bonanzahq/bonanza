@@ -7,7 +7,7 @@ class Lending < ApplicationRecord
   has_many :items, :through => :line_items
   # has_many :conducts, :dependent => :destroy
 
-  enum state: { cart: 0, borrower: 1, confirmation: 2, completed: 3 }
+  enum :state, { cart: 0, borrower: 1, confirmation: 2, completed: 3 }
 
   accepts_nested_attributes_for :line_items, :allow_destroy => true
   accepts_nested_attributes_for :borrower
