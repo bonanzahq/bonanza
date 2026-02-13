@@ -6,8 +6,7 @@
 |------|---------|
 | `Dockerfile` | Builds the Rails image (gems, node packages, asset precompilation) |
 | `docker-compose.yml` | Production base: db, elasticsearch, rails, caddy |
-| `docker-compose.override.yml` | Development additions (gitignored, `.example` tracked) |
-| `docker-compose.override.yml.example` | Template for dev override |
+| `docker-compose.override.yml` | Development additions (tracked in git) |
 | `docker-entrypoint.sh` | Startup script: waits for deps, prepares DB, execs CMD |
 | `Caddyfile` | Reverse proxy config with env var substitution |
 | `Procfile.dev` | Foreman process file: puma + esbuild + sass watchers |
