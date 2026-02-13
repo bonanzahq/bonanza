@@ -30,7 +30,11 @@ mkdir -p tmp/pids tmp/cache tmp/storage
 rm -f tmp/pids/server.pid
 
 echo "Setting up database..."
-bundle exec rails db:prepare 2>&1 || echo "db:prepare had errors (seeds may have failed, non-fatal)"
+bundle exec rails db:create 2>/dev/null || true
+bundle exec rails db:migrate
+if [ "$RAILS_ENV" != "production" ]; then
+  bundle exec rails db:seed || echo "db:seed had errors (non-fatal, likely duplicate data)"
+fi
 
 if [ "$RAILS_ENV" != "production" ]; then
   echo "Reindexing Elasticsearch..."
