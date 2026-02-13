@@ -90,8 +90,8 @@ in place and the application actually running before any feature work begins.
   server setup steps. This is manual first-time deployment -- CI/CD (b4)
   automates it later.
 - **Scope:** Install Docker, clone repo, create .env, build, start, verify.
-- **Open decisions:** TLS strategy (VPN-only means Let's Encrypt won't work),
-  SMTP relay details, server access. Needs Fabian + FHP IT input.
+- **Open decisions:** SMTP relay details, server access. Needs Fabian +
+  FHP IT input. TLS handled automatically by Caddy (Let's Encrypt).
 
 ### A4. Dependency Updates
 

@@ -5,29 +5,11 @@
 Manual first-time deployment of Bonanza to the FH Potsdam server. This
 covers server setup and initial go-live. CI/CD automation comes later (b4).
 
-## TLS Strategy (Decision Needed)
+## TLS
 
-The app is VPN-only. Let's Encrypt won't work because the ACME HTTP
-challenge requires public internet access to port 80.
-
-Options:
-
-| Option | Pros | Cons |
-|--------|------|------|
-| Caddy internal TLS (`tls internal`) | Zero config, HTTPS works | Browser shows cert warning |
-| FHP internal CA cert | Trusted by university machines | Need to get cert from IT |
-| Plain HTTP | Simplest | No encryption (VPN may be sufficient) |
-| DNS ACME challenge | Real cert, no warnings | Needs DNS API access (unlikely) |
-
-**Recommendation:** Start with Caddy internal TLS. If FHP IT provides a
-CA cert later, mount it into the Caddy container. If the VPN is considered
-trusted, plain HTTP is fine too.
-
-Caddy internal TLS requires adding `tls internal` to the Caddyfile site
-block. This can be toggled via an env var or a one-line Caddyfile change
-on the server.
-
-**This decision needs Fabian + FHP IT input.**
+The app is publicly accessible at `bonanza.fh-potsdam.de`. Caddy
+automatically provisions a Let's Encrypt certificate when `CADDY_ADDRESS`
+is set to the domain name. No special TLS configuration needed.
 
 ## Prerequisites
 
@@ -77,7 +59,7 @@ POSTGRES_PASSWORD=<generate: openssl rand -base64 32>
 ELASTIC_PASSWORD=<generate: openssl rand -base64 32>
 SECRET_KEY_BASE=<generate: openssl rand -hex 64>
 RAILS_MASTER_KEY=<from config/master.key>
-APP_HOST=<hostname, e.g. bonanza.fh-potsdam.de>
+APP_HOST=bonanza.fh-potsdam.de
 SMTP_HOST=<FHP SMTP relay>
 SMTP_PORT=587
 EOF
@@ -187,8 +169,6 @@ configured in docker-compose.yml).
 
 ## Open Questions
 
-- TLS strategy (see decision table above)
-- Server hostname/IP within VPN
 - FHP SMTP relay address and credentials
 - sudo access or will FHP IT install Docker?
 - Deploy empty first and migrate data later, or do both in one cutover?
