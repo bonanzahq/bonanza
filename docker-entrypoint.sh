@@ -11,7 +11,7 @@ done
 echo "PostgreSQL is ready."
 
 echo "Waiting for Elasticsearch..."
-until curl -sf http://elasticsearch:9200/_cluster/health > /dev/null; do
+until curl -sf "${ELASTICSEARCH_URL}/_cluster/health" > /dev/null; do
   sleep 2
 done
 echo "Elasticsearch is ready."

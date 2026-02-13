@@ -9,6 +9,8 @@ services:
       - "5432:5432"
 
   elasticsearch:
+    environment:
+      xpack.security.enabled: "false"
     ports:
       - "9200:9200"
 
@@ -17,6 +19,7 @@ services:
     environment:
       RAILS_ENV: development
       DATABASE_URL: postgresql://postgres:password@db:5432/bonanza_redux_development
+      ELASTICSEARCH_URL: http://elasticsearch:9200
       APP_HOST: localhost
       APP_PORT: 8080
       SMTP_HOST: mailpit
