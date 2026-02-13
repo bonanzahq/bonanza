@@ -60,8 +60,11 @@ ELASTIC_PASSWORD=<generate: openssl rand -base64 32>
 SECRET_KEY_BASE=<generate: openssl rand -hex 64>
 RAILS_MASTER_KEY=<from config/master.key>
 APP_HOST=bonanza.fh-potsdam.de
-SMTP_HOST=<FHP SMTP relay>
+SMTP_HOST=<from .env>
 SMTP_PORT=587
+SMTP_USERNAME=<from .env>
+SMTP_PASSWORD=<from .env>
+MAILER_FROM=<from .env>
 EOF
 chmod 600 .env
 ```
@@ -169,6 +172,5 @@ configured in docker-compose.yml).
 
 ## Open Questions
 
-- FHP SMTP relay address and credentials
 - sudo access or will FHP IT install Docker?
 - Deploy empty first and migrate data later, or do both in one cutover?
