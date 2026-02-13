@@ -1,6 +1,4 @@
 class BorrowerMailer < ApplicationMailer
-	default from: "Bonanza an der FHP <bonanza@fh-potsdam.de>"
-
   def confirm_email
     @borrower = params[:borrower]
     mail(to: @borrower.email, subject: 'Bestätige Deine Registrierung')
