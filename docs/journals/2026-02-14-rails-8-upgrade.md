@@ -128,3 +128,39 @@ Skipped rubocop update -- already at latest resolved versions from Batch 0 pinni
 - PR #55 open: https://github.com/bonanzahq/bonanza/pull/55
 - Branch: feat-dependency-updates (37 commits ahead of main)
 - Fabian tested the app manually -- everything works
+
+## Next session plan: Rails 8.1.2 + Ruby 4.0.1
+
+Order: Rails first (minor, lower risk), then Ruby (major, higher risk).
+
+### Phase 1: Rails 8.0.4 -> 8.1.2
+
+1. Check gem compatibility -- `acts-as-taggable-on 13.0.0` has `activerecord < 8.2`, should work with 8.1.x but verify
+2. Update Gemfile to `"8.1.2"`, run `bundle update rails`
+3. Fix any dependency conflicts (bump blocking gems one at a time)
+4. Run tests, fix failures
+5. Check deprecation warnings
+6. Check what `load_defaults 8.1` changes (read railties source)
+7. Bump load_defaults 8.0 -> 8.1 in separate commit
+8. Docker rebuild + smoke test
+9. Push and verify CI
+
+### Phase 2: Ruby 3.4.8 -> 4.0.1
+
+10. Check `docker pull ruby:4.0.1` exists before starting
+11. Install via mise: `mise install ruby@4.0.1`
+12. Update Gemfile, mise.toml, Dockerfile
+13. Run `bundle install` -- watch for native extension failures (bcrypt, pg, puma, nokogiri, oj, redcarpet)
+14. Run tests -- Ruby 4.0 risks: frozen string literals by default, removed deprecated methods
+15. Fix failures one at a time
+16. Docker rebuild + smoke test
+17. Push and verify CI
+
+### Risks to watch
+
+- **acts-as-taggable-on** has been the blocker on every Rails upgrade
+- **ruby_identicon 0.0.6** is unmaintained and unused in app code -- consider removing before Ruby 4.0
+- **Native extensions** may not compile on Ruby 4.0 -- need to bump gems with C extensions
+- **Frozen string literals** (Ruby 4.0) could break gems doing `str << "bar"` on string literals
+- **Docker image `ruby:4.0.1`** may not exist on Docker Hub yet
+- **sprockets-rails** -- Rails 8.1 continues Propshaft push, watch for deprecations
