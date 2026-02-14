@@ -107,6 +107,17 @@ Skipped rubocop update -- already at latest resolved versions from Batch 0 pinni
 - `6f5b2a5` - Upgrade Rails 8.0.4 to 8.1.2
 - `92396c5` - Upgrade Ruby 3.4.8 to 4.0.1
 
+### Bugfix: invitation email
+
+- Fabian found that inviting a user crashed with `undefined method 'department' for an instance of User`
+- Template called `@resource.department` but User model only has `current_department`
+- Fixed in both the hidden preheader (line 176) and visible body (line 223)
+- Pre-existing bug, not caused by our upgrades
+
+### Bugs closed
+
+- `8d0fc12` - Execute a2: Dependency updates (Ruby 3.4+ / Rails 8.x) -- Phase 1 + 2 complete
+
 ### Final state
 
 - Ruby 3.4.8, Rails 8.0.4, load_defaults 8.0
@@ -114,5 +125,6 @@ Skipped rubocop update -- already at latest resolved versions from Batch 0 pinni
 - 200 tests pass, 0 failures, 0 deprecation warnings
 - Docker builds in CI, Renovate configured
 - Security audit clean
-- PR #55 updated and ready for review
-- Branch: feat-dependency-updates (35 commits ahead of main)
+- PR #55 open: https://github.com/bonanzahq/bonanza/pull/55
+- Branch: feat-dependency-updates (37 commits ahead of main)
+- Fabian tested the app manually -- everything works
