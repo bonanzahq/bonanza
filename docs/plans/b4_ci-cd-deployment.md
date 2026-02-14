@@ -5,7 +5,7 @@
 - Run tests on GitHub CI for all PRs
 - Test Docker build process on PRs
 - Semantic versioning and automated releases
-- Build and push Docker images to GHCR
+- Build and push Docker images to Docker Hub
 - Deploy to two separate servers: **beta** and **production**
 - Simple, fault-tolerant deployment (KISS principle)
 - Use existing image if registry unavailable
@@ -37,14 +37,14 @@ GitHub Repository
   │   ├─> Run tests
   │   ├─> Build Docker image
   │   ├─> Tag as :beta
-  │   ├─> Push to GHCR
+  │   ├─> Push to Docker Hub
   │   └─> Deploy to beta server via SSH
   │
   └─> Push git tag (v1.2.3)
       ├─> Run tests
       ├─> Build Docker image
       ├─> Tag as :latest and :v1.2.3
-      ├─> Push to GHCR
+      ├─> Push to Docker Hub
       ├─> Create GitHub Release
       └─> Deploy to production server via SSH
 
@@ -85,21 +85,21 @@ If automated versioning is needed later, use semantic-release with conventional 
 
 **Recommendation**: Start with manual tags, add automation only if needed.
 
-## GitHub Container Registry (GHCR)
+## Docker Hub Registry
 
 ### Image Naming
-- Repository: `ghcr.io/bonanzahq/bonanza_redux`
-- Beta tag: `ghcr.io/bonanzahq/bonanza_redux:beta`
+- Repository: `bonanzahq/bonanza`
+- Beta tag: `bonanzahq/bonanza:beta`
 - Production tags:
-  - `ghcr.io/bonanzahq/bonanza_redux:latest`
-  - `ghcr.io/bonanzahq/bonanza_redux:v1.2.3`
+  - `bonanzahq/bonanza:latest`
+  - `bonanzahq/bonanza:v1.2.3`
 
-### Why GHCR over Docker Hub
-- Free private repositories
-- Seamless GitHub Actions integration
-- No separate account/login needed
-- 500MB package storage per repo (free tier)
-- Automatic cleanup policies available
+### Why Docker Hub
+- Fabian's choice for easier external deployment
+- Simple authentication with username/password
+- Standard registry for most Docker installations
+- Better discoverability for external collaborators
+- No GitHub-specific setup needed on deployment servers
 
 ## GitHub Actions Workflows
 
@@ -173,7 +173,7 @@ jobs:
           push: false
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          tags: ghcr.io/${{ github.repository }}:test
+          tags: bonanzahq/bonanza:test
 ```
 
 **Key features**:
@@ -206,23 +206,21 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Log in to GHCR
+      - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: bonanzahq/bonanza
           tags: |
             type=raw,value=beta
             type=sha,prefix=beta-
@@ -282,23 +280,21 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
-      packages: write
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Log in to GHCR
+      - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ghcr.io/${{ github.repository }}
+          images: bonanzahq/bonanza
           tags: |
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
@@ -354,7 +350,7 @@ set -e
 
 ENVIRONMENT=${1:-production}
 COMPOSE_FILE="docker-compose.${ENVIRONMENT}.yml"
-IMAGE_NAME="ghcr.io/bonanzahq/bonanza_redux"
+IMAGE_NAME="bonanzahq/bonanza"
 
 if [ "$ENVIRONMENT" = "production" ]; then
   IMAGE_TAG="latest"
@@ -503,12 +499,14 @@ EOF
 chmod 600 .env
 ```
 
-#### 5. Login to GHCR
+#### 5. Login to Docker Hub
 
 ```bash
-# Create GitHub Personal Access Token with read:packages scope
-# Then login
-echo $GITHUB_TOKEN | docker login ghcr.io -u bonanzahq --password-stdin
+# Login to Docker Hub with username and password
+docker login -u bonanzahq
+
+# Or use environment variable
+echo $DOCKER_PASSWORD | docker login -u bonanzahq --password-stdin
 ```
 
 Store credentials for automatic pulls:
@@ -533,6 +531,10 @@ curl http://localhost/up
 ## GitHub Repository Secrets
 
 Add these secrets in GitHub repository settings (Settings → Secrets and variables → Actions):
+
+### Docker Hub
+- `DOCKER_USERNAME`: Docker Hub username (e.g., `bonanzahq`)
+- `DOCKER_PASSWORD`: Docker Hub password or access token
 
 ### Beta Server
 - `BETA_HOST`: Beta server hostname/IP
@@ -581,7 +583,7 @@ git push origin feature/new-feature
 # → GitHub Actions automatically:
 #   1. Runs tests
 #   2. Builds Docker image with :beta tag
-#   3. Pushes to GHCR
+#   3. Pushes to Docker Hub
 #   4. Deploys to beta server
 
 # Test on beta
@@ -602,7 +604,7 @@ git push origin v1.2.3
 # → GitHub Actions automatically:
 #   1. Runs tests
 #   2. Builds Docker image with :latest and :v1.2.3 tags
-#   3. Pushes to GHCR
+#   3. Pushes to Docker Hub
 #   4. Creates GitHub Release with notes
 #   5. Deploys to production server
 
@@ -620,7 +622,7 @@ On the server:
 cd /opt/bonanza
 
 # Pull previous version
-docker pull ghcr.io/bonanzahq/bonanza_redux:v1.2.2
+docker pull bonanzahq/bonanza:v1.2.2
 
 # Edit docker-compose file to use specific version
 # OR set IMAGE_TAG env var
@@ -856,11 +858,11 @@ Requires Docker Swarm mode or Kubernetes (not KISS).
 
 ## Cost Considerations
 
-### GHCR Storage
+### Docker Hub Storage
 
-- Free tier: 500MB per package
+- Free tier: 1 private repository, unlimited public repositories
 - Monitor image sizes: `docker images`
-- Cleanup old tags regularly via GitHub Actions
+- Cleanup old tags manually or via automation scripts
 
 ### Server Resources
 
@@ -894,13 +896,13 @@ docker-compose -f docker-compose.prod.yml logs app
 # - Missing environment variables
 ```
 
-**2. Cannot pull image from GHCR**
+**2. Cannot pull image from Docker Hub**
 ```bash
 # Check authentication
-docker login ghcr.io
+docker login
 
 # Verify image exists
-docker manifest inspect ghcr.io/bonanzahq/bonanza_redux:latest
+docker manifest inspect bonanzahq/bonanza:latest
 
 # Script continues with existing image (fault tolerance)
 ```

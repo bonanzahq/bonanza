@@ -1,0 +1,67 @@
+# ABOUTME: Docker Hub build-and-push workflow for the Bonanza application
+# ABOUTME: Builds on all pushes/PRs, pushes to Docker Hub only on non-PR events
+
+name: Docker Build
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - 'LICENSE'
+      - '.github/renovate.json'
+  pull_request:
+    branches: [main]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - 'LICENSE'
+      - '.github/renovate.json'
+  workflow_dispatch:
+
+env:
+  IMAGE_NAME: bonanzahq/bonanza
+
+jobs:
+  build:
+    if: "github.event_name != 'push' || !contains(github.event.head_commit.message, 'skip ci')"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
+
+      - name: Log in to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
