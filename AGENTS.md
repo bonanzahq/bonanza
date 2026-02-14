@@ -87,6 +87,11 @@ docker compose exec -T rails bash -c \
   'bundle exec rails runner "ParentItem.reindex; Borrower.reindex"'
 ```
 
+## CI
+
+Add `[skip ci]` to commit messages for docs-only, cleanup, and chore commits
+that don't affect code or builds. Both the test and docker-build jobs respect this.
+
 ## Common Commands
 
 ```bash
