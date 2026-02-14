@@ -52,9 +52,6 @@ Rails.application.configure do
   # information to avoid inadvertent exposure of personally identifiable information (PII).
   config.log_level = :info
 
-  # Prepend all log lines with the following tags.
-  config.log_tags = [ :request_id ]
-
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
 
@@ -86,16 +83,25 @@ Rails.application.configure do
   # Don't log any deprecations.
   config.active_support.report_deprecations = false
 
-  # Use default logging formatter so that PID and timestamp are not suppressed.
-  config.log_formatter = ::Logger::Formatter.new
-
   # Use a different logger for distributed setups.
   # require "syslog/logger"
   # config.logger = ActiveSupport::TaggedLogging.new(Syslog::Logger.new "app-name")
 
-  if ENV["RAILS_LOG_TO_STDOUT"].present?
-    config.logger = ActiveSupport::TaggedLogging.logger(STDOUT, formatter: config.log_formatter)
+  # Structured JSON logging
+  config.lograge.enabled = true
+  config.lograge.formatter = Lograge::Formatters::Json.new
+  config.lograge.custom_options = lambda do |event|
+    {
+      request_id: event.payload[:request_id],
+      user_id: event.payload[:user_id]
+    }
   end
+
+  json_formatter = proc do |severity, timestamp, _progname, msg|
+    JSON.dump(level: severity, time: timestamp.iso8601(3), msg: msg) + "\n"
+  end
+
+  config.logger = ActiveSupport::Logger.new($stdout, formatter: json_formatter)
 
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
