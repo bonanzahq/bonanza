@@ -9,10 +9,7 @@ Bundler.require(*Rails.groups)
 module BonanzaRedux
   class Application < Rails::Application
     # Initialize configuration defaults for originally generated Rails version.
-    config.load_defaults 7.2
-
-    # Override for load_defaults 7.2 (which defaults to :offset). Remove when bumping to load_defaults 8.0.
-    config.active_support.to_time_preserves_timezone = :zone
+    config.load_defaults 8.0
 
     # Configuration for the application, engines, and railties goes here.
     #
