@@ -20,15 +20,13 @@ on:
       - 'LICENSE'
       - '.github/renovate.json'
   workflow_dispatch:
-  release:
-    types: [published]
 
 env:
   IMAGE_NAME: bonanzahq/bonanza
 
 jobs:
   build:
-    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    if: "github.event_name != 'push' || !contains(github.event.head_commit.message, 'skip ci')"
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -49,6 +47,7 @@ jobs:
             type=ref,event=pr
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Log in to Docker Hub
         if: github.event_name != 'pull_request'
@@ -64,3 +63,5 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
