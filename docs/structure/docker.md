@@ -24,6 +24,7 @@ Docker Compose auto-merges `docker-compose.yml` + `docker-compose.override.yml`.
 - Source mounted at `/app` for live reload
 - Foreman runs puma + asset watchers via `Procfile.dev`
 - Mailpit captures email on port 8025
+- Dozzle log viewer on port 9999
 - Caddy on `:8080`, plain HTTP
 - All service ports exposed for debugging
 - Entrypoint syncs dependencies and reindexes Elasticsearch
