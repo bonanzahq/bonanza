@@ -1,5 +1,7 @@
 Rails.application.routes.draw do
-  get "up" => "health#show"
+  get "up" => "health#liveness"
+  get "health/liveness" => "health#liveness"
+  get "health/readiness" => "health#readiness"
 
   resources :departments, path: '/werkstaetten' do
     member do

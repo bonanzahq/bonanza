@@ -1,20 +1,34 @@
+# ABOUTME: Health check endpoints for container orchestration.
+# ABOUTME: Provides liveness (process alive) and readiness (dependencies available) checks.
 class HealthController < ApplicationController
-  rescue_from(Exception) { render_down }
+  def liveness
+    render json: { status: "ok" }
+  end
 
-  def show
-    render_up
+  def readiness
+    checks = {
+      database: check_database,
+      elasticsearch: check_elasticsearch
+    }
+    all_ok = checks.values.all? { |c| c[:status] == "ok" }
+
+    render json: { status: all_ok ? "ok" : "degraded", checks: checks },
+           status: all_ok ? :ok : :service_unavailable
   end
 
   private
-    def render_up
-      render html: html_status(color: "green")
-    end
 
-    def render_down
-      render html: html_status(color: "red"), status: 500
-    end
+  def check_database
+    ActiveRecord::Base.connection.execute("SELECT 1")
+    { status: "ok" }
+  rescue => e
+    { status: "error", message: e.message }
+  end
 
-    def html_status(color:)
-      %(<html><body style="background-color: #{color}"></body></html>).html_safe
-    end
+  def check_elasticsearch
+    Searchkick.client.ping
+    { status: "ok" }
+  rescue => e
+    { status: "error", message: e.message }
+  end
 end
