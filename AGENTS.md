@@ -4,8 +4,8 @@ Equipment lending management system for FH Potsdam. Rewrite of Bonanza v1.
 
 ## Tech Stack
 
-- **Language**: Ruby 3.4.8 (upgraded from 3.1.2, see `docs/plans/a2_dependency-updates.md`)
-- **Framework**: Rails 7.0.4.3 (EOL -- upgrade to 7.2 then 8.x in progress)
+- **Language**: Ruby 3.4.8
+- **Framework**: Rails 8.0.4
 - **Database**: PostgreSQL 15
 - **Search**: Elasticsearch 8.4 via Searchkick
 - **Frontend**: Hotwire (Turbo + Stimulus), esbuild, Sass
@@ -117,7 +117,7 @@ config/
 docs/
   plans/           # Migration and feature plans (a1-d2)
   journals/        # Session journals
-test/              # Minitest (framework not yet configured)
+test/              # Minitest test suite (200 tests)
 ```
 
 ## Authorization Model
