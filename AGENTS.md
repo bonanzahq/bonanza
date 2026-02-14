@@ -4,8 +4,8 @@ Equipment lending management system for FH Potsdam. Rewrite of Bonanza v1.
 
 ## Tech Stack
 
-- **Language**: Ruby 3.4.8
-- **Framework**: Rails 8.0.4
+- **Language**: Ruby 4.0.1
+- **Framework**: Rails 8.1.2
 - **Database**: PostgreSQL 15
 - **Search**: Elasticsearch 8.4 via Searchkick
 - **Frontend**: Hotwire (Turbo + Stimulus), esbuild, Sass
