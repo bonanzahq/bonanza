@@ -54,7 +54,7 @@ gem "bootsnap", "1.23.0", require: false
 
 ### Bonanza Redux Gems
 # Devise
-gem "devise", "4.9.4"
+gem "devise", "5.0.1"
 
 # cancancan
 gem 'cancancan', "3.6.1"
