@@ -1,4 +1,42 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["github>bonanzahq/renovate-config"]
+  "extends": ["github>bonanzahq/renovate-config"],
+  "packageRules": [
+    {
+      "groupName": "rails",
+      "matchManagers": ["bundler"],
+      "matchPackageNames": [
+        "rails",
+        "actioncable",
+        "actionmailbox",
+        "actionmailer",
+        "actionpack",
+        "actiontext",
+        "actionview",
+        "activejob",
+        "activemodel",
+        "activerecord",
+        "activestorage",
+        "activesupport",
+        "railties",
+        "sprockets-rails"
+      ],
+      "semanticCommitType": "deps",
+      "automerge": false
+    },
+    {
+      "groupName": "ruby-dependencies-non-major",
+      "matchManagers": ["bundler"],
+      "matchUpdateTypes": ["minor", "patch", "pin", "digest"],
+      "semanticCommitType": "deps",
+      "automerge": false
+    },
+    {
+      "groupName": "ruby-dependencies-major",
+      "matchManagers": ["bundler"],
+      "matchUpdateTypes": ["major"],
+      "semanticCommitType": "deps",
+      "automerge": false
+    }
+  ]
 }
