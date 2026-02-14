@@ -59,8 +59,8 @@ class BorrowersController < ApplicationController
       if @conduct.save
         begin
           LenderMailer.ban_notification_email(@conduct).deliver_now
-        rescue Exception => e
-          # TODO log exception
+        rescue => e
+          log_exception(e)
         end
         format.html { redirect_to @borrower, notice: "Die ausleihende Person wurde gesperrt." }
       else
@@ -77,8 +77,8 @@ class BorrowersController < ApplicationController
         if @conduct.department == current_user.current_department && @conduct.destroy
           begin
             LenderMailer.ban_lifted_notification_email(@conduct, current_user).deliver_now
-          rescue Exception => e
-            # TODO log exception
+          rescue => e
+            log_exception(e)
           end
           format.html { redirect_to @borrower, notice: 'Sperre/Verwarnung wurde entfernt.' }
         else
