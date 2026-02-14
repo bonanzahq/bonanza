@@ -34,10 +34,14 @@ Additionally:
 
 ## Implementation Plan
 
-### Step 1: Structured Logging with Lograge
+### Step 1: Structured JSON Logging with Lograge
 
 Add Lograge to produce one JSON line per request instead of Rails' multi-line
 output. This makes logs searchable in Dozzle and greppable in Docker logs.
+
+All log output uses a single format: JSON. Lograge handles request logs,
+and a JSON log formatter handles everything else (including `Rails.logger`
+calls). This avoids mixed formats in log output.
 
 **Gemfile:**
 ```ruby
@@ -45,16 +49,32 @@ gem 'lograge'
 ```
 
 **config/environments/production.rb:**
+
+Replace the existing log formatter and logger setup with a JSON formatter.
+Remove `config.log_tags` (request_id is included in Lograge JSON output
+via `append_info_to_payload` instead of as a prefix tag, which would break
+JSON parsing).
+
 ```ruby
+# Remove: config.log_tags = [ :request_id ]
+# Remove: config.log_formatter = ::Logger::Formatter.new
+# Remove: the RAILS_LOG_TO_STDOUT block
+
 config.lograge.enabled = true
 config.lograge.formatter = Lograge::Formatters::Json.new
 config.lograge.custom_options = lambda do |event|
   {
     request_id: event.payload[:request_id],
-    user_id: event.payload[:user_id],
-    remote_ip: event.payload[:remote_ip]
+    user_id: event.payload[:user_id]
   }
 end
+
+# JSON formatter for non-Lograge log lines (background jobs, manual logs, etc.)
+json_formatter = proc do |severity, timestamp, _progname, msg|
+  JSON.dump(level: severity, time: timestamp.iso8601(3), msg: msg) + "\n"
+end
+
+config.logger = ActiveSupport::Logger.new(STDOUT, formatter: json_formatter)
 ```
 
 **app/controllers/application_controller.rb:**
@@ -63,12 +83,11 @@ def append_info_to_payload(payload)
   super
   payload[:request_id] = request.request_id
   payload[:user_id] = current_user&.id
-  payload[:remote_ip] = request.remote_ip
 end
 ```
 
-Request ID tagging already exists in production config (`log_tags = [:request_id]`).
-Lograge will include it in the JSON output via the custom_options above.
+This feeds `request_id` and `user_id` into Lograge's `custom_options` via
+the event payload. No manual `log_tags` needed.
 
 ### Step 2: ErrorHandling Concern
 
@@ -81,6 +100,7 @@ module ErrorHandling
   extend ActiveSupport::Concern
 
   included do
+    rescue_from StandardError, with: :handle_internal_error
     rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
   end
 
@@ -94,18 +114,34 @@ module ErrorHandling
       request_id: request.request_id,
       user_id: current_user&.id,
       path: request.path
-    }.to_json)
+    })
   end
 
   def handle_not_found(exception)
     log_exception(exception, level: :warn)
     respond_to do |format|
-      format.html { render "errors/not_found", status: :not_found }
+      format.html { render "errors/not_found", status: :not_found, layout: "application" }
       format.json { render json: { error: "Not found" }, status: :not_found }
+    end
+  end
+
+  def handle_internal_error(exception)
+    log_exception(exception)
+    respond_to do |format|
+      format.html { render "errors/internal_server_error", status: :internal_server_error, layout: "application" }
+      format.json { render json: { error: "Internal server error" }, status: :internal_server_error }
     end
   end
 end
 ```
+
+Note: `log_exception` passes a hash to the logger, not a JSON string.
+The JSON log formatter configured in Step 1 handles serialization, keeping
+all log output in a single consistent format.
+
+The `rescue_from` declarations are ordered so that `RecordNotFound` (more
+specific) takes precedence over `StandardError` (catch-all). Rails evaluates
+rescue_from in reverse declaration order.
 
 **app/controllers/application_controller.rb:**
 ```ruby
@@ -116,8 +152,9 @@ end
 ```
 
 The existing `CanCan::AccessDenied` rescue in ApplicationController stays as-is.
-It already handles the redirect logic correctly. We just add `log_exception`
-calls where the TODOs are.
+It already handles the redirect logic correctly and is more specific than
+`StandardError`, so it takes precedence. We add `log_exception` calls where
+the TODOs are.
 
 ### Step 3: Fix TODO Comments
 
@@ -160,11 +197,17 @@ in Phase C (background jobs + email). Leave them as-is.
 Replace the existing minimal HealthController with proper liveness/readiness
 endpoints. Docker healthchecks can use the liveness endpoint.
 
+The current HealthController has `rescue_from(Exception)` to render a colored
+page. This is replaced with structured JSON endpoints. The liveness endpoint
+is intentionally minimal -- if Rails can't serve it, the container is unhealthy,
+which is the correct signal.
+
+No `skip_before_action :authenticate_user!` is needed because
+ApplicationController does not have a global `authenticate_user!` filter.
+
 **app/controllers/health_controller.rb:**
 ```ruby
 class HealthController < ApplicationController
-  skip_before_action :authenticate_user!, raise: false
-
   def liveness
     render json: { status: "ok" }
   end
@@ -210,13 +253,23 @@ get "health/readiness" => "health#readiness"
 ### Step 5: Error Pages
 
 Create simple error views for 404 and 500. Match the existing app layout style
-(German language).
+(German language). These are rendered within the application layout by the
+ErrorHandling concern.
 
 **app/views/errors/not_found.html.erb:**
 ```erb
 <div class="container mt-5">
   <h1>Seite nicht gefunden</h1>
   <p>Die angeforderte Seite existiert nicht.</p>
+  <%= link_to "Zurück zur Startseite", root_path, class: "btn btn-primary" %>
+</div>
+```
+
+**app/views/errors/internal_server_error.html.erb:**
+```erb
+<div class="container mt-5">
+  <h1>Ein Fehler ist aufgetreten</h1>
+  <p>Es ist ein unerwarteter Fehler aufgetreten. Bitte versuche es später erneut.</p>
   <%= link_to "Zurück zur Startseite", root_path, class: "btn btn-primary" %>
 </div>
 ```
@@ -229,7 +282,7 @@ Docker logs via the socket -- zero changes to the Rails app.
 **docker-compose.override.yml** (add to services):
 ```yaml
   dozzle:
-    image: amir20/dozzle:latest
+    image: amir20/dozzle:v10.0.1
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
     ports:
@@ -246,8 +299,9 @@ Caddy with basic auth, but this is not required initially. Docker CLI
 
 | File | Purpose |
 |------|---------|
-| `app/controllers/concerns/error_handling.rb` | Structured error logging concern |
+| `app/controllers/concerns/error_handling.rb` | Structured error logging and rescue handlers |
 | `app/views/errors/not_found.html.erb` | 404 page |
+| `app/views/errors/internal_server_error.html.erb` | 500 page |
 
 ## Files to Modify
 
@@ -274,7 +328,9 @@ Tests to write (TDD):
 2. **ErrorHandling tests:**
    - Visiting a nonexistent record returns 404
    - 404 response renders the not_found template
-   - `log_exception` writes structured JSON to the Rails logger
+   - Unhandled exception returns 500
+   - 500 response renders the internal_server_error template
+   - `log_exception` writes structured output to the Rails logger
 
 3. **Existing test suite** must remain green after all changes.
 
