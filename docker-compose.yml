@@ -52,7 +52,7 @@ services:
         max-file: "5"
 
   rails:
-    image: bonanzahq/bonanza:${IMAGE_TAG:-main}
+    image: bonanzahq/bonanza:${IMAGE_TAG:-latest}
     restart: unless-stopped
     environment:
       RAILS_ENV: production
