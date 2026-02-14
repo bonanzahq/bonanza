@@ -132,6 +132,10 @@ Phase 2 (important gem updates) remains:
 6. RuboCop update
 7. Bump `config.load_defaults` to 8.0 (incremental, use new_framework_defaults_8_0.rb)
 
+### Bugs filed (session 2)
+
+- `36a3852` - Investigate file storage persistence and backup strategy (ActiveStorage + DB backups for production)
+
 ## Docker state
 
 - Containers running on feat-dependency-updates (ports 3000, 5432, 9200, 8025)
