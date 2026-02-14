@@ -1,4 +1,4 @@
-# Error Handling & Observability Plan
+# B2: Error Handling & Observability
 
 ## Problem Statement
 
@@ -6,37 +6,46 @@ Multiple TODOs in code for "log exception" with no implementation:
 
 | File | Line | Issue |
 |------|------|-------|
-| `checkout_controller.rb` | 49 | "TODO log exception" |
-| `borrowers_controller.rb` | 63, 81 | "TODO log exception" |
-| `lending.rb` | 182, 194, 218, 236 | Commented-out exception handling |
+| `checkout_controller.rb` | 49 | `rescue Exception => e` with `# TODO log exception` |
+| `borrowers_controller.rb` | 63, 81 | `rescue Exception => e` with `# TODO log exception` |
+| `lending.rb` | 182, 194, 218, 236 | Same pattern, but inside commented-out code |
 
 Additionally:
-- No centralized error tracking
-- No structured logging for production
-- Health checks only return basic status
-- No request ID tracking for debugging
+- No structured logging for production (Rails default verbose logging)
+- Health check is minimal (just green/red HTML page at `/up`)
+- Request ID tagging exists in production (`log_tags = [:request_id]`) but isn't used in error logging
+- No centralized way to view logs across containers
 
-## Solution Overview
+## Goals
 
-1. Structured logging with Lograge
-2. Exception tracking with Sentry
-3. Comprehensive health checks
-4. Request ID tracking
-5. Fix all TODO comments with proper error handling
+1. Structured JSON logging in production so logs are machine-parseable
+2. Proper error handling replacing all TODO comments
+3. Health check endpoints usable by Docker healthchecks
+4. Log viewer (Dozzle) in Docker Compose for browsing logs across all containers
+5. No external services -- everything self-contained
+
+## Non-Goals
+
+- External error tracking (no Sentry, no cloud logging)
+- Log persistence beyond Docker's json-file retention
+- APM / performance tracing
+- Changing the commented-out code in `lending.rb` (those TODOs are inside
+  dead code that will be rewritten in Phase C with background jobs)
 
 ## Implementation Plan
 
-### Phase 1: Structured Logging
+### Step 1: Structured Logging with Lograge
 
-**Add Lograge for JSON logging in production:**
+Add Lograge to produce one JSON line per request instead of Rails' multi-line
+output. This makes logs searchable in Dozzle and greppable in Docker logs.
 
+**Gemfile:**
 ```ruby
-# Gemfile
 gem 'lograge'
 ```
 
+**config/environments/production.rb:**
 ```ruby
-# config/environments/production.rb
 config.lograge.enabled = true
 config.lograge.formatter = Lograge::Formatters::Json.new
 config.lograge.custom_options = lambda do |event|
@@ -48,8 +57,8 @@ config.lograge.custom_options = lambda do |event|
 end
 ```
 
+**app/controllers/application_controller.rb:**
 ```ruby
-# app/controllers/application_controller.rb
 def append_info_to_payload(payload)
   super
   payload[:request_id] = request.request_id
@@ -58,197 +67,26 @@ def append_info_to_payload(payload)
 end
 ```
 
-### Phase 2: Exception Tracking with Sentry
+Request ID tagging already exists in production config (`log_tags = [:request_id]`).
+Lograge will include it in the JSON output via the custom_options above.
 
-**Install Sentry:**
+### Step 2: ErrorHandling Concern
 
+Create a concern that provides structured error logging and rescue handlers.
+Include it in ApplicationController.
+
+**app/controllers/concerns/error_handling.rb:**
 ```ruby
-# Gemfile
-gem 'sentry-ruby'
-gem 'sentry-rails'
-```
-
-**Configure Sentry:**
-
-```ruby
-# config/initializers/sentry.rb
-Sentry.init do |config|
-  config.dsn = ENV['SENTRY_DSN']
-  config.breadcrumbs_logger = [:active_support_logger, :http_logger]
-  config.traces_sample_rate = 0.1
-  config.profiles_sample_rate = 0.1
-
-  # Filter sensitive data
-  config.before_send = lambda do |event, hint|
-    event.request.data = '[FILTERED]' if event.request&.data
-    event
-  end
-
-  # Set environment
-  config.environment = Rails.env
-
-  # Set release version
-  config.release = ENV.fetch('APP_VERSION', 'development')
-end
-```
-
-**Add user context:**
-
-```ruby
-# app/controllers/application_controller.rb
-before_action :set_sentry_context
-
-private
-
-def set_sentry_context
-  Sentry.set_user(
-    id: current_user&.id,
-    email: current_user&.email,
-    department: current_user&.current_department&.name
-  )
-end
-```
-
-### Phase 3: Health Checks
-
-**Create health controller:**
-
-```ruby
-# app/controllers/health_controller.rb
-class HealthController < ApplicationController
-  skip_before_action :authenticate_user!
-
-  # Liveness: Is the process running?
-  # Used by Docker/Kubernetes to know if container should restart
-  def liveness
-    render json: { status: 'ok', timestamp: Time.current.iso8601 }
-  end
-
-  # Readiness: Can the app handle requests?
-  # Used by load balancer to know if traffic should be sent
-  def readiness
-    checks = {
-      database: check_database,
-      elasticsearch: check_elasticsearch,
-      migrations: check_migrations
-    }
-
-    all_ok = checks.values.all? { |v| v[:status] == 'ok' }
-    status_code = all_ok ? :ok : :service_unavailable
-
-    render json: {
-      status: all_ok ? 'ok' : 'degraded',
-      checks: checks,
-      timestamp: Time.current.iso8601
-    }, status: status_code
-  end
-
-  private
-
-  def check_database
-    ActiveRecord::Base.connection.execute('SELECT 1')
-    { status: 'ok' }
-  rescue => e
-    { status: 'error', message: e.message }
-  end
-
-  def check_elasticsearch
-    Searchkick.client.ping
-    { status: 'ok' }
-  rescue => e
-    { status: 'error', message: e.message }
-  end
-
-  def check_migrations
-    pending = ActiveRecord::Migration.check_all_pending!
-    { status: 'ok' }
-  rescue ActiveRecord::PendingMigrationError => e
-    { status: 'error', message: 'Pending migrations' }
-  rescue => e
-    { status: 'ok' } # No pending migrations
-  end
-end
-```
-
-**Add routes:**
-
-```ruby
-# config/routes.rb
-get '/health/liveness', to: 'health#liveness'
-get '/health/readiness', to: 'health#readiness'
-# Keep existing /up for backwards compatibility
-get '/up', to: 'health#liveness'
-```
-
-### Phase 4: Request ID Tracking
-
-**Enable request IDs:**
-
-```ruby
-# config/application.rb
-config.middleware.use ActionDispatch::RequestId
-config.log_tags = [:request_id]
-```
-
-**Pass to Sentry:**
-
-```ruby
-# app/controllers/application_controller.rb
-before_action :set_request_context
-
-def set_request_context
-  Sentry.set_tags(request_id: request.request_id)
-end
-```
-
-### Phase 5: Fix TODO Comments
-
-**Create error handling helper:**
-
-```ruby
-# app/controllers/concerns/error_handling.rb
 module ErrorHandling
   extend ActiveSupport::Concern
 
   included do
-    # Only catch StandardError in production to avoid swallowing bugs during development
-    rescue_from StandardError, with: :handle_unexpected_error if Rails.env.production?
     rescue_from ActiveRecord::RecordNotFound, with: :handle_not_found
-    rescue_from CanCan::AccessDenied, with: :handle_access_denied
   end
 
   private
 
-  def handle_unexpected_error(exception)
-    # Always log at error level regardless of environment
-    log_error(exception)
-    Sentry.capture_exception(exception)
-
-    respond_to do |format|
-      format.html { render 'errors/internal_server_error', status: :internal_server_error }
-      format.json { render json: { error: 'Internal server error' }, status: :internal_server_error }
-    end
-  end
-
-  def handle_not_found(exception)
-    log_error(exception, level: :warn)
-
-    respond_to do |format|
-      format.html { render 'errors/not_found', status: :not_found }
-      format.json { render json: { error: 'Not found' }, status: :not_found }
-    end
-  end
-
-  def handle_access_denied(exception)
-    log_error(exception, level: :warn)
-
-    respond_to do |format|
-      format.html { redirect_to root_path, alert: 'Zugriff verweigert.' }
-      format.json { render json: { error: 'Access denied' }, status: :forbidden }
-    end
-  end
-
-  def log_error(exception, level: :error)
+  def log_exception(exception, level: :error)
     Rails.logger.public_send(level, {
       error: exception.class.name,
       message: exception.message,
@@ -258,130 +96,194 @@ module ErrorHandling
       path: request.path
     }.to_json)
   end
+
+  def handle_not_found(exception)
+    log_exception(exception, level: :warn)
+    respond_to do |format|
+      format.html { render "errors/not_found", status: :not_found }
+      format.json { render json: { error: "Not found" }, status: :not_found }
+    end
+  end
 end
 ```
 
-**Include in ApplicationController:**
-
+**app/controllers/application_controller.rb:**
 ```ruby
-# app/controllers/application_controller.rb
 class ApplicationController < ActionController::Base
   include ErrorHandling
-  # ...
+  # ... existing code
 end
 ```
 
-**Fix specific TODOs:**
+The existing `CanCan::AccessDenied` rescue in ApplicationController stays as-is.
+It already handles the redirect logic correctly. We just add `log_exception`
+calls where the TODOs are.
 
+### Step 3: Fix TODO Comments
+
+Replace the bare `rescue Exception => e` + TODO patterns with proper logging.
+Use `rescue => e` (StandardError) instead of `rescue Exception => e`.
+
+**checkout_controller.rb line ~47:**
 ```ruby
-# checkout_controller.rb - replace TODO with:
+begin
+  LendingMailer.confirmation_email(@lending).deliver_now
 rescue => e
-  log_error(e)
-  Sentry.capture_exception(e)
-  flash[:alert] = "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut."
-  redirect_to root_path
+  log_exception(e)
+end
 ```
 
+**borrowers_controller.rb line ~61 (add_conduct):**
 ```ruby
-# borrowers_controller.rb - replace TODOs with:
+begin
+  LenderMailer.ban_notification_email(@conduct).deliver_now
 rescue => e
-  log_error(e)
-  Sentry.capture_exception(e)
-  @borrower.errors.add(:base, "Ein Fehler ist aufgetreten.")
-  render :new, status: :unprocessable_entity
+  log_exception(e)
+end
 ```
 
-### Phase 6: Error Pages
-
-**Create error views:**
-
-```erb
-<!-- app/views/errors/internal_server_error.html.erb -->
-<div class="error-page">
-  <h1>Ein Fehler ist aufgetreten</h1>
-  <p>Bitte versuchen Sie es später erneut.</p>
-  <p class="error-id">Fehler-ID: <%= request.request_id %></p>
-  <%= link_to 'Zurück zur Startseite', root_path, class: 'btn btn-primary' %>
-</div>
+**borrowers_controller.rb line ~79 (remove_conduct):**
+```ruby
+begin
+  LenderMailer.ban_lifted_notification_email(@conduct, current_user).deliver_now
+rescue => e
+  log_exception(e)
+end
 ```
 
+The TODOs in `lending.rb` (lines 182, 194, 218, 236) are all inside
+commented-out notification methods. These will be rewritten from scratch
+in Phase C (background jobs + email). Leave them as-is.
+
+### Step 4: Health Check Endpoints
+
+Replace the existing minimal HealthController with proper liveness/readiness
+endpoints. Docker healthchecks can use the liveness endpoint.
+
+**app/controllers/health_controller.rb:**
+```ruby
+class HealthController < ApplicationController
+  skip_before_action :authenticate_user!, raise: false
+
+  def liveness
+    render json: { status: "ok" }
+  end
+
+  def readiness
+    checks = {
+      database: check_database,
+      elasticsearch: check_elasticsearch
+    }
+    all_ok = checks.values.all? { |c| c[:status] == "ok" }
+
+    render json: { status: all_ok ? "ok" : "degraded", checks: checks },
+           status: all_ok ? :ok : :service_unavailable
+  end
+
+  private
+
+  def check_database
+    ActiveRecord::Base.connection.execute("SELECT 1")
+    { status: "ok" }
+  rescue => e
+    { status: "error", message: e.message }
+  end
+
+  def check_elasticsearch
+    Searchkick.client.ping
+    { status: "ok" }
+  rescue => e
+    { status: "error", message: e.message }
+  end
+end
+```
+
+**config/routes.rb:**
+```ruby
+get "up" => "health#liveness"
+get "health/liveness" => "health#liveness"
+get "health/readiness" => "health#readiness"
+```
+
+**Update Dockerfile healthcheck (if present) to use `/health/liveness`.**
+
+### Step 5: Error Pages
+
+Create simple error views for 404 and 500. Match the existing app layout style
+(German language).
+
+**app/views/errors/not_found.html.erb:**
 ```erb
-<!-- app/views/errors/not_found.html.erb -->
-<div class="error-page">
+<div class="container mt-5">
   <h1>Seite nicht gefunden</h1>
   <p>Die angeforderte Seite existiert nicht.</p>
-  <%= link_to 'Zurück zur Startseite', root_path, class: 'btn btn-primary' %>
+  <%= link_to "Zurück zur Startseite", root_path, class: "btn btn-primary" %>
 </div>
 ```
 
-## Environment Variables
+### Step 6: Dozzle Log Viewer
 
-```env
-# Sentry
-SENTRY_DSN=https://xxx@sentry.io/xxx
+Add Dozzle to docker-compose.override.yml (development only). It reads
+Docker logs via the socket -- zero changes to the Rails app.
 
-# App version (set during deployment)
-APP_VERSION=1.0.0
-```
-
-## Docker Integration
-
-**Update docker-compose for log aggregation:**
-
+**docker-compose.override.yml** (add to services):
 ```yaml
-services:
-  app:
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: "3"
+  dozzle:
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "9999:8080"
 ```
 
-## Deliverables
+Dozzle will be available at http://localhost:9999 in development.
 
-- [ ] Lograge configured for structured JSON logging
-- [ ] Sentry installed and configured
-- [ ] Health check endpoints created (/health/liveness, /health/readiness)
-- [ ] Request ID tracking enabled
-- [ ] ErrorHandling concern created
-- [ ] All TODO comments replaced with proper error handling
-- [ ] Error pages created
-- [ ] Documentation updated
+For production, Dozzle can optionally be added to docker-compose.yml behind
+Caddy with basic auth, but this is not required initially. Docker CLI
+(`docker compose logs`) remains available on the server.
+
+## Files to Create
+
+| File | Purpose |
+|------|---------|
+| `app/controllers/concerns/error_handling.rb` | Structured error logging concern |
+| `app/views/errors/not_found.html.erb` | 404 page |
 
 ## Files to Modify
 
 | File | Change |
 |------|--------|
-| `Gemfile` | Add lograge, sentry-ruby, sentry-rails |
+| `Gemfile` | Add `lograge` |
 | `config/environments/production.rb` | Configure lograge |
-| `config/initializers/sentry.rb` | New file |
-| `app/controllers/health_controller.rb` | New file |
-| `app/controllers/concerns/error_handling.rb` | New file |
-| `app/controllers/application_controller.rb` | Include ErrorHandling |
-| `app/controllers/checkout_controller.rb` | Fix TODO at line 49 |
-| `app/controllers/borrowers_controller.rb` | Fix TODOs at lines 63, 81 |
-| `app/models/lending.rb` | Fix commented exception handling |
+| `app/controllers/application_controller.rb` | Include ErrorHandling, add `append_info_to_payload` |
+| `app/controllers/checkout_controller.rb` | Replace TODO at line 49 with `log_exception` |
+| `app/controllers/borrowers_controller.rb` | Replace TODOs at lines 63, 81 with `log_exception` |
+| `app/controllers/health_controller.rb` | Replace with liveness/readiness endpoints |
 | `config/routes.rb` | Add health check routes |
-| `app/views/errors/` | New error pages |
+| `docker-compose.override.yml` | Add Dozzle service |
 
 ## Testing
 
-```ruby
-# test/controllers/health_controller_test.rb
-class HealthControllerTest < ActionDispatch::IntegrationTest
-  test "liveness returns ok" do
-    get '/health/liveness'
-    assert_response :success
-    assert_equal 'ok', JSON.parse(response.body)['status']
-  end
+Tests to write (TDD):
 
-  test "readiness checks all services" do
-    get '/health/readiness'
-    assert_response :success
-    body = JSON.parse(response.body)
-    assert body['checks'].key?('database')
-    assert body['checks'].key?('elasticsearch')
-  end
-end
-```
+1. **HealthController tests:**
+   - `GET /health/liveness` returns 200 with `{"status": "ok"}`
+   - `GET /health/readiness` returns 200 with database and elasticsearch checks
+   - `GET /up` returns 200 (backwards compatibility)
+
+2. **ErrorHandling tests:**
+   - Visiting a nonexistent record returns 404
+   - 404 response renders the not_found template
+   - `log_exception` writes structured JSON to the Rails logger
+
+3. **Existing test suite** must remain green after all changes.
+
+## Verification
+
+- [ ] `bundle exec rails test` passes
+- [ ] App boots in Docker Compose without errors
+- [ ] Dozzle accessible at localhost:9999 showing logs from all containers
+- [ ] `/health/liveness` returns JSON 200
+- [ ] `/health/readiness` returns JSON 200 with service checks
+- [ ] Trigger a mail delivery failure and confirm structured error appears in logs
+- [ ] Lograge produces single-line JSON per request in production mode
