@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::Base
+  include ErrorHandling
+
   before_action :configure_permitted_parameters, if: :devise_controller?
   # check_authorization unless: :devise_controller?
 

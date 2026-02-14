@@ -183,9 +183,8 @@ class LendingControllerTest < ActionDispatch::IntegrationTest
     other_lending = create(:lending, :completed, user: other_user, department: other_dept)
     sign_in @user
 
-    assert_raises(ActiveRecord::RecordNotFound) do
-      delete lending_destroy_path(other_lending)
-    end
+    delete lending_destroy_path(other_lending)
+    assert_response :not_found
   end
 
   # -- change_duration --
