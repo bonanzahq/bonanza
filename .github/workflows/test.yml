@@ -7,12 +7,14 @@ on:
       - 'docs/**'
       - '*.md'
       - 'LICENSE'
+      - 'renovate.json'
   push:
     branches: [main]
     paths-ignore:
       - 'docs/**'
       - '*.md'
       - 'LICENSE'
+      - 'renovate.json'
 
 jobs:
   test:
