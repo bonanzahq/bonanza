@@ -49,6 +49,14 @@ services:
     ports:
       - "8025:8025"
 
+  dozzle:
+    image: amir20/dozzle:v10.0.1
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - "9999:8080"
+
 volumes:
   bonanza_node_modules:
   bonanza_rails_storage:
