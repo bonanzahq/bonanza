@@ -76,7 +76,7 @@ gem 'oj', "3.16.15"
 
 # searchkick for elasticsearch
 
-gem 'searchkick', "5.5.2"
+gem 'searchkick', "6.0.3"
 gem 'elasticsearch', "8.19.3"
 
 # markdown parser
