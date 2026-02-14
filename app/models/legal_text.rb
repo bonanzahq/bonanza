@@ -1,6 +1,6 @@
 class LegalText < ApplicationRecord
 	belongs_to :user
-	enum kind: { tos: 0, privacy: 1, imprint: 2 }
+	enum :kind, { tos: 0, privacy: 1, imprint: 2 }
 
 	def self.current_tos
 		where(kind: "tos").last

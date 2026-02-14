@@ -4,7 +4,7 @@ class Conduct < ApplicationRecord
   belongs_to :lending, optional: true
   belongs_to :user, optional: true
 
-  enum kind: { warned: 0, banned: 1 }
+  enum :kind, { warned: 0, banned: 1 }
 
   validates :reason, presence: { message: "Es muss ein Grund angegeben werden." }
   validates :borrower_id, presence: { message: "Es muss eine ausleihende Person angegeben werden." }

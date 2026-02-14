@@ -3,7 +3,7 @@
   "private": "true",
   "dependencies": {
     "@hotwired/stimulus": "3.0.1",
-    "@hotwired/turbo-rails": "7.2.5",
+    "@hotwired/turbo-rails": "8.0.23",
     "@popperjs/core": "2.11.2",
     "@tarekraafat/autocomplete.js": "10.2.6",
     "@yaireo/tagify": "4.16.4",

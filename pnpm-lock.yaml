@@ -12,8 +12,8 @@ importers:
         specifier: 3.0.1
         version: 3.0.1
       '@hotwired/turbo-rails':
-        specifier: 7.2.5
-        version: 7.2.5
+        specifier: 8.0.23
+        version: 8.0.23
       '@popperjs/core':
         specifier: 2.11.2
         version: 2.11.2
@@ -206,12 +206,12 @@ packages:
   '@hotwired/stimulus@3.0.1':
     resolution: {integrity: sha512-oHsJhgY2cip+K2ED7vKUNd2P+BEswVhrCYcJ802DSsblJFv7mPFVk3cQKvm2vHgHeDVdnj7oOKrBbzp1u8D+KA==}
 
-  '@hotwired/turbo-rails@7.2.5':
-    resolution: {integrity: sha512-F8ztmARxd/XBdevRa//HoJGZ7u+Unb0J7cQUeUP+pBvt9Ta2TJJ7a2TORAOhjC8Zgxx+LKwm/1UUHqN3ojjiGw==}
+  '@hotwired/turbo-rails@8.0.23':
+    resolution: {integrity: sha512-iBILwda3qmQC7FYM70+4s6kEQ7Fx9dJ6+yGxjPyrz9a5JDx1+y7OAA5TA7GGVOZJoicMLrKGdFDNorl40X35lw==}
 
-  '@hotwired/turbo@7.3.0':
-    resolution: {integrity: sha512-Dcu+NaSvHLT7EjrDrkEmH4qET2ZJZ5IcCWmNXxNQTBwlnE5tBZfN6WxZ842n5cHV52DH/AKNirbPBtcEXDLW4g==}
-    engines: {node: '>= 14'}
+  '@hotwired/turbo@8.0.23':
+    resolution: {integrity: sha512-GZ7cijxEZ6Ig71u7rD6LHaRv/wcE/hNsc+nEfiWOkLNqUgLOwo5MNGWOy5ZV9ZUDSiQx1no7YxjTNnT4O6//cQ==}
+    engines: {node: '>= 18'}
 
   '@popperjs/core@2.11.2':
     resolution: {integrity: sha512-92FRmppjjqz29VMJ2dn+xdyXZBrMlE42AV6Kq6BwjWV7CNUW1hs2FtxSNLQE+gJhaZ6AAmYuO9y8dshhcBl7vA==}
@@ -484,12 +484,12 @@ snapshots:
 
   '@hotwired/stimulus@3.0.1': {}
 
-  '@hotwired/turbo-rails@7.2.5':
+  '@hotwired/turbo-rails@8.0.23':
     dependencies:
-      '@hotwired/turbo': 7.3.0
+      '@hotwired/turbo': 8.0.23
       '@rails/actioncable': 7.2.300
 
-  '@hotwired/turbo@7.3.0': {}
+  '@hotwired/turbo@8.0.23': {}
 
   '@popperjs/core@2.11.2': {}
 

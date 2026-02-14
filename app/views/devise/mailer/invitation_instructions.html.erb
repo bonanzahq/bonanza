@@ -173,7 +173,7 @@
 
         <!-- Visually Hidden Preheader Text : BEGIN -->
         <div style="max-height:0; overflow:hidden; mso-hide:all;" aria-hidden="true">
-            Hallo, Du wurdest von <%= @resource.invited_by.fullname %> für <%= t(@resource.department.genderize('the')) %> <%= @resource.department.name %> bei Bonanza eingeladen. Rufe folgenden Link in Deinem Browser auf, um Deine Einladung anzunehmen und ein Benutzer-Konto anzulegen: <%= accept_invitation_url(@resource, :invitation_token => @token) %>
+            Hallo, Du wurdest von <%= @resource.invited_by.fullname %> für <%= t(@resource.current_department.genderize('the')) %> <%= @resource.current_department.name %> bei Bonanza eingeladen. Rufe folgenden Link in Deinem Browser auf, um Deine Einladung anzunehmen und ein Benutzer-Konto anzulegen: <%= accept_invitation_url(@resource, :invitation_token => @token) %>
         </div>
         <!-- Visually Hidden Preheader Text : END -->
 
@@ -220,7 +220,7 @@
                                 <td style="padding: 40px; font-family: sans-serif; font-size: 16px; line-height: 24px; color: #272727;">
                                     <h1 style="margin: 0 0 20px 0; font-family: sans-serif; font-size: 24px; line-height: 32px; color: #272727;">Du wurdest zu Bonanza eingeladen.</h1>
                                     <h2 style="margin: 0 0 10px 0; font-family: sans-serif; font-size: 16px; line-height: 24px; color: #272727;">Hallo,</h2>
-                                    <p style="margin: 0 0 10px 0;">Du wurdest von <%= @resource.invited_by.fullname %> für <%= t(@resource.department.genderize('the')) %> <%= @resource.department.name %> bei Bonanza eingeladen. Rufe folgenden Link in Deinem Browser auf, um Deine Einladung anzunehmen und ein Benutzer-Konto anzulegen: <%= accept_invitation_url(@resource, :invitation_token => @token) %></p>
+                                    <p style="margin: 0 0 10px 0;">Du wurdest von <%= @resource.invited_by.fullname %> für <%= t(@resource.current_department.genderize('the')) %> <%= @resource.current_department.name %> bei Bonanza eingeladen. Rufe folgenden Link in Deinem Browser auf, um Deine Einladung anzunehmen und ein Benutzer-Konto anzulegen: <%= accept_invitation_url(@resource, :invitation_token => @token) %></p>
                                 </td>
                             </tr>
                             <tr>

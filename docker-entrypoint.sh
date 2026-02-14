@@ -30,8 +30,7 @@ mkdir -p tmp/pids tmp/cache tmp/storage
 rm -f tmp/pids/server.pid
 
 echo "Setting up database..."
-bundle exec rails db:create 2>/dev/null || true
-bundle exec rails db:migrate
+bundle exec rails db:prepare
 if [ "$RAILS_ENV" != "production" ]; then
   bundle exec rails db:seed || echo "db:seed had errors (non-fatal, likely duplicate data)"
 fi

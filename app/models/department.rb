@@ -7,7 +7,7 @@ class Department < ApplicationRecord
 
   has_many :lendings
 
-  enum genus: { female: 0, male: 1, neuter: 2}
+  enum :genus, { female: 0, male: 1, neuter: 2 }
 
 	before_create :create_memberships_for_all_users
 

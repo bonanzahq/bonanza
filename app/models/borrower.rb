@@ -14,7 +14,7 @@ class Borrower < ApplicationRecord
 
   before_save :borrower_accepted_tos
 
-  enum borrower_type: { student: 0, employee: 1, deleted: 2 }
+  enum :borrower_type, { student: 0, employee: 1, deleted: 2 }
 
   searchkick word_middle: [:fullname, :email]
 
