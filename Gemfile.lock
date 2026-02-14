@@ -87,7 +87,7 @@ GEM
     bootsnap (1.23.0)
       msgpack (~> 1.2)
     builder (3.3.0)
-    cancancan (3.3.0)
+    cancancan (3.6.1)
     capybara (3.40.0)
       addressable
       matrix
@@ -120,10 +120,11 @@ GEM
     elastic-transport (8.4.1)
       faraday (< 3)
       multi_json
-    elasticsearch (8.4.0)
-      elastic-transport (~> 8)
-      elasticsearch-api (= 8.4.0)
-    elasticsearch-api (8.4.0)
+    elasticsearch (8.19.3)
+      elastic-transport (~> 8.3)
+      elasticsearch-api (= 8.19.3)
+      ostruct
+    elasticsearch-api (8.19.3)
       multi_json
     erb (6.0.1)
     erubi (1.13.1)
@@ -290,7 +291,7 @@ GEM
       erb
       psych (>= 4.0.0)
       tsort
-    redcarpet (3.5.1)
+    redcarpet (3.6.1)
     regexp_parser (2.11.3)
     reline (0.6.3)
       io-console (~> 0.5)
@@ -397,13 +398,13 @@ DEPENDENCIES
   awesome_print (= 1.9.2)
   bcrypt (= 3.1.21)
   bootsnap (= 1.23.0)
-  cancancan (= 3.3.0)
+  cancancan (= 3.6.1)
   capybara (= 3.40.0)
   cssbundling-rails (= 1.4.3)
   debug
   devise (= 4.9.4)
   devise_invitable (= 2.0.11)
-  elasticsearch (= 8.4.0)
+  elasticsearch (= 8.19.3)
   factory_bot_rails (= 6.5.1)
   faker (= 3.6.0)
   jbuilder (= 2.14.1)
@@ -415,7 +416,7 @@ DEPENDENCIES
   pg_search (= 2.3.7)
   puma (= 6.6.0)
   rails (= 8.0.4)
-  redcarpet (= 3.5.1)
+  redcarpet (= 3.6.1)
   rubocop (= 1.84.2)
   rubocop-performance (= 1.26.1)
   rubocop-rails (= 2.34.3)

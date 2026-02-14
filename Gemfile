@@ -57,7 +57,7 @@ gem "bootsnap", "1.23.0", require: false
 gem "devise", "4.9.4"
 
 # cancancan
-gem 'cancancan', "3.3.0"
+gem 'cancancan', "3.6.1"
 
 # pagination
 gem "kaminari", "1.2.2"
@@ -77,11 +77,11 @@ gem 'oj', "3.16.15"
 # searchkick for elasticsearch
 
 gem 'searchkick', "5.5.2"
-gem 'elasticsearch', "8.4.0"
+gem 'elasticsearch', "8.19.3"
 
 # markdown parser
 
-gem 'redcarpet', "3.5.1"
+gem 'redcarpet', "3.6.1"
 
 ### Not for v1
 
