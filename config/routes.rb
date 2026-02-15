@@ -1,5 +1,6 @@
 Rails.application.routes.draw do
-  get "up" => "health#show"
+  get "health" => "health#show"
+  get "health/readiness" => "health#readiness"
 
   resources :departments, path: '/werkstaetten' do
     member do
@@ -81,4 +82,7 @@ Rails.application.routes.draw do
 
   root "static_pages#index"
 
+  match "/404", to: "errors#not_found", via: :all
+  match "/422", to: "errors#not_found", via: :all
+  match "/500", to: "errors#internal_server_error", via: :all
 end

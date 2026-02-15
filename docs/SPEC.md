@@ -29,6 +29,11 @@ web (Rails), database (PostgreSQL), search (Elasticsearch). The application
 runs on an FH Potsdam server accessible only via VPN. Email is delivered
 through the FHP SMTP relay.
 
+**Observability**: Structured JSON logging via Lograge in production (one
+JSON line per request). Centralized error handling renders 404/500 pages
+and logs exceptions with request context. Health check endpoints
+(`/health` for Docker healthcheck, `/health/readiness` for diagnostics). Dozzle provides a log viewer in development.
+
 ## Terminology
 
 The user interface is in German. Key terms and their English equivalents:

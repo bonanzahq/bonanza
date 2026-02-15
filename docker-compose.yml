@@ -6,7 +6,7 @@ services:
     image: postgres:17.7
     restart: unless-stopped
     environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-}
     volumes:
       - bonanza_postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -30,13 +30,13 @@ services:
     environment:
       discovery.type: single-node
       xpack.security.enabled: "true"
-      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD}
+      ELASTIC_PASSWORD: ${ELASTIC_PASSWORD:-}
       ES_JAVA_OPTS: "-Xms512m -Xmx512m"
     volumes:
       - bonanza_elasticsearch_data:/usr/share/elasticsearch/data
       - ./elastic_synonyms.txt:/usr/share/elasticsearch/config/elastic_synonyms.txt:ro
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf -u elastic:${ELASTIC_PASSWORD} http://localhost:9200/_cluster/health || exit 1"]
+      test: ["CMD-SHELL", "curl -sf -u elastic:${ELASTIC_PASSWORD:-} http://localhost:9200/_cluster/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -56,26 +56,26 @@ services:
     restart: unless-stopped
     environment:
       RAILS_ENV: production
-      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@db:5432/bonanza_redux_production
-      ELASTICSEARCH_URL: http://elastic:${ELASTIC_PASSWORD}@elasticsearch:9200
-      APP_HOST: ${APP_HOST}
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-}@db:5432/bonanza_redux_production
+      ELASTICSEARCH_URL: http://elastic:${ELASTIC_PASSWORD:-}@elasticsearch:9200
+      APP_HOST: ${APP_HOST:-}
       APP_PORT: ${APP_PORT:-443}
-      SMTP_HOST: ${SMTP_HOST}
+      SMTP_HOST: ${SMTP_HOST:-}
       SMTP_PORT: ${SMTP_PORT:-587}
-      SMTP_USERNAME: ${SMTP_USERNAME}
-      SMTP_PASSWORD: ${SMTP_PASSWORD}
-      MAILER_FROM: ${MAILER_FROM}
-      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      MAILER_FROM: ${MAILER_FROM:-}
+      RAILS_MASTER_KEY: ${RAILS_MASTER_KEY:-}
       RAILS_SERVE_STATIC_FILES: "true"
       RAILS_LOG_TO_STDOUT: "true"
-      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-}
     depends_on:
       db:
         condition: service_healthy
       elasticsearch:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf http://localhost:3000/up || exit 1"]
+      test: ["CMD-SHELL", "curl -sf http://localhost:3000/health || exit 1"]
       interval: 15s
       timeout: 5s
       retries: 10
@@ -97,7 +97,7 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      CADDY_ADDRESS: ${APP_HOST}
+      CADDY_ADDRESS: ${APP_HOST:-}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - bonanza_caddy_data:/data

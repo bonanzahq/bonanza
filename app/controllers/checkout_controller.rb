@@ -45,8 +45,8 @@ class CheckoutController < ApplicationController
 
         begin
           LendingMailer.confirmation_email(@lending).deliver_now
-        rescue Exception => e
-          # TODO log exception
+        rescue => e
+          log_exception(e)
         end
         
         redirect_to completion_route

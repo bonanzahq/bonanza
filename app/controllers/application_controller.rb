@@ -1,4 +1,6 @@
 class ApplicationController < ActionController::Base
+  include ErrorHandling
+
   before_action :configure_permitted_parameters, if: :devise_controller?
   # check_authorization unless: :devise_controller?
 
@@ -45,6 +47,12 @@ class ApplicationController < ActionController::Base
 
     def unset_current_user
       User.current_user = nil
+    end
+
+    def append_info_to_payload(payload)
+      super
+      payload[:request_id] = request.request_id
+      payload[:user_id] = current_user&.id
     end
 
     def current_lending
