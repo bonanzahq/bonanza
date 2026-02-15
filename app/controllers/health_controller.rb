@@ -18,13 +18,15 @@ class HealthController < ApplicationController
     ActiveRecord::Base.connection.execute("SELECT 1")
     { status: "ok" }
   rescue => e
-    { status: "error", message: e.message }
+    Rails.logger.error("Health check failed: database: #{e.class}: #{e.message}")
+    { status: "error" }
   end
 
   def check_elasticsearch
     Searchkick.client.ping
     { status: "ok" }
   rescue => e
-    { status: "error", message: e.message }
+    Rails.logger.error("Health check failed: elasticsearch: #{e.class}: #{e.message}")
+    { status: "error" }
   end
 end

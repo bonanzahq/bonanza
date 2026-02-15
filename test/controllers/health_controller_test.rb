@@ -19,4 +19,17 @@ class HealthControllerTest < ActionDispatch::IntegrationTest
     get "/health/readiness"
     assert_response :ok
   end
+
+  test "degraded check does not leak error messages" do
+    # ES in test env is either absent or has SSL mismatch, so this
+    # naturally returns a degraded response with an ES error
+    get "/health/readiness"
+    json = JSON.parse(response.body)
+    # If ES happens to be reachable and healthy, skip this assertion
+    es_check = json["checks"]["elasticsearch"]
+    return if es_check["status"] == "ok"
+
+    assert_equal "error", es_check["status"]
+    assert_not es_check.key?("message"), "Error message should not be exposed in the response"
+  end
 end
