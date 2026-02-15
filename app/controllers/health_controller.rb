@@ -1,10 +1,6 @@
-# ABOUTME: Health check endpoints for container orchestration.
-# ABOUTME: Provides liveness (process alive) and readiness (dependencies available) checks.
+# ABOUTME: Health check endpoint for monitoring application and dependency status.
+# ABOUTME: Checks database and Elasticsearch connectivity.
 class HealthController < ApplicationController
-  def liveness
-    render json: { status: "ok" }
-  end
-
   def readiness
     checks = {
       database: check_database,

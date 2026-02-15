@@ -1,23 +1,9 @@
-# ABOUTME: Tests for health check endpoints.
-# ABOUTME: Verifies liveness and readiness responses for container orchestration.
+# ABOUTME: Tests for the health check endpoint.
+# ABOUTME: Verifies readiness response including dependency checks.
 
 require "test_helper"
 
 class HealthControllerTest < ActionDispatch::IntegrationTest
-  test "GET /up returns 200 with ok status" do
-    get "/up"
-    assert_response :ok
-    json = JSON.parse(response.body)
-    assert_equal "ok", json["status"]
-  end
-
-  test "GET /health/liveness returns 200 with ok status" do
-    get "/health/liveness"
-    assert_response :ok
-    json = JSON.parse(response.body)
-    assert_equal "ok", json["status"]
-  end
-
   test "GET /health/readiness returns 200 with checks" do
     get "/health/readiness"
     assert_response :ok
@@ -28,9 +14,9 @@ class HealthControllerTest < ActionDispatch::IntegrationTest
     assert json["checks"].key?("elasticsearch")
   end
 
-  test "health endpoints do not require authentication" do
+  test "health endpoint does not require authentication" do
     # No sign_in call - should still work
-    get "/health/liveness"
+    get "/health/readiness"
     assert_response :ok
   end
 end
