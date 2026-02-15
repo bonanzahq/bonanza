@@ -1,208 +1,144 @@
-# Devise + Hotwire/Turbo Integration Review
+# B3: Devise + Turbo Compatibility
 
-## Context
+## Problem Statement
 
-Project uses:
-- Devise 4.9.2 for authentication
-- Turbo Rails ~> 1.3 for Hotwire SPA-like behavior
+Devise forms have inconsistent Turbo handling. Some forms disable Turbo,
+others don't. Several views are unstyled default Devise templates (English).
+Password policy is too weak. Related bugs need fixing.
 
-Devise 4.9.0+ changed how it integrates with Turbo. Need to review and ensure proper configuration.
+## Related Issues
 
-## Background: Why This Matters
+- `d97da50` - Execute b3: Devise + Turbo compatibility
+- `b38946c` - Devise allows weak passwords
+- `3886815` - Borrower link shows 'Content missing' due to Turbo Frame mismatch
 
-**Turbo Changes Form Behavior:**
-- Turbo intercepts all form submissions and makes them AJAX requests
-- Returns Turbo Stream responses instead of full page reloads
-- Devise was designed for traditional form submissions with redirects
+## Current State (from audit)
 
-**Breaking Changes:**
-- Sign in/sign up forms might not work correctly
-- Flash messages might not display
-- Redirects after authentication might fail
-- Error messages might not appear
+### Devise Config
+- Devise 5.0.1, devise_invitable 2.0.11
+- Turbo error/redirect status already configured correctly:
+  - `config.responder.error_status = :unprocessable_entity`
+  - `config.responder.redirect_status = :see_other`
+- `navigational_formats` is commented out (using defaults)
+- `password_length = 6..128` (too weak, should be 8+ minimum)
 
-## Review Tasks
+### Forms with `data-turbo="false"` (correct)
+- `sessions/new.html.erb` -- sign in
+- `invitations/new.html.erb` -- invite user
+- `invitations/edit.html.erb` -- accept invitation
 
-### Phase 1: Understand Current Setup
+### Forms WITHOUT `data-turbo="false"` (need fixing)
+- `passwords/new.html.erb` -- request password reset
+- `passwords/edit.html.erb` -- change password (also unstyled, English)
+- `registrations/new.html.erb` -- sign up (unstyled, English)
+- `registrations/edit.html.erb` -- edit profile (unstyled, English)
+- `confirmations/new.html.erb` -- resend confirmation (unstyled, English)
+- `unlocks/new.html.erb` -- resend unlock (unstyled, English)
 
-#### 1.1 Read Devise Changelog
-- [ ] Review changelog: https://github.com/heartcombo/devise/blob/main/CHANGELOG.md
-- [ ] Focus on 4.9.0 changes related to Turbo
-- [ ] Note any breaking changes or required configuration
+### Turbo Frame mismatch
+- `app/views/borrowers/_result_item.html.erb` line 4: borrower name link
+  is inside `<turbo-frame id="results">`. Clicking navigates inside the
+  frame, but the target page has no matching frame. Fix: add
+  `data-turbo-frame="_top"` to the link.
 
-#### 1.2 Read Upgrade Guide
-- [ ] Review upgrade guide: https://github.com/heartcombo/devise/wiki/How-To:-Upgrade-to-Devise-4.9.0-%5BHotwire-Turbo-integration%5D
-- [ ] Document required configuration changes
-- [ ] Check for view changes needed
+### Custom controllers
+- `app/controllers/users/invitations_controller.rb` -- handles invite
+  creation and admin deletion. No Turbo issues.
 
-#### 1.3 Audit Current Devise Setup
-- [ ] Check `config/initializers/devise.rb` for Turbo-related settings
-- [ ] Review Devise views (if customized): `app/views/devise/`
-- [ ] Check if `turbo_confirms_with_devise` is configured
-- [ ] Look for any custom Devise controllers
+### Views that are styled and German
+- `sessions/new.html.erb` (sign in)
+- `passwords/new.html.erb` (password reset request)
+- `invitations/new.html.erb` (invite user)
+- `invitations/edit.html.erb` (accept invitation)
 
-### Phase 2: Configuration Review
+### Views that are unstyled Devise defaults (English)
+- `passwords/edit.html.erb`
+- `registrations/new.html.erb`
+- `registrations/edit.html.erb`
+- `confirmations/new.html.erb`
+- `unlocks/new.html.erb`
 
-#### 2.1 Devise Initializer
-Check `config/initializers/devise.rb` for:
-- [ ] `config.navigational_formats` - Should include `:turbo_stream`?
-- [ ] `config.responder` settings
-- [ ] Any Turbo-specific configuration
+## Implementation Plan
 
-#### 2.2 Devise Views
-Check if views exist and need Turbo attributes:
-- [ ] `app/views/devise/sessions/new.html.erb` (sign in)
-- [ ] `app/views/devise/registrations/new.html.erb` (sign up)
-- [ ] `app/views/devise/registrations/edit.html.erb` (edit profile)
-- [ ] `app/views/devise/passwords/` (password reset)
-- [ ] `app/views/devise/invitations/` (if using devise_invitable)
+### Step 1: Add `data-turbo="false"` to all Devise forms
 
-Forms might need:
-```erb
-<%= form_for(resource, data: { turbo: false }) do |f| %>
-```
-or
-```erb
-<%= form_for(resource, html: { data: { turbo: false } }) do |f| %>
-```
+Add `data: { turbo: false }` to every Devise form_for that doesn't have it.
+This is the simple, reliable approach -- auth forms don't benefit from Turbo.
 
-#### 2.3 Flash Messages
-- [ ] Check if flash messages display correctly with Turbo
-- [ ] Verify flash messages in `app/views/layouts/application.html.erb`
-- [ ] May need Turbo Stream template for flashes
+Files to change:
+- `app/views/devise/passwords/new.html.erb`
+- `app/views/devise/passwords/edit.html.erb`
+- `app/views/devise/registrations/new.html.erb`
+- `app/views/devise/registrations/edit.html.erb`
+- `app/views/devise/confirmations/new.html.erb`
+- `app/views/devise/unlocks/new.html.erb`
 
-#### 2.4 Redirects
-Check controllers for redirects after authentication:
-- [ ] `app/controllers/application_controller.rb` - `after_sign_in_path_for`
-- [ ] Check if redirects work with Turbo navigation
+### Step 2: Strengthen password policy
 
-### Phase 3: Testing
-
-#### 3.1 Manual Testing Checklist
-- [ ] Sign in functionality works
-- [ ] Sign out functionality works
-- [ ] Sign up (registration) works
-- [ ] Password reset flow works
-- [ ] Edit profile works
-- [ ] User invitation flow works (devise_invitable)
-- [ ] Flash messages display correctly
-- [ ] Redirects work as expected
-- [ ] Error messages display for invalid inputs
-
-#### 3.2 Turbo-Specific Testing
-- [ ] Forms submit via Turbo (check network tab - should be AJAX)
-- [ ] Or forms explicitly disable Turbo (check for `data-turbo="false"`)
-- [ ] No page refreshes on form submission (unless intended)
-- [ ] Browser back/forward works correctly
-
-### Phase 4: Fix Issues
-
-#### 4.1 Common Fixes
-
-**Option A: Disable Turbo on Devise forms** (simpler, traditional behavior)
-```erb
-<%= form_for(resource, data: { turbo: false }) do |f| %>
+In `config/initializers/devise.rb`:
+```ruby
+config.password_length = 8..128
 ```
 
-**Option B: Make Devise Turbo-compatible** (more modern, but complex)
-- Add Turbo Stream responses to Devise controllers
-- Update views to work with Turbo
-- Configure `turbo_confirms_with_devise`
+Update `app/views/devise/invitations/edit.html.erb` -- the `minlength: "8"`
+on the password field is already correct but hardcoded. Leave it as-is since
+it matches the new config value.
 
-#### 4.2 Recommended Approach
-For this project, recommend **Option A** (disable Turbo on Devise forms) because:
-- Simpler to implement
-- More reliable
-- Authentication forms don't need SPA behavior
-- Can iterate later if needed
+### Step 3: Fix Turbo Frame mismatch on borrower links
 
-### Phase 5: Documentation
+In `app/views/borrowers/_result_item.html.erb`, add `data-turbo-frame="_top"`
+to the borrower name link so it navigates the full page instead of trying to
+replace the turbo-frame:
 
-#### 5.1 Document Decisions
-- [ ] Document which approach was chosen (A or B)
-- [ ] Document any custom configuration
-- [ ] Update CLAUDE.md if relevant
-- [ ] Add notes to journal
+```erb
+<%= link_to borrower_path(borrower), class: "name", data: { turbo_frame: "_top" } do %>
+```
 
-#### 5.2 Update Code Comments
-- [ ] Add comments to any modified Devise views explaining Turbo behavior
-- [ ] Document any initializer changes
+### Step 4: Style unstyled Devise views
 
-## Files to Review
+The unstyled views (`passwords/edit`, `registrations/new`,
+`registrations/edit`, `confirmations/new`, `unlocks/new`) use default Devise
+scaffold HTML with no Bootstrap classes and English text. Style them to match
+the existing styled views (sessions/new, passwords/new, invitations/*):
 
-### Configuration
-- `config/initializers/devise.rb`
-- `config/routes.rb` (Devise routes)
+- Use the same `row justify-content-center` / `col-6` / `bg-light p-3 rounded`
+  layout pattern
+- Use Bootstrap `form-control`, `form-label`, `btn btn-primary` classes
+- Translate all text to German
+- Add "Zur Startseite" back link where appropriate
 
-### Views (if customized)
-- `app/views/devise/sessions/`
-- `app/views/devise/registrations/`
-- `app/views/devise/passwords/`
-- `app/views/devise/invitations/` (devise_invitable)
-- `app/views/layouts/application.html.erb`
+**Note:** Only style views that users can actually reach. Check which Devise
+modules are enabled on the User model to determine which views are active.
+Registration may be disabled (users are invited via devise_invitable).
 
-### Controllers (if customized)
-- `app/controllers/application_controller.rb`
-- `app/controllers/users/` (custom Devise controllers)
+## Files to Modify
 
-## Key Questions to Answer
+| File | Change |
+|------|--------|
+| `config/initializers/devise.rb` | `password_length = 8..128` |
+| `app/views/devise/passwords/new.html.erb` | Add `data-turbo="false"` |
+| `app/views/devise/passwords/edit.html.erb` | Add turbo:false, style, translate |
+| `app/views/devise/registrations/new.html.erb` | Add turbo:false, style, translate (if reachable) |
+| `app/views/devise/registrations/edit.html.erb` | Add turbo:false, style, translate (if reachable) |
+| `app/views/devise/confirmations/new.html.erb` | Add turbo:false, style, translate (if reachable) |
+| `app/views/devise/unlocks/new.html.erb` | Add turbo:false, style, translate (if reachable) |
+| `app/views/borrowers/_result_item.html.erb` | Add `data-turbo-frame="_top"` to link |
 
-1. **Are Devise views customized?**
-   - If no: May work out of box with Devise 4.9+
-   - If yes: Need to check for Turbo compatibility
+## Testing
 
-2. **How should authentication forms behave?**
-   - With Turbo (AJAX, no page reload)
-   - Without Turbo (traditional, full page reload) ← Recommended
+1. Run existing test suite -- must stay green
+2. Write integration tests for Devise flows:
+   - Sign in succeeds and redirects
+   - Sign in with wrong password shows error
+   - Password reset request works
+   - Sign out works
+3. Write test for borrower link navigation (no Turbo Frame mismatch)
+4. Test password minimum length validation (8 chars)
 
-3. **Are there custom Devise controllers?**
-   - Check `app/controllers/users/` for invitations_controller.rb
-   - May need to handle Turbo responses
+## Verification
 
-4. **What is current user experience?**
-   - Are authentication flows working correctly now?
-   - Any reported issues with sign in/sign up?
-
-## Expected Outcomes
-
-### Success Criteria
-- [ ] All Devise authentication flows work correctly
-- [ ] Flash messages display as expected
-- [ ] No JavaScript errors in console
-- [ ] Redirects work after authentication
-- [ ] User experience is smooth (no weird behaviors)
-- [ ] Documentation is updated
-
-### Potential Issues to Watch For
-- Sign in form submits but nothing happens
-- Flash messages don't appear
-- Redirects fail silently
-- Browser back button doesn't work correctly
-- Error messages not displaying
-
-## Implementation Priority
-
-**Priority: Medium**
-- Not blocking containerization work
-- Should be addressed before production deployment
-- May affect user onboarding/authentication experience
-
-**Timing:**
-- Can be done in parallel with Docker work
-- Should be completed before deploying to production
-- Test thoroughly in containerized environment
-
-## Resources
-
-- [Devise Changelog](https://github.com/heartcombo/devise/blob/main/CHANGELOG.md)
-- [Upgrade Guide](https://github.com/heartcombo/devise/wiki/How-To:-Upgrade-to-Devise-4.9.0-%5BHotwire-Turbo-integration%5D)
-- [Turbo Handbook](https://turbo.hotwired.dev/handbook/introduction)
-- [Devise + Turbo Discussion](https://github.com/heartcombo/devise/discussions)
-
-## Next Steps
-
-1. Generate Devise views if not already customized: `rails generate devise:views`
-2. Review the upgrade guide thoroughly
-3. Test authentication flows manually
-4. Implement fixes if needed
-5. Document approach in journal
+- [ ] All existing tests pass
+- [ ] All Devise forms have `data-turbo="false"`
+- [ ] Password minimum length is 8
+- [ ] Borrower link in search results navigates correctly
+- [ ] All user-reachable Devise views are styled and in German
