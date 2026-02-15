@@ -1,9 +1,16 @@
-# ABOUTME: Tests for the health check endpoint.
-# ABOUTME: Verifies readiness response including dependency checks.
+# ABOUTME: Tests for health check endpoints.
+# ABOUTME: Verifies basic health and readiness responses.
 
 require "test_helper"
 
 class HealthControllerTest < ActionDispatch::IntegrationTest
+  test "GET /health returns 200 with ok status" do
+    get "/health"
+    assert_response :ok
+    json = JSON.parse(response.body)
+    assert_equal "ok", json["status"]
+  end
+
   test "GET /health/readiness returns 200 with checks" do
     get "/health/readiness"
     assert_response :ok

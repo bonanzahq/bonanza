@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get "health" => "health#show"
   get "health/readiness" => "health#readiness"
 
   resources :departments, path: '/werkstaetten' do

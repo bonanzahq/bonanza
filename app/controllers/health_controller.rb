@@ -1,6 +1,10 @@
 # ABOUTME: Health check endpoint for monitoring application and dependency status.
 # ABOUTME: Checks database and Elasticsearch connectivity.
 class HealthController < ApplicationController
+  def show
+    render json: { status: "ok" }
+  end
+
   def readiness
     checks = {
       database: check_database,
