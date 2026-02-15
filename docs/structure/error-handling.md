@@ -15,6 +15,16 @@ The `CanCan::AccessDenied` rescue in `ApplicationController` is declared
 after `include ErrorHandling`, so it takes precedence (Rails processes
 `rescue_from` in reverse declaration order).
 
+### ErrorsController
+
+`app/controllers/errors_controller.rb` handles errors routed by
+`exceptions_app` (configured in `config/application.rb`). Routing errors
+and other middleware-level exceptions bypass controller `rescue_from`,
+so Rails routes them to `/404` or `/500` which map to this controller.
+
+In development, `consider_all_requests_local = true` shows Rails debug
+pages instead. The custom error pages render in production only.
+
 ### Error Pages
 
 - `app/views/errors/not_found.html.erb` -- German 404 page
@@ -39,13 +49,14 @@ Configuration is in `config/environments/production.rb`.
 - `append_info_to_payload` in `ApplicationController` injects `request_id`
   and `user_id` into the Lograge event payload
 
-## Health Check
+## Health Checks
 
-`HealthController` provides a single endpoint:
+`HealthController` provides two endpoints:
 
 | Route | Purpose |
 |-------|---------|
-| `GET /health/readiness` | Checks database and Elasticsearch connectivity. Returns `{"status": "ok"}` or `{"status": "degraded"}` with per-check details. Used by Docker healthcheck. |
+| `GET /health` | Returns `{"status": "ok"}`. Used by Docker healthcheck. |
+| `GET /health/readiness` | Checks database and Elasticsearch connectivity. Returns `{"status": "ok"}` or `{"status": "degraded"}` with per-check details. For diagnostics only. Error messages are logged but not exposed in the response. |
 
 ## Log Viewer (Development)
 
