@@ -32,8 +32,7 @@ through the FHP SMTP relay.
 **Observability**: Structured JSON logging via Lograge in production (one
 JSON line per request). Centralized error handling renders 404/500 pages
 and logs exceptions with request context. Health check endpoints
-(`/health/liveness`, `/health/readiness`) support Docker container
-orchestration. Dozzle provides a log viewer in development.
+(`/health/readiness`) supports Docker container health monitoring. Dozzle provides a log viewer in development.
 
 ## Terminology
 

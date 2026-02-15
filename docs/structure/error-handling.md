@@ -39,14 +39,13 @@ Configuration is in `config/environments/production.rb`.
 - `append_info_to_payload` in `ApplicationController` injects `request_id`
   and `user_id` into the Lograge event payload
 
-## Health Checks
+## Health Check
 
-`HealthController` provides two endpoints:
+`HealthController` provides a single endpoint:
 
-| Endpoint | Route | Purpose |
-|----------|-------|---------|
-| Liveness | `GET /health/liveness` (aliased as `GET /up`) | Process alive check. Returns `{"status": "ok"}`. Used by Docker healthcheck. |
-| Readiness | `GET /health/readiness` | Dependency check. Verifies database and Elasticsearch connectivity. Returns `{"status": "ok"}` or `{"status": "degraded"}` with per-check details. |
+| Route | Purpose |
+|-------|---------|
+| `GET /health/readiness` | Checks database and Elasticsearch connectivity. Returns `{"status": "ok"}` or `{"status": "degraded"}` with per-check details. Used by Docker healthcheck. |
 
 ## Log Viewer (Development)
 
