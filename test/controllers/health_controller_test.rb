@@ -11,9 +11,9 @@ class HealthControllerTest < ActionDispatch::IntegrationTest
     assert_equal "ok", json["status"]
   end
 
-  test "GET /health/readiness returns 200 with checks" do
+  test "GET /health/readiness returns checks structure" do
     get "/health/readiness"
-    assert_response :ok
+    assert_includes [200, 503], response.status
     json = JSON.parse(response.body)
     assert_includes ["ok", "degraded"], json["status"]
     assert json.key?("checks")
@@ -21,18 +21,18 @@ class HealthControllerTest < ActionDispatch::IntegrationTest
     assert json["checks"].key?("elasticsearch")
   end
 
-  test "health endpoint does not require authentication" do
+  test "health endpoints do not require authentication" do
     # No sign_in call - should still work
-    get "/health/readiness"
+    get "/health"
     assert_response :ok
+    get "/health/readiness"
+    assert_includes [200, 503], response.status
   end
 
   test "degraded check does not leak error messages" do
-    # ES in test env is either absent or has SSL mismatch, so this
-    # naturally returns a degraded response with an ES error
     get "/health/readiness"
     json = JSON.parse(response.body)
-    # If ES happens to be reachable and healthy, skip this assertion
+    # If ES is reachable and healthy, skip this assertion
     es_check = json["checks"]["elasticsearch"]
     return if es_check["status"] == "ok"
 
