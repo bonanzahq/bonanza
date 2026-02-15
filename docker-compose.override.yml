@@ -18,6 +18,7 @@ services:
     build: .
     user: root
     environment:
+      CI: "true"
       RAILS_ENV: development
       DATABASE_URL: postgresql://postgres:password@db:5432/bonanza_redux_development
       ELASTICSEARCH_URL: http://elasticsearch:9200
