@@ -10,3 +10,31 @@ class DeviseTurboTest < ActionDispatch::IntegrationTest
     assert_select 'form[data-turbo="false"]', count: 1
   end
 
+  test "password edit form has data-turbo=false and German text" do
+    department = Department.create!(name: "Test Department")
+    user = User.new(
+      email: "test@example.com",
+      password: "password",
+      password_confirmation: "password",
+      firstname: "Test",
+      lastname: "User"
+    )
+    user.department_memberships.build(department: department, role: :leader)
+    user.save!
+    
+    raw_token = user.send_reset_password_instructions
+    
+    get edit_user_password_path(reset_password_token: raw_token)
+    assert_response :success
+    
+    # Check form has data-turbo=false
+    assert_select 'form[data-turbo="false"]', count: 1
+    
+    # Check German text
+    assert_select 'h3', text: 'Neues Passwort festlegen'
+    
+    # Check Bootstrap classes are present
+    assert_select 'input.form-control[type="password"]'
+  end
+
+end
