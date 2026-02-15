@@ -21,5 +21,6 @@ module BonanzaRedux
 
     config.i18n.default_locale = :de
 
+    config.exceptions_app = self.routes
   end
 end
