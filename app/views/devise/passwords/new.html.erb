@@ -4,7 +4,7 @@
     <div class="bg-light p-3 rounded mb-3 position-relative">
       <a href="/" class="link-back link-dark">Zur Startseite</a>
       <p>Wenn Du dein Passwort vergessen hast, gib hier bitte Deine E-Mail-Adresse an. Du bekommst eine E-Mail, mit deren Hilfe du ein neues Passwort festlegen kannst.</p>
-      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
+      <%= form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post, data: { turbo: false } }) do |f| %>
         <%= render "devise/shared/error_messages", resource: resource %>
         <div class="mb-2">
             <%= f.label :email, "E-Mail-Adresse", class: "form-label" %>
