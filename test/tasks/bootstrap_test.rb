@@ -17,7 +17,7 @@ class BootstrapTest < ActiveSupport::TestCase
   end
 
   test "creates admin user when no admin exists" do
-    User.where(admin: true).destroy_all
+    User.where(admin: true).delete_all
 
     ENV["ADMIN_EMAIL"] = "admin@bonanza.test"
     ENV["ADMIN_PASSWORD"] = "secure_password123"
@@ -30,7 +30,7 @@ class BootstrapTest < ActiveSupport::TestCase
   end
 
   test "creates legal texts when no admin exists" do
-    User.where(admin: true).destroy_all
+    User.where(admin: true).delete_all
     LegalText.destroy_all
 
     ENV["ADMIN_EMAIL"] = "admin@bonanza.test"
@@ -57,7 +57,7 @@ class BootstrapTest < ActiveSupport::TestCase
   end
 
   test "aborts when ADMIN_EMAIL is missing" do
-    User.where(admin: true).destroy_all
+    User.where(admin: true).delete_all
 
     ENV["ADMIN_PASSWORD"] = "secure_password123"
 
@@ -67,7 +67,7 @@ class BootstrapTest < ActiveSupport::TestCase
   end
 
   test "aborts when ADMIN_PASSWORD is missing" do
-    User.where(admin: true).destroy_all
+    User.where(admin: true).delete_all
 
     ENV["ADMIN_EMAIL"] = "admin@bonanza.test"
 
@@ -77,7 +77,7 @@ class BootstrapTest < ActiveSupport::TestCase
   end
 
   test "creates default department if none exists" do
-    User.where(admin: true).destroy_all
+    User.where(admin: true).delete_all
     Department.destroy_all
 
     ENV["ADMIN_EMAIL"] = "admin@bonanza.test"
