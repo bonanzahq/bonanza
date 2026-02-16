@@ -77,8 +77,20 @@ class CheckoutControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to checkout_state_path("borrower")
   end
 
-  # NOTE: ensure_lending_not_completed is bypassed because ensure_state_access_allowed
-  # mutates @lending.state in memory before the check runs. Filed as git-bug.
+  test "index redirects completed lending away from checkout" do
+    lending_id = populate_cart
+    lending = Lending.find(lending_id)
+    borrower = create(:borrower, :with_tos)
+    lending.update_columns(
+      state: Lending.states[:completed],
+      borrower_id: borrower.id,
+      duration: 14,
+      lent_at: Time.current
+    )
+
+    get checkout_state_path("confirmation")
+    assert_redirected_to lending_path
+  end
 
   # -- update --
 

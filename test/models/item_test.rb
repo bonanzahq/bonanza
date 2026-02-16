@@ -129,6 +129,35 @@ class ItemTest < ActiveSupport::TestCase
     assert_equal "unavailable", history.status
   end
 
+  test "no blank history record created when item is returned" do
+    lending = create(:lending, :completed)
+    line_item = create(:line_item, item: @item, lending: lending, quantity: 1)
+
+    # Simulate lending the item
+    @item.update_column(:status, Item.statuses[:lent])
+    @item.update_column(:quantity, 0)
+    @item.reload
+
+    history_count_before = @item.item_histories.count
+
+    # Simulate return via take_back
+    @item.current_line_item = line_item
+    @item.quantity += 1
+    @item.status = "returned"
+    @item.save!
+
+    @item.reload
+    histories_after = @item.item_histories.reload
+
+    # Should have exactly one new history record (the "returned" one), not two
+    new_histories = histories_after.where("id > ?", @item.item_histories.minimum(:id) || 0)
+                                   .where.not(status: "created")
+
+    # None of the history records should be blank (no status, no note, no user)
+    blank_histories = histories_after.where(status: nil, note: nil, user_id: nil, line_item_id: nil, quantity: nil)
+    assert_equal 0, blank_histories.count, "Expected no blank history records, but found #{blank_histories.count}"
+  end
+
   # -- user_adjusted_quantity --
 
   test "user_adjusted_quantity subtracts line item quantity" do
