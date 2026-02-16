@@ -57,6 +57,11 @@ docker compose down -v    # -v removes volumes (DB data, ES data)
 docker compose up -d      # Fresh start
 ```
 
+**pnpm in Docker:** pnpm will fail with `ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY`
+if `node_modules` needs recreating and there's no TTY. `ENV CI=true` in the
+Dockerfile handles this. Do NOT add workarounds elsewhere -- the fix is already
+in place.
+
 **Note on `db/schema.rb`:** Rails can silently overwrite schema.rb with an
 empty schema if `db:schema:dump` runs against an empty database. This is
 harmless now because `db/migrate/` has the initial migration, but don't

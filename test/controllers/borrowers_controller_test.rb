@@ -24,6 +24,22 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "borrower search result links have turbo-frame _top" do
+    sign_in @user
+    
+    search_results = Kaminari.paginate_array([@borrower]).page(1).per(4)
+    original_method = Borrower.method(:search_people)
+    Borrower.define_singleton_method(:search_people) { |*_args| search_results }
+    
+    begin
+      get borrowers_path, params: { q: @borrower.firstname }
+      assert_response :success
+      assert_select "a.name[href='#{borrower_path(@borrower)}'][data-turbo-frame='_top']"
+    ensure
+      Borrower.define_singleton_method(:search_people, original_method)
+    end
+  end
+
   # -- show --
 
   test "show renders borrower details" do

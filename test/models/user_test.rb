@@ -57,6 +57,17 @@ class UserTest < ActiveSupport::TestCase
     assert_not duplicate.valid?
   end
 
+  test "password must be at least 8 characters" do
+    user = build(:user, password: "short12", password_confirmation: "short12")
+    assert_not user.valid?
+    assert user.errors[:password].any?
+  end
+
+  test "password with exactly 8 characters is valid" do
+    user = build(:user, password: "valid123", password_confirmation: "valid123")
+    assert user.valid?
+  end
+
   # -- Fullname --
 
   test "fullname concatenates first and last name" do
