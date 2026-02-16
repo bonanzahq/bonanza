@@ -36,7 +36,7 @@ services:
       - bonanza_elasticsearch_data:/usr/share/elasticsearch/data
       - ./elastic_synonyms.txt:/usr/share/elasticsearch/config/elastic_synonyms.txt:ro
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf -u 'elastic:${ELASTIC_PASSWORD}' http://localhost:9200/_cluster/health || exit 1"]
+      test: ["CMD-SHELL", "curl -sf -u elastic:${ELASTIC_PASSWORD} http://localhost:9200/_cluster/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 20

@@ -6,7 +6,7 @@ set -e
 
 # URL-encode passwords to handle special characters safely
 urlencode() {
-  ruby -e "require 'cgi'; puts CGI.escape(ARGV[0])" "$1"
+  ruby -e "require 'uri'; puts URI::DEFAULT_PARSER.escape(ARGV[0], /[^A-Za-z0-9\-._~]/)" "$1"
 }
 
 # Construct connection URLs from components, URL-encoding passwords
