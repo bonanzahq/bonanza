@@ -69,8 +69,8 @@ class DeviseTurboTest < ActionDispatch::IntegrationTest
     get edit_user_registration_path
     assert_response :success
     
-    # Check forms have data-turbo=false (both edit form and delete button form)
-    assert_select 'form[data-turbo="false"]', count: 2
+    # Check profile edit form has data-turbo=false
+    assert_select 'form[data-turbo="false"]', count: 1
     
     # Check German text
     assert_select 'h3', text: 'Profil bearbeiten'

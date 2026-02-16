@@ -27,10 +27,9 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
   test "borrower search result links have turbo-frame _top" do
     sign_in @user
     
-    # Stub search to return a kaminari-paginated collection
     search_results = Kaminari.paginate_array([@borrower]).page(1).per(4)
     original_method = Borrower.method(:search_people)
-    Borrower.define_singleton_method(:search_people) { |*args| search_results }
+    Borrower.define_singleton_method(:search_people) { |*_args| search_results }
     
     begin
       get borrowers_path, params: { q: @borrower.firstname }

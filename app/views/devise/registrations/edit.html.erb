@@ -49,7 +49,7 @@
           
           <h4>Konto löschen</h4>
           <p class="text-muted">Diese Aktion kann nicht rückgängig gemacht werden.</p>
-          <%= button_to "Konto löschen", registration_path(resource_name), method: :delete, class: "btn btn-danger", form: { data: { turbo: false } }, data: { turbo_confirm: "Bist du sicher?" } %>
+          <%= button_to "Konto löschen", registration_path(resource_name), method: :delete, class: "btn btn-danger", data: { turbo_confirm: "Bist du sicher?" } %>
         </div>
     </div>
     <div class="col-3">
