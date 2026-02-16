@@ -43,12 +43,6 @@ class CheckoutController < ApplicationController
         flash[:printable_agreement] = lending_agreement_path(@lending.id, @lending.token)
         flash[:notice] = "Die Ausleihe wurde erfolgreich angelegt!"
 
-        begin
-          LendingMailer.confirmation_email(@lending).deliver_now
-        rescue => e
-          log_exception(e)
-        end
-        
         redirect_to completion_route
       else
 
