@@ -133,8 +133,10 @@ class Item < ApplicationRecord
         logger.debug("made available again #{id} #{status}")
       end
 
-      item_history.save
-      logger.debug("saved history for item #{id}")
+      if item_history.status.present? || item_history.note.present? || saved_change_to_condition?
+        item_history.save
+        logger.debug("saved history for item #{id}")
+      end
     end
 
     def reindex_parent_item
