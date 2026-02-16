@@ -88,4 +88,54 @@ The entrypoint builds assets on every boot. Force a rebuild:
 docker compose exec rails pnpm build && docker compose exec rails pnpm build:css
 ```
 
+## Deployment
+
+Production runs from pre-built Docker images. No source code checkout needed
+on the server.
+
+### Prerequisites
+
+- Docker and Docker Compose on the server
+- A GitHub fine-grained PAT with read-only contents access to this repo
+
+### First-time setup
+
+```bash
+# Download deployment files
+GITHUB_TOKEN=ghp_xxx bash <(curl -fsSL https://raw.githubusercontent.com/bonanzahq/bonanza/main/deploy.sh)
+```
+
+This won't work for private repos without auth. Instead, copy `deploy.sh` to
+the server manually and run it:
+
+```bash
+GITHUB_TOKEN=ghp_xxx bash deploy.sh
+```
+
+The script downloads `docker-compose.yml`, `Caddyfile`,
+`elastic_synonyms.txt`, and `example.env` (as `.env`).
+
+Then fill in `.env` with production values (see `example.env` for reference)
+and start the stack:
+
+```bash
+docker compose up -d
+```
+
+On first boot, the entrypoint runs `rake bootstrap:admin` which creates the
+initial admin user from `ADMIN_EMAIL` and `ADMIN_PASSWORD` environment
+variables. These are required on first deploy and can be removed from `.env`
+afterwards.
+
+### Updating
+
+```bash
+# Pull latest image and restart
+docker compose pull
+docker compose up -d
+
+# Re-download config files if changed upstream
+bash deploy.sh
+```
+
 See `AGENTS.md` for project conventions and issue tracking workflow.
