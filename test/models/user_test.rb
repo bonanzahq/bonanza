@@ -163,6 +163,48 @@ class UserTest < ActiveSupport::TestCase
     assert @user.current_department.present?
   end
 
+  # -- Admin safeguards --
+
+  test "cannot destroy the last admin" do
+    admin = create(:user, :admin)
+    assert_not admin.destroy
+    assert admin.errors[:base].include?("Der letzte Admin kann nicht gelöscht werden.")
+  end
+
+  test "can destroy an admin when another admin exists" do
+    admin1 = create(:user, :admin)
+    admin2 = create(:user, :admin)
+    assert admin1.destroy
+  end
+
+  test "cannot remove admin flag from the last admin" do
+    admin = create(:user, :admin)
+    admin.admin = false
+    assert_not admin.valid?
+    assert admin.errors[:admin].include?("kann nicht entfernt werden, da kein anderer Admin existiert.")
+  end
+
+  test "can remove admin flag when another admin exists" do
+    admin1 = create(:user, :admin)
+    admin2 = create(:user, :admin)
+    admin1.admin = false
+    assert admin1.valid?
+  end
+
+  test "cannot delete own account" do
+    User.current_user = @user
+    assert_not @user.destroy
+    assert @user.errors[:base].include?("Das eigene Konto kann nicht gelöscht werden.")
+    User.current_user = nil
+  end
+
+  test "can delete another user's account" do
+    other = create(:user)
+    User.current_user = @user
+    assert other.destroy
+    User.current_user = nil
+  end
+
   # -- Thread-local current_user --
 
   test "current_user is thread-local" do

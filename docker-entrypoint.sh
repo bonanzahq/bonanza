@@ -31,6 +31,12 @@ rm -f tmp/pids/server.pid
 
 echo "Setting up database..."
 bundle exec rails db:prepare
+
+if [ "$RAILS_ENV" = "production" ]; then
+  echo "Running production bootstrap..."
+  bundle exec rails bootstrap:admin
+fi
+
 if [ "$RAILS_ENV" != "production" ]; then
   bundle exec rails db:seed || echo "db:seed had errors (non-fatal, likely duplicate data)"
 fi

@@ -22,6 +22,9 @@ class User < ApplicationRecord
   # validates_inclusion_of :department_id, :in => :allowed_department_ids, unless: "User.current_user.nil?"
   # validates_inclusion_of :role, :in => :allowed_roles, unless: -> { User.current_user.nil? }
 
+  before_destroy :prevent_unsafe_deletion
+  validate :protect_last_admin_flag
+
   attr_accessor :temp_role
 
   def fullname
@@ -94,5 +97,25 @@ class User < ApplicationRecord
     #     end
     #   }.compact
     # end
+
+    def prevent_unsafe_deletion
+      if User.current_user == self
+        errors.add(:base, "Das eigene Konto kann nicht gelöscht werden.")
+        throw(:abort)
+      end
+
+      if admin? && User.where(admin: true).where.not(id: id).empty?
+        errors.add(:base, "Der letzte Admin kann nicht gelöscht werden.")
+        throw(:abort)
+      end
+    end
+
+    def protect_last_admin_flag
+      if admin_changed? && !admin
+        if User.where(admin: true).where.not(id: id).empty?
+          errors.add(:admin, "kann nicht entfernt werden, da kein anderer Admin existiert.")
+        end
+      end
+    end
 
 end
