@@ -36,7 +36,7 @@ services:
       - bonanza_elasticsearch_data:/usr/share/elasticsearch/data
       - ./elastic_synonyms.txt:/usr/share/elasticsearch/config/elastic_synonyms.txt:ro
     healthcheck:
-      test: ["CMD-SHELL", "curl -sf -u elastic:${ELASTIC_PASSWORD:-} http://localhost:9200/_cluster/health || exit 1"]
+      test: ["CMD-SHELL", "curl -sf -u 'elastic:${ELASTIC_PASSWORD}' http://localhost:9200/_cluster/health || exit 1"]
       interval: 10s
       timeout: 5s
       retries: 20
@@ -69,6 +69,8 @@ services:
       RAILS_SERVE_STATIC_FILES: "true"
       RAILS_LOG_TO_STDOUT: "true"
       SECRET_KEY_BASE: ${SECRET_KEY_BASE:-}
+      ADMIN_EMAIL: ${ADMIN_EMAIL:-}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
     depends_on:
       db:
         condition: service_healthy
@@ -97,7 +99,7 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      CADDY_ADDRESS: ${APP_HOST:-}
+      CADDY_ADDRESS: ${CADDY_ADDRESS:-:80}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - bonanza_caddy_data:/data
