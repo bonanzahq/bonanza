@@ -33,7 +33,9 @@ class User < ApplicationRecord
   end
 
   def current_role=(role)
-    department_memberships.find_or_initialize_by(department: current_department).role = role
+    membership = department_memberships.find_or_initialize_by(department: current_department)
+    membership.role = role
+    membership.save! if membership.persisted?
   end
 
   def is_guest_everywhere?
