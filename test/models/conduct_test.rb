@@ -61,4 +61,10 @@ class ConductTest < ActiveSupport::TestCase
     conduct = create(:conduct, permanent: true, duration: nil)
     assert conduct.persisted?
   end
+
+  test "conduct without lending is valid" do
+    conduct = create(:conduct, lending: nil, permanent: true)
+    assert conduct.persisted?
+    assert_nil conduct.lending_id
+  end
 end

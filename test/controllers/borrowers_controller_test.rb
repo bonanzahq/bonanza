@@ -121,16 +121,21 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
 
   # -- add_conduct --
 
-  # NOTE: add_conduct is broken -- the DB requires lending_id NOT NULL but the
-  # controller never sets it. Filed as git-bug ca344d3. This test documents the crash.
-  test "add_conduct returns 500 due to missing lending_id" do
+  test "add_conduct creates a conduct without lending" do
     sign_in @user
 
-    post borrower_add_conduct_path(@borrower), params: {
-      conduct: { reason: "Zu spät zurückgegeben", permanent: true }
-    }
-    
-    assert_response :internal_server_error
+    assert_difference "Conduct.count", 1 do
+      post borrower_add_conduct_path(@borrower), params: {
+        conduct: { reason: "Zu spät zurückgegeben", permanent: true }
+      }
+    end
+
+    assert_redirected_to borrower_path(@borrower)
+    conduct = Conduct.last
+    assert_nil conduct.lending_id
+    assert_equal "banned", conduct.kind
+    assert_equal @borrower, conduct.borrower
+    assert_equal @department, conduct.department
   end
 
   # -- remove_conduct --
