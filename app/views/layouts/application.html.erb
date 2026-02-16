@@ -30,11 +30,6 @@
             <% end %>
           <% end %>
         </h1>
-        <% if user_signed_in? && (current_user.admin? || current_user.leader?) %>
-          <nav class="main-nav">
-            <%= link_to "Verwaltung", borrowers_path %>
-          </nav>
-        <% end %>
     <% end %>
     <div class="container">
         <%= yield %>
