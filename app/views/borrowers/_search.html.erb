@@ -1,4 +1,4 @@
-<%= form_tag(borrowers_path, method: :get, data: { turbo: "true", "turbo-frame": "results", controller: "autocomplete", "autocomplete-source-value": "http://localhost:3000/autocomplete/borrowers/"}) do %>
+<%= form_tag(borrowers_path, method: :get, data: { turbo: "true", "turbo-frame": "results", controller: "autocomplete", "autocomplete-source-value": "/autocomplete/borrowers/"}) do %>
     <div class="input-group mb-3">
         <%= text_field_tag :q, params[:q], class: "form-control search-icon", id: "autoComplete-borrowers", autocomplete: "off", placeholder: "Ausleihende suchen", autofocus: true, data: { "autocomplete-target": "input"} %>
 

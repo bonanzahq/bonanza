@@ -11,7 +11,7 @@
 
 <div class="row">
     <div class="col-2 pt-3 d-flex justify-content-end align-items-start">
-        <a href="http://localhost:3000/home" class="link-back link-dark">Zurück</a>
+        <%= link_to "Zurück", public_home_page_path, class: "link-back link-dark" %>
     </div>
     <div class="col-7">
         <div class="p-3 bg-light mb-3">
@@ -91,7 +91,7 @@
         <div class="recent-lendings">
             <h6>Letzte Ausleihen</h6>
             <div class="lending">
-                <a href="http://localhost:3000/ausleihe/1" class="">
+                <a href="/ausleihe/1" class="">
                     <img >
                     <strong class="name">Anna Clemens</strong>
                     <p>Ausleihe vor 30 Sekunden</p>

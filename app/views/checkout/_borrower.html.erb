@@ -11,12 +11,12 @@
 
 <div class="row">
     <div class="col-2 pt-3 d-flex justify-content-end align-items-start">
-        <a href="http://localhost:3000/" class="link-back link-dark">Ausleihe</a>
+        <%= link_to "Ausleihe", root_path, class: "link-back link-dark" %>
     </div>
     <div class="col-7">
         <div class="p-3 bg-light mb-3 rounded">
 
-          <%= form_tag( checkout_state_path(state: "borrower"), method: :get, data: { turbo: "true", controller: "autocomplete", "autocomplete-source-value": "http://localhost:3000/autocomplete/borrowers/"}) do %>
+          <%= form_tag( checkout_state_path(state: "borrower"), method: :get, data: { turbo: "true", controller: "autocomplete", "autocomplete-source-value": "/autocomplete/borrowers/"}) do %>
             <div class="input-group mb-3">
                 <%= text_field_tag :b, params[:b], class: "form-control search-icon", id: "autoComplete-user", autocomplete: "off", placeholder: "Ausleihende suchen", data: { "autocomplete-target": "input"}%>    
             </div>

@@ -153,7 +153,7 @@ export default class extends Controller {
   async fetchNewItems(val) {
     try {
       console.log("fetching new items")
-      //let sourceUrl = "http://localhost:3000/autocomplete/items.json"
+      //let sourceUrl = "/autocomplete/items.json"
 
       let sourceUrl = this.sourceValue
 
