@@ -74,6 +74,14 @@ class DepartmentTest < ActiveSupport::TestCase
 
   # -- create_memberships_for_all_users callback --
 
+  test "rejects duplicate department names" do
+    create(:department, name: "Werkstatt Holz")
+    duplicate = build(:department, name: "Werkstatt Holz")
+
+    assert_not duplicate.valid?
+    assert duplicate.errors[:name].any?
+  end
+
   test "new department auto-creates memberships for existing users" do
     user = create(:user)
     new_dept = create(:department)

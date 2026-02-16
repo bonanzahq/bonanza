@@ -1,3 +1,5 @@
+Searchkick.disable_callbacks
+
 department = Department.create!(
   name: "Test Department",
   room: "LW 125",
@@ -122,5 +124,11 @@ LegalText.create!([
   {content: "Das aktuelle Impressum", kind: "imprint", user: user}
 ])
 
-ParentItem.reindex
-Borrower.reindex
+Searchkick.enable_callbacks
+
+begin
+  ParentItem.reindex
+  Borrower.reindex
+rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED, Elastic::Transport::Transport::Error
+  puts "Elasticsearch not available, skipping reindex"
+end

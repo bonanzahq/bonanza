@@ -105,10 +105,26 @@ class UserTest < ActiveSupport::TestCase
     assert_equal "member", @user.current_role
   end
 
-  # TODO: create an issue for the problem below
-  # NOTE: current_role= setter has a design issue: find_or_initialize_by returns
-  # a transient DB object, sets role on it, then discards it. The change is never
-  # persisted or retained in the association cache. Needs investigation.
+  test "current_role setter persists role change when user is saved" do
+    assert_equal "member", @user.current_role
+
+    @user.current_role = "leader"
+    @user.save!
+    @user.reload
+
+    assert_equal "leader", @user.current_role
+  end
+
+  test "current_role setter initializes membership for new department" do
+    new_dept = create(:department)
+    @user.current_department = new_dept
+
+    @user.current_role = "leader"
+    @user.save!
+    @user.reload
+
+    assert_equal "leader", @user.role_in(new_dept)
+  end
 
   # -- role_in --
 
