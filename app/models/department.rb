@@ -2,6 +2,7 @@ class Department < ApplicationRecord
 	acts_as_tagger
 	
 	has_many :department_memberships, :dependent => :destroy
+	validates :name, uniqueness: true
 	has_many :users, -> { distinct }, :through => :department_memberships
 	has_many :parent_items
 
