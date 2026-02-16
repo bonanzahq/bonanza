@@ -1,5 +1,5 @@
-# ABOUTME: Docker Hub build-and-push workflow for the Bonanza application
-# ABOUTME: Builds on all pushes/PRs, pushes to Docker Hub only on non-PR events
+# ABOUTME: Docker build-and-push workflow for the Bonanza application
+# ABOUTME: Builds on all pushes/PRs, pushes to Docker Hub and GHCR on non-PR events
 
 name: Docker Build
 
@@ -23,6 +23,7 @@ on:
 
 env:
   IMAGE_NAME: bonanzahq/bonanza
+  GHCR_IMAGE: ghcr.io/bonanzahq/bonanza
 
 jobs:
   build:
@@ -30,6 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
+      packages: write
 
     steps:
       - uses: actions/checkout@v4
@@ -41,7 +43,9 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.IMAGE_NAME }}
+          images: |
+            ${{ env.IMAGE_NAME }}
+            ${{ env.GHCR_IMAGE }}
           tags: |
             type=ref,event=branch
             type=ref,event=pr
@@ -55,6 +59,14 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
+
+      - name: Log in to GHCR
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and push
         uses: docker/build-push-action@v6
