@@ -22,6 +22,18 @@ else
   export ELASTICSEARCH_URL="http://${ES_HOST:-elasticsearch}:${ES_PORT:-9200}"
 fi
 
+# Validate required environment variables in production
+if [ "$RAILS_ENV" = "production" ]; then
+  missing=""
+  [ -z "${DB_PASSWORD:-}" ] && missing="$missing DB_PASSWORD"
+  [ -z "${ES_PASSWORD:-}" ] && missing="$missing ES_PASSWORD"
+  [ -z "${SECRET_KEY_BASE:-}" ] && missing="$missing SECRET_KEY_BASE"
+  if [ -n "$missing" ]; then
+    echo "Error: Required environment variables are not set:$missing"
+    exit 1
+  fi
+fi
+
 echo "Waiting for PostgreSQL..."
 until pg_isready -h "${DB_HOST:-db}" -p "${DB_PORT:-5432}" -U "${DB_USER:-postgres}" -q; do
   sleep 2
@@ -59,9 +71,7 @@ if [ "$RAILS_ENV" != "production" ]; then
   bundle exec rails db:seed || echo "db:seed had errors (non-fatal, likely duplicate data)"
 fi
 
-if [ "$RAILS_ENV" != "production" ]; then
-  echo "Reindexing Elasticsearch..."
-  bundle exec rails runner "ParentItem.reindex; Borrower.reindex" || echo "Reindex failed (non-fatal, run manually if needed)"
-fi
+echo "Reindexing Elasticsearch..."
+bundle exec rails runner "ParentItem.reindex; Borrower.reindex" || echo "Reindex failed (non-fatal, run manually if needed)"
 
 exec "$@"
