@@ -30,7 +30,6 @@ services:
       APP_PORT: 8080
       SMTP_HOST: mailpit
       SMTP_PORT: 1025
-      RAILS_MASTER_KEY: ""
       RAILS_SERVE_STATIC_FILES: ""
       RAILS_LOG_TO_STDOUT: ""
       SECRET_KEY_BASE: dev-not-secret
