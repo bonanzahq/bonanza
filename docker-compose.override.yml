@@ -19,8 +19,13 @@ services:
     user: root
     environment:
       RAILS_ENV: development
-      DATABASE_URL: postgresql://postgres:password@db:5432/bonanza_redux_development
-      ELASTICSEARCH_URL: http://elasticsearch:9200
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: bonanza_redux_development
+      ES_HOST: elasticsearch
+      ES_PORT: "9200"
       APP_HOST: localhost
       APP_PORT: 8080
       SMTP_HOST: mailpit

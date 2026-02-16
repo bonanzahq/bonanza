@@ -4,8 +4,26 @@
 
 set -e
 
+# URL-encode passwords to handle special characters safely
+urlencode() {
+  ruby -e "require 'cgi'; puts CGI.escape(ARGV[0])" "$1"
+}
+
+# Construct connection URLs from components, URL-encoding passwords
+if [ -n "${DB_PASSWORD:-}" ]; then
+  ENCODED_DB_PASSWORD=$(urlencode "$DB_PASSWORD")
+  export DATABASE_URL="postgresql://${DB_USER:-postgres}:${ENCODED_DB_PASSWORD}@${DB_HOST:-db}:${DB_PORT:-5432}/${DB_NAME:-bonanza_redux_production}"
+fi
+
+if [ -n "${ES_PASSWORD:-}" ]; then
+  ENCODED_ES_PASSWORD=$(urlencode "$ES_PASSWORD")
+  export ELASTICSEARCH_URL="http://elastic:${ENCODED_ES_PASSWORD}@${ES_HOST:-elasticsearch}:${ES_PORT:-9200}"
+else
+  export ELASTICSEARCH_URL="http://${ES_HOST:-elasticsearch}:${ES_PORT:-9200}"
+fi
+
 echo "Waiting for PostgreSQL..."
-until pg_isready -h db -p 5432 -U postgres -q; do
+until pg_isready -h "${DB_HOST:-db}" -p "${DB_PORT:-5432}" -U "${DB_USER:-postgres}" -q; do
   sleep 2
 done
 echo "PostgreSQL is ready."
