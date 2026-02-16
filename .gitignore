@@ -57,3 +57,4 @@ docs/bonanza-dev-notes
 .claude/settings.local.json
 .playwright-mcp/*.log
 CHECKLIST*.md
+HANDOFF*.md
