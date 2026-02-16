@@ -8,10 +8,10 @@ class CheckoutController < ApplicationController
 
   before_action :ensure_line_items
   before_action :ensure_department_is_staffed
+  before_action :ensure_lending_not_completed
   before_action :ensure_checkout_flow_started
   before_action :ensure_valid_state
   before_action :ensure_state_access_allowed
-  before_action :ensure_lending_not_completed
 
   def index
     redirect_to lending_path unless @lending.has_line_items?
