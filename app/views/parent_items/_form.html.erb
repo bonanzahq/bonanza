@@ -69,15 +69,17 @@
         <div class="input-group mb-1">
       <% end %>
       
-        <%= a_fields.text_field :name, placeholder: "Zubehör", class: "form-control" %>
+        <%= a_fields.text_field :name, placeholder: "Zubehör", class: "form-control", disabled: parent_item.has_lent_items? %>
         <%= a_fields.hidden_field :_destroy, class: "bnz-input-text" %>
         <%= a_fields.hidden_field :id %>
-        <a href="#" class="btn btn-outline-secondary" data-action="accessories-input#removeAccessory">entfernen</a>
+        <a href="#" class="btn btn-outline-secondary" data-action="accessories-input#removeAccessory" <%= 'style="display:none"'.html_safe if parent_item.has_lent_items? %>>entfernen</a>
       </div>
     <% end %>
 
     <div class="actions">
-      <a class="btn btn-link add-item icon-before add-new" data-action="accessories-input#addAccessory">Weiteres Zubehör</a>
+      <% unless parent_item.has_lent_items? %>
+        <a class="btn btn-link add-item icon-before add-new" data-action="accessories-input#addAccessory">Weiteres Zubehör</a>
+      <% end %>
     </div>
   </div>
 
