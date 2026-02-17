@@ -69,18 +69,40 @@ commit a truncated schema.rb. If it happens: `git checkout -- db/schema.rb`.
 
 ### Running tests locally
 
-Tests run outside Docker but need a PostgreSQL instance. Use the Docker DB:
+Tests run outside Docker but need a PostgreSQL instance on `localhost:5432`.
+The Docker Compose DB service does **not** expose a port to the host, so you
+need a standalone PostgreSQL container:
 
 ```bash
+# Start a test-only PostgreSQL container (one-time, or after it's been removed)
+docker run -d --name bonanza-test-db -p 5432:5432 -e POSTGRES_PASSWORD=password postgres:17.7
+
+# Create the test database (first time or after volume loss)
+mise exec -- env TEST_DATABASE_PASSWORD=password bundle exec rails db:test:prepare
+
 # Build assets first (required for controller tests)
 pnpm install --frozen-lockfile
 pnpm build && pnpm build:css
 
 # Run tests (mise picks up Ruby from mise.toml)
-mise exec -- env TEST_DATABASE_PASSWORD=password bin/rails test
+mise exec -- env TEST_DATABASE_PASSWORD=password bundle exec rails test
 
-# Without Elasticsearch running, all 200 tests pass.
-# With a stale ES instance, 2 controller tests may error on index queries.
+# Stop the container when done (data persists)
+docker stop bonanza-test-db
+
+# Restart it later
+docker start bonanza-test-db
+```
+
+If port 5432 is already in use (e.g. by Docker Compose), stop that first.
+
+The test database config is in `config/database.yml` under `test:` and reads
+from `TEST_DATABASE_PASSWORD`, `TEST_DATABASE_HOST` (default: localhost),
+`TEST_DATABASE_PORT` (default: 5432), and `TEST_DATABASE_USER` (default: postgres).
+
+```bash
+# Without Elasticsearch running, all tests pass.
+# With a stale ES instance, some controller tests may error on index queries.
 # To avoid this, either stop ES or reindex.
 ```
 
