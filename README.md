@@ -129,29 +129,37 @@ afterwards.
 
 ### TLS / HTTPS
 
-Caddy handles TLS automatically via Let's Encrypt when `CADDY_ADDRESS` is set
-to a domain name (e.g. `bonanza2.fh-potsdam.de`). Set it to `:8080` for plain
-HTTP (e.g. during initial testing).
+TLS is handled by an external reverse proxy (nginx) in front of the Docker
+stack. Caddy serves plain HTTP on port 8080 internally. Nginx terminates TLS
+using Let's Encrypt certificates managed by certbot.
 
-**Port requirements:** Only port 443 is exposed. Port 80 is not used because
-the FH Potsdam firewall blocks it. Caddy obtains certificates via the
-TLS-ALPN-01 challenge (port 443 only). If port 443 is also blocked, see
-`docs/plans/tls-debugging.md` for alternatives (DNS-01, institutional certs).
-
-**Troubleshooting:** If Caddy logs show ACME timeout errors, check that no
-other process (e.g. nginx) is using port 443:
-
-```bash
-sudo ss -tlnp | grep :443
+```
+Internet → nginx (TLS on 443) → Caddy (8080) → Rails (3000)
 ```
 
-To reset Caddy's ACME state and retry certificate provisioning:
+Nginx configuration example:
 
-```bash
-docker compose down
-docker volume rm $(docker volume ls -q | grep caddy_data)
-docker compose up -d
+```nginx
+server {
+    listen 443 ssl;
+    server_name bonanza2.fh-potsdam.de;
+
+    ssl_certificate /etc/letsencrypt/live/bonanza.fh-potsdam.de/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/bonanza.fh-potsdam.de/privkey.pem;
+
+    location / {
+        proxy_pass http://localhost:8080;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
 ```
+
+**Why not Caddy auto-HTTPS?** The FH Potsdam network has IPv6 DNS records but
+the IPv6 firewall blocks inbound traffic. Let's Encrypt prefers IPv6 and
+times out on ACME challenges. See `docs/plans/tls-debugging.md` for details.
 
 ### Updating
 
