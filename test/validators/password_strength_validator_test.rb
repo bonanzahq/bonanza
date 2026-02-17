@@ -33,6 +33,7 @@ class PasswordStrengthValidatorTest < ActiveSupport::TestCase
     # Use the email local part as password base - zxcvbn penalizes this
     user = build_user_with_password("testuser1234", email: email)
     assert_not user.valid?
+    assert user.errors[:password].any?
   end
 
   test "blank password is skipped" do
