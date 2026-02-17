@@ -6,10 +6,17 @@ Add `Rails.logger.warn` to 7 silent Elasticsearch rescue blocks across 5 model f
 
 ## What was done
 
-- Wrote 7 tests first (TDD), one per rescue block, using `Rails.logger.stub(:warn, ...)` to capture warnings
-- Added `=> e` and `Rails.logger.warn("Elasticsearch unavailable: #{e.message}")` to all 7 rescue blocks
-- All 7 new tests pass; 2 pre-existing controller test failures unrelated (ES not running)
-- Opened PR #106 targeting main, closed git-bug fe2ca01
+1. Wrote 7 tests first (TDD), one per rescue block, using `Rails.logger.stub(:warn, ...)` to capture warnings
+2. Added `=> e` and `Rails.logger.warn("Elasticsearch unavailable: #{e.message}")` to all 7 rescue blocks
+3. All 7 new tests pass; 2 pre-existing controller test failures unrelated (ES not running)
+4. Opened PR #106 targeting main, closed git-bug fe2ca01
+5. Verified end-to-end in Docker:
+   - Started full Docker stack, logged into the app
+   - Stopped Elasticsearch container
+   - Searched borrowers at `/verwaltung?query[]=test` -- page rendered gracefully ("Keine ausleihende Personen gefunden"), no 500 error
+   - Searched items at `/artikel?query[]=camera` -- also handled gracefully
+   - Confirmed `Elasticsearch unavailable: Failed to open TCP connection to elasticsearch:9200 ...` appeared in Rails logs for both searches
+   - Restarted Elasticsearch
 
 ## Files changed
 
@@ -27,3 +34,5 @@ Add `Rails.logger.warn` to 7 silent Elasticsearch rescue blocks across 5 model f
 - For Lending test, stubbing a specific ParentItem instance doesn't work because `line_items.each` reloads from DB, creating new Ruby objects. Used `ParentItem.define_method(:reindex, ...)` to stub at class level instead
 - Searchkick callbacks are disabled in test_helper, so after_commit reindex callbacks don't fire automatically. Tests call private methods directly with `send(:method_name)`
 - The 2 controller test failures (BorrowersController, LendingController returning 500) are pre-existing and documented in AGENTS.md - they happen when ES isn't running
+- Borrowers route is `/verwaltung`, items route is `/artikel` (German UI)
+- Seed password is `platypus-umbrella-cactus`, not `password` as documented in AGENTS.md
