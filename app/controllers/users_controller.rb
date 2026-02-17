@@ -73,6 +73,11 @@ class UsersController < ApplicationController
     end
   end
 
+  def send_password_reset
+    @user.send_reset_password_instructions
+    redirect_to edit_user_path(@user), notice: "Passwort-Reset E-Mail wurde gesendet."
+  end
+
   def self.current_user
     Thread.current[:user]
   end
@@ -89,11 +94,27 @@ class UsersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def user_params
-      if params[:user][:password].blank?
-        params[:user].delete(:password)
-        params[:user].delete(:password_confirmation)
+      permitted = [:firstname, :lastname, :email, :current_department_id,
+                   department_memberships_attributes: [:id, :role, :department_id]]
+      permitted.unshift(:admin) if current_user.admin?
+
+      if @user == current_user
+        if params[:user] && params[:user][:password].present?
+          permitted << :password << :password_confirmation
+        else
+          params[:user]&.delete(:password)
+          params[:user]&.delete(:password_confirmation)
+        end
+      else
+        params[:user]&.delete(:password)
+        params[:user]&.delete(:password_confirmation)
       end
-      # params.require(:user).permit(:email, :password, :password_confirmation, :remember_me)
-      params.require(:user).permit(:firstname, :lastname, :email, :admin, :password, :password_confirmation, :current_department_id, department_memberships_attributes: [:id, :role, :department_id])
+
+      # If user params exist after deletion, permit them. Otherwise return empty params.
+      if params[:user].present?
+        params.require(:user).permit(*permitted)
+      else
+        ActionController::Parameters.new.permit!
+      end
     end
 end

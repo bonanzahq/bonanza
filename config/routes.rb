@@ -63,7 +63,6 @@ Rails.application.routes.draw do
   get 'ruecknahme', :to => 'returns#index', :as => :return
   post 'ruecknahme', :to => 'returns#take_back', :as => :take_back
 
-  resources :users
   get 'email_bestaetigen/:token', to: 'borrowers#confirm_email', as: 'confirm_email'
   get 'email_bestaetigen/:token/send_email', to: 'borrowers#send_confirm_email_email', as: 'send_confirm_email'
   get 'registrieren', to: 'borrowers#self_register', as: 'borrower_self_registration'
@@ -73,6 +72,12 @@ Rails.application.routes.draw do
   get 'autocomplete/items', to: 'autocomplete#items'
   get 'autocomplete/items/depts/:dept_id', to: 'autocomplete#items'
   get 'autocomplete/borrowers', to: 'autocomplete#borrowers'
+
+  resources :users do
+    member do
+      post :send_password_reset
+    end
+  end
 
   get 'home', to: 'static_pages#index', :as => 'public_home_page'
   

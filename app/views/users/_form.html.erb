@@ -92,32 +92,39 @@
         <%= f.select :current_department_id, options_for_select(user.department_memberships.collect { |k, v| [k.department.name, k.department_id] }, user.current_department_id), {}, { class: "form-select" } %>
     </div>
 
-    <label class="form-label">Passwort</label>
+    <% if current_user == user %>
+      <label class="form-label">Passwort</label>
 
-    <div class="accordion mb-3" id="accordionFlushExample">
-      <div class="accordion-item">
-        <% unless user.new_record? %>
-        <h2 class="accordion-header" id="flush-headingOne">
-          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
-            Passwort ändern
-          </button>
-        </h2>
-        <% end %>
-        <div id="flush-collapseOne" class="accordion-collapse <%= "collapse" unless user.new_record? %>" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
-          <div class="accordion-body">
-                <div class="mb-2" data-field-container>
-                  <%= f.label :password, "Neues Passwort", class: "form-label" %>
-                  <small class="form-text text-muted"><%= t("password_hint") %></small>
-                  <%= f.password_field :password, :autocomplete => 'off', class: "form-control", minlength: "12" %>
-                </div>
-                <div class="mb-2" data-field-container>
-                  <%= f.label :password_confirmation, "Neues Passwort wiederholen", class: "form-label" %>
-                  <%= f.password_field :password_confirmation, :autocomplete => 'off', class: "form-control", data: {validates: "equalTo" } %>
-                </div>
-            </div>
+      <div class="accordion mb-3" id="accordionFlushExample">
+        <div class="accordion-item">
+          <% unless user.new_record? %>
+          <h2 class="accordion-header" id="flush-headingOne">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapseOne" aria-expanded="false" aria-controls="flush-collapseOne">
+              Passwort ändern
+            </button>
+          </h2>
+          <% end %>
+          <div id="flush-collapseOne" class="accordion-collapse <%= "collapse" unless user.new_record? %>" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
+            <div class="accordion-body">
+                  <div class="mb-2" data-field-container>
+                    <%= f.label :password, "Neues Passwort", class: "form-label" %>
+                    <small class="form-text text-muted"><%= t("password_hint") %></small>
+                    <%= f.password_field :password, :autocomplete => 'off', class: "form-control", minlength: "12" %>
+                  </div>
+                  <div class="mb-2" data-field-container>
+                    <%= f.label :password_confirmation, "Neues Passwort wiederholen", class: "form-label" %>
+                    <%= f.password_field :password_confirmation, :autocomplete => 'off', class: "form-control", data: {validates: "equalTo" } %>
+                  </div>
+              </div>
+          </div>
         </div>
       </div>
-    </div>
+    <% elsif can?(:send_password_reset, user) %>
+      <div class="mb-3">
+        <label class="form-label">Passwort</label>
+        <%= button_to "Passwort-Reset E-Mail senden", send_password_reset_user_path(user), method: :post, class: "btn btn-secondary" %>
+      </div>
+    <% end %>
 
     <div class="actions">
       <%= f.submit "Speichern", class: "btn btn-primary" %>

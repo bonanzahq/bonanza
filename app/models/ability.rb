@@ -47,6 +47,9 @@ class Ability
       can :update, User do |u| 
         u.current_department.id == user.current_department.id && !u.admin?
       end
+      can :send_password_reset, User do |u|
+        u.current_department.id == user.current_department.id && !u.admin? && u.id != user.id
+      end
       can :manage, Borrower
       can :update, Department, :id => user.current_department.id
       can :unstaff, Department, :id => user.current_department.id
