@@ -10,9 +10,9 @@
         <div class="mb-2">
           <%= f.label :password, "Neues Passwort", class: "form-label" %>
           <% if @minimum_password_length %>
-            <small class="form-text text-muted">(mindestens 12 Zeichen, kein bekanntes oder leicht erratbares Passwort)</small>
+            <small class="form-text text-muted"><%= t("password_hint") %></small>
           <% end %>
-          <%= f.password_field :password, autofocus: true, autocomplete: "new-password", class: "form-control" %>
+          <%= f.password_field :password, autofocus: true, autocomplete: "new-password", class: "form-control", minlength: 12 %>
         </div>
 
         <div class="mb-2">
