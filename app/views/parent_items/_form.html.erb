@@ -138,7 +138,7 @@
                 <%= item_fields.label :note, class: "form-label" do %>
                   Interne Notiz <em>optional</em>
                 <% end %>
-                <%= item_fields.text_area :note, class: "form-control", disabled: item_fields.object.lent? %>
+                <%= item_fields.text_area :note, class: "form-control" %>
               </div>
               <%= item_fields.hidden_field :quantity, value: 1 %>
               <%= item_fields.hidden_field :id %>
