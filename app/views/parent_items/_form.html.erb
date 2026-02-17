@@ -152,7 +152,7 @@
                 <% end %>
                 <%= item_fields.text_area :note, class: "form-control" %>
               </div>
-              <%= item_fields.hidden_field :quantity, value: 1 %>
+              <%= item_fields.hidden_field :quantity, value: item_fields.object.lent? ? item_fields.object.quantity : 1 %>
               <%= item_fields.hidden_field :id %>
               <%= item_fields.hidden_field :_destroy, value: false %>
             </div>
