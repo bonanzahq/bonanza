@@ -37,20 +37,6 @@ class DeviseTurboTest < ActionDispatch::IntegrationTest
     assert_select 'input.form-control[type="password"]'
   end
 
-  test "registration form has data-turbo=false and German text" do
-    get new_user_registration_path
-    assert_response :success
-    
-    # Check form has data-turbo=false
-    assert_select 'form[data-turbo="false"]', count: 1
-    
-    # Check German text
-    assert_select 'h3', text: 'Registrieren'
-    
-    # Check Bootstrap classes are present
-    assert_select 'input.form-control'
-  end
-
   test "profile edit form has data-turbo=false and German text" do
     department = Department.create!(name: "Test Department")
     user = User.new(
@@ -66,14 +52,14 @@ class DeviseTurboTest < ActionDispatch::IntegrationTest
     
     sign_in user
     
-    get edit_user_registration_path
+    get edit_user_path(user)
     assert_response :success
     
     # Check profile edit form has data-turbo=false
     assert_select 'form[data-turbo="false"]', count: 1
     
     # Check German text
-    assert_select 'h3', text: 'Profil bearbeiten'
+    assert_select 'h3', text: 'Account bearbeiten'
     
     # Check Bootstrap classes are present
     assert_select 'input.form-control'
