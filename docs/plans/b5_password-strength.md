@@ -24,26 +24,22 @@ Combine two focused gems rather than a single all-in-one solution:
 Custom ActiveModel validator (not a Devise module) since `devise_zxcvbn` is
 stale and pinned to old gem versions.
 
-## Open Questions
+## Decisions
 
-These need discussion before implementation:
+1. **Minimum password length**: 12 characters.
 
-1. **Minimum password length**: Keep at 8 (current) or increase toward NIST's
-   15-char recommendation? With zxcvbn + breach checking, 8 may be sufficient
-   for a university equipment lending tool.
+2. **`unpwn`** (no external API dependency). Local bloom filter of top 1M
+   breached passwords, with optional HIBP API fallback.
 
-2. **`pwned` vs `unpwn`**: Plan uses `unpwn` (bloom filter + API fallback).
-   Nicer for dev/offline, used by RubyGems.org. Adds ~1.73MB memory.
-   Alternative: pure `pwned` gem with API-only checking.
+3. **Minimum zxcvbn score**: 3 (safely unguessable, ~10^8 guesses). This
+   works well with random-word passphrases (e.g. from 1Password) since zxcvbn
+   scores based on estimated guesses, not rigid character-class rules.
 
-3. **Minimum zxcvbn score**: 3 (safely unguessable, ~10^8 guesses) vs 2
-   (somewhat guessable)? Defaulting to 3.
+4. **Existing weak passwords**: Enforce only on password creation/change.
+   Nagware warning on login is a separate task (git-bug 3153ad6).
 
-4. **Existing weak passwords**: Only enforce on password creation/change, or
-   warn/force change at next login? Forcing change is a separate feature.
-
-5. **Client-side strength meter**: Add zxcvbn.js in the browser for real-time
-   feedback? Would be a separate task.
+5. **Client-side strength meter**: Deferred to a separate task. zxcvbn.js
+   for real-time browser feedback is cosmetic and can follow.
 
 ## Implementation Plan
 
