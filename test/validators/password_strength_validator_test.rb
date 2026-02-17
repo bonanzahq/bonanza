@@ -10,7 +10,7 @@ class PasswordStrengthValidatorTest < ActiveSupport::TestCase
   end
 
   test "strong password is accepted" do
-    user = build_user_with_password("Kj9#mQ2$vB5xRt8!")
+    user = build_user_with_password("platypus-umbrella-cactus")
     assert user.valid?
   end
 

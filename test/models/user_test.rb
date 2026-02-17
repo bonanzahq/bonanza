@@ -43,8 +43,8 @@ class UserTest < ActiveSupport::TestCase
   test "requires department_memberships" do
     user = User.new(
       email: "test@example.com",
-      password: "Kj9#mQ2$vB5xRt8!",
-      password_confirmation: "Kj9#mQ2$vB5xRt8!",
+      password: "platypus-umbrella-cactus",
+      password_confirmation: "platypus-umbrella-cactus",
       firstname: "Test",
       lastname: "User"
     )
@@ -64,7 +64,7 @@ class UserTest < ActiveSupport::TestCase
   end
 
   test "password with 12 strong characters is valid" do
-    user = build(:user, password: "Kj9#mQ2$vB5xRt8!", password_confirmation: "Kj9#mQ2$vB5xRt8!")
+    user = build(:user, password: "platypus-umbrella-cactus", password_confirmation: "platypus-umbrella-cactus")
     assert user.valid?
   end
 
