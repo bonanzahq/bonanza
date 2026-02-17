@@ -11,6 +11,7 @@ export default class extends Controller {
   }
 
   connect() {
+    this.disableInactiveTabFields()
   }
 
   confirmChange(event) {
@@ -75,5 +76,22 @@ export default class extends Controller {
 
     this.clickTarget.classList.add("active")
 
+    this.disableInactiveTabFields()
+  }
+
+  disableInactiveTabFields() {
+    document.querySelectorAll('.tab-pane').forEach(function (pane) {
+      const isActive = pane.classList.contains('active')
+      pane.querySelectorAll('input, select, textarea').forEach(function (field) {
+        if (isActive) {
+          // Re-enable fields in active tab, but skip those disabled server-side for lent items
+          if (!field.dataset.lentDisabled) {
+            field.disabled = false
+          }
+        } else {
+          field.disabled = true
+        }
+      })
+    })
   }
 }

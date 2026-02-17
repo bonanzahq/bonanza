@@ -37,13 +37,21 @@ class ItemTest < ActiveSupport::TestCase
 
   # -- Lent protection --
 
-  test "lent item cannot be changed" do
+  test "lent item cannot have non-note fields changed" do
     @item.update_column(:status, Item.statuses[:lent])
     @item.reload
-    @item.note = "trying to change"
+    @item.uid = "CHANGED-UID"
 
     assert_not @item.valid?
     assert @item.errors[:base].any? { |e| e.include?("ausgeliehen") }
+  end
+
+  test "lent item can have its note changed" do
+    @item.update_column(:status, Item.statuses[:lent])
+    @item.reload
+    @item.note = "updated note"
+
+    assert @item.valid?
   end
 
   test "lent item can have its status changed" do
