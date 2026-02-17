@@ -126,3 +126,7 @@ group :development do
   gem "rubocop-performance", "1.26.1", require: false
 end
 
+
+gem "zxcvbn", "= 1.0.0"
+
+gem "unpwn", "= 1.0.1"
