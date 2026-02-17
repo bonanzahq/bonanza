@@ -18,8 +18,8 @@ department = Department.create!(
 )
 user = User.create!(
   email: "admin@example.com", 
-  password: "password", 
-  password_confirmation: "password",
+  password: "platypus-umbrella-cactus", 
+  password_confirmation: "platypus-umbrella-cactus",
   current_department: department, 
   firstname: "Ad", 
   lastname: "Min", 

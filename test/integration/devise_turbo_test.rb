@@ -14,8 +14,8 @@ class DeviseTurboTest < ActionDispatch::IntegrationTest
     department = Department.create!(name: "Test Department")
     user = User.new(
       email: "test@example.com",
-      password: "password",
-      password_confirmation: "password",
+      password: "platypus-umbrella-cactus",
+      password_confirmation: "platypus-umbrella-cactus",
       firstname: "Test",
       lastname: "User"
     )
@@ -55,8 +55,8 @@ class DeviseTurboTest < ActionDispatch::IntegrationTest
     department = Department.create!(name: "Test Department")
     user = User.new(
       email: "test@example.com",
-      password: "password",
-      password_confirmation: "password",
+      password: "platypus-umbrella-cactus",
+      password_confirmation: "platypus-umbrella-cactus",
       firstname: "Test",
       lastname: "User"
     )

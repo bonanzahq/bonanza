@@ -24,9 +24,9 @@
 
             <div class="mb-2">
                 <%= f.label :password, "Neues Passwort (leer lassen, wenn nicht ändern)", class: "form-label" %>
-                <%= f.password_field :password, autocomplete: "new-password", class: "form-control" %>
+                <%= f.password_field :password, autocomplete: "new-password", class: "form-control", minlength: 12 %>
                 <% if @minimum_password_length %>
-                  <small class="form-text text-muted"><%= @minimum_password_length %> Zeichen Minimum</small>
+                  <small class="form-text text-muted"><%= t("password_hint") %></small>
                 <% end %>
             </div>
 

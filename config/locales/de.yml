@@ -2,6 +2,12 @@
 de:
   activerecord:
     errors:
+      models:
+        user:
+          attributes:
+            password:
+              breached: "wurde in einem Datenleck gefunden und kann nicht verwendet werden"
+              too_weak: "ist zu schwach – verwende eine längere oder ungewöhnlichere Kombination"
       messages:
         record_invalid: 'Gültigkeitsprüfung ist fehlgeschlagen: %{errors}'
         restrict_dependent_destroy:

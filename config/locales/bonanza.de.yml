@@ -1,4 +1,5 @@
 de:
+    password_hint: "(mindestens 12 Zeichen, kein bekanntes oder leicht erratbares Passwort)"
     true_value: "ja"
     false_value: "nein"
     lending person:

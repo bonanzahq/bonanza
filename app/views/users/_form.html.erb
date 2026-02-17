@@ -107,7 +107,8 @@
           <div class="accordion-body">
                 <div class="mb-2" data-field-container>
                   <%= f.label :password, "Neues Passwort", class: "form-label" %>
-                  <%= f.password_field :password, :autocomplete => 'off', class: "form-control", minlength: "8" %>
+                  <small class="form-text text-muted"><%= t("password_hint") %></small>
+                  <%= f.password_field :password, :autocomplete => 'off', class: "form-control", minlength: "12" %>
                 </div>
                 <div class="mb-2" data-field-container>
                   <%= f.label :password_confirmation, "Neues Passwort wiederholen", class: "form-label" %>

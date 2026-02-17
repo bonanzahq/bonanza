@@ -37,7 +37,8 @@
             <% if f.object.class.require_password_on_accepting %>
               <div class="mb-2">
                 <%= f.label :password, "Passwort", class: "form-label" %>
-                <%= f.password_field :password, class: "form-control", minlength: "8", required: true %>
+                <small class="form-text text-muted"><%= t("password_hint") %></small>
+                <%= f.password_field :password, class: "form-control", minlength: "12", required: true %>
               </div>
 
               <div class="mb-2">
