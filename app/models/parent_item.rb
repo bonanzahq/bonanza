@@ -9,6 +9,8 @@ class ParentItem < ApplicationRecord
   accepts_nested_attributes_for :items, reject_if: proc { |attributes| attributes['id'].present? && Item.find(attributes['id']).lent? }, :allow_destroy => true
   accepts_nested_attributes_for :accessories, :reject_if => :reject_accessory, :allow_destroy => true
 
+  validate :accessories_cannot_change_if_lent
+
   searchkick word_middle: [:name, :description, :tags], search_synonyms: "elastic_synonyms.txt"
 
   attr_accessor :new_files
@@ -87,6 +89,13 @@ class ParentItem < ApplicationRecord
     #   errors.add(:base, "Artikelstamm und zugehörige Daten können nicht gelöscht werden, da Artikel schon ausgeliehen wurden.") unless freshness == true
     #   freshness # return false for a rollback
     # end
+
+    def accessories_cannot_change_if_lent
+      return unless has_lent_items?
+      return unless accessories.any? { |a| a.new_record? || a.changed? || a.marked_for_destruction? }
+
+      errors.add(:base, "Zubehör kann nicht geändert werden, solange Artikel verliehen sind.")
+    end
 
     def reject_accessory(attributes)
       attributes[:name].strip!

@@ -40,4 +40,46 @@ class ParentItemTest < ActiveSupport::TestCase
 
     assert_equal [item_a.id, item_b.id], @parent_item.items.reload.pluck(:id)
   end
+
+  # -- Accessory guards when items are lent --
+
+  test "accessories cannot be added when items are lent" do
+    create(:item, parent_item: @parent_item, status: :lent)
+    @parent_item.accessories.build(name: "New Cable")
+
+    assert_not @parent_item.valid?
+    assert @parent_item.errors[:base].any? { |e| e.include?("Zubehör") }
+  end
+
+  test "accessories cannot be edited when items are lent" do
+    accessory = create(:accessory, parent_item: @parent_item)
+    create(:item, parent_item: @parent_item, status: :lent)
+    @parent_item.reload
+
+    @parent_item.accessories.detect { |a| a.id == accessory.id }.name = "Changed Name"
+
+    assert_not @parent_item.valid?
+    assert @parent_item.errors[:base].any? { |e| e.include?("Zubehör") }
+  end
+
+  test "accessories cannot be removed when items are lent" do
+    accessory = create(:accessory, parent_item: @parent_item)
+    create(:item, parent_item: @parent_item, status: :lent)
+    @parent_item.reload
+
+    @parent_item.accessories.detect { |a| a.id == accessory.id }.mark_for_destruction
+
+    assert_not @parent_item.valid?
+    assert @parent_item.errors[:base].any? { |e| e.include?("Zubehör") }
+  end
+
+  test "accessories can be changed when no items are lent" do
+    accessory = create(:accessory, parent_item: @parent_item)
+    create(:item, parent_item: @parent_item, status: :available)
+    @parent_item.reload
+
+    @parent_item.accessories.detect { |a| a.id == accessory.id }.name = "Changed Name"
+
+    assert @parent_item.valid?
+  end
 end
