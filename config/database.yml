@@ -85,6 +85,8 @@ test:
 #
 production:
   <<: *default
-  database: bonanza_redux_production
-  username: bonanza_redux
-  password: <%= ENV["BONANZA_REDUX_DATABASE_PASSWORD"] %>
+  database: <%= ENV.fetch("DB_NAME", "bonanza_redux_production") %>
+  host: <%= ENV.fetch("DB_HOST", "db") %>
+  port: <%= ENV.fetch("DB_PORT", "5432") %>
+  username: <%= ENV.fetch("DB_USER", "postgres") %>
+  password: <%= ENV.fetch("DB_PASSWORD", "") %>
