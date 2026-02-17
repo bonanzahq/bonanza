@@ -121,22 +121,22 @@
               </div>
               <div class="mb-2">
                 <%= item_fields.label :uid, "Seriennummer", class: "form-label" %>
-                <%= item_fields.text_field :uid, autocomplete: 'off', class: "form-control", required: true, "data-value-missing": "Bitte gib eine Seriennummer an.", disabled: item_fields.object.lent? %>
+                <%= item_fields.text_field :uid, autocomplete: 'off', class: "form-control", required: true, "data-value-missing": "Bitte gib eine Seriennummer an.", disabled: item_fields.object.lent?, "data-lent-disabled": (true if item_fields.object.lent?) %>
               </div>
               <div>
                 <%= item_fields.label :condition, "Zustand", class: "form-label" %>
               </div>
               <div class="mb-2 check-input-container">
                 <div class="form-check form-check-inline">
-                  <%= item_fields.radio_button :condition, "flawless", class: "form-check-input flawless", required: true, "data-value-missing": "Bitte gib einen Zustand an.", disabled: item_fields.object.lent? %>
+                  <%= item_fields.radio_button :condition, "flawless", class: "form-check-input flawless", required: true, "data-value-missing": "Bitte gib einen Zustand an.", disabled: item_fields.object.lent?, "data-lent-disabled": (true if item_fields.object.lent?) %>
                   <%= item_fields.label :condition_flawless, "mangelfrei", class: "form-check-label" %>
                 </div>
                 <div class="form-check form-check-inline">
-                  <%= item_fields.radio_button :condition, "flawed", class: "form-check-input flawed", disabled: item_fields.object.lent? %>
+                  <%= item_fields.radio_button :condition, "flawed", class: "form-check-input flawed", disabled: item_fields.object.lent?, "data-lent-disabled": (true if item_fields.object.lent?) %>
                   <%= item_fields.label :condition_flawed, "beschädigt", class: "form-check-label" %>
                 </div>
                 <div class="form-check form-check-inline">
-                  <%= item_fields.radio_button :condition, "broken", class: "form-check-input broken", disabled: item_fields.object.lent? %>
+                  <%= item_fields.radio_button :condition, "broken", class: "form-check-input broken", disabled: item_fields.object.lent?, "data-lent-disabled": (true if item_fields.object.lent?) %>
                   <%= item_fields.label :condition_broken, "defekt", class: "form-check-label" %>
                 </div>
               </div>
@@ -144,7 +144,7 @@
                 <%= item_fields.label :storage_location, class: "form-label" do %>
                   Lagerort <em>optional</em>
                 <% end %>
-                <%= item_fields.text_field :storage_location, class: "form-control", disabled: item_fields.object.lent? %>
+                <%= item_fields.text_field :storage_location, class: "form-control", disabled: item_fields.object.lent?, "data-lent-disabled": (true if item_fields.object.lent?) %>
               </div>
               <div class="mb-2">
                 <%= item_fields.label :note, class: "form-label" do %>
