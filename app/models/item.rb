@@ -68,7 +68,10 @@ class Item < ApplicationRecord
   private
 
     def item_cannot_be_changed_if_lent
-      if status == "lent" && status_changed? == false
+      return unless status == "lent" && !status_changed?
+
+      protected_changes = changed - %w[note status]
+      if protected_changes.any?
         errors.add(:base, "Artikel ist ausgeliehen und kann deswegen nicht geändert werden.")
       end
     end
