@@ -4,8 +4,8 @@ Rails.application.routes.draw do
 
   resources :departments, path: '/werkstaetten' do
     member do
-      get 'schliessen', :to =>'departments#unstaff', :as => "unstaff"
-      get 'besetzen', :to => 'departments#staff', :as => "staff"
+      patch 'schliessen', :to =>'departments#unstaff', :as => "unstaff"
+      patch 'besetzen', :to => 'departments#staff', :as => "staff"
     end
   end
 

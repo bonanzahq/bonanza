@@ -61,9 +61,9 @@ class DepartmentsController < ApplicationController
 
     respond_to do |format|
       if @department.save
-        format.html { redirect_to borrowers_path, notice: '#{@department} ist jetzt geschlossen. Rückgaben sind pausiert.' }
+        format.html { redirect_to borrowers_path, notice: "#{@department} ist jetzt geschlossen. Rückgaben sind pausiert." }
       else
-        format.html { redirect_to borrowers_path, error: '#{@department} konnte nicht geschlossen werden.' }
+        format.html { redirect_to borrowers_path, error: "#{@department} konnte nicht geschlossen werden." }
       end
       
     end
@@ -75,9 +75,9 @@ class DepartmentsController < ApplicationController
 
     respond_to do |format|
       if @department.save
-        format.html { redirect_to borrowers_path, notice: '#{@department} ist wieder besetzt.' }
+        format.html { redirect_to borrowers_path, notice: "#{@department} ist wieder besetzt." }
       else
-        format.html { redirect_to borrowers_path, error: '#{@department} konnte nicht auf besetzt gesetzt werden.' }
+        format.html { redirect_to borrowers_path, error: "#{@department} konnte nicht auf besetzt gesetzt werden." }
       end
     end
   end
