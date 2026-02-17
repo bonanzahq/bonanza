@@ -26,15 +26,20 @@ echo "✓ Caddyfile"
 curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/elastic_synonyms.txt" -o elastic_synonyms.txt
 echo "✓ elastic_synonyms.txt"
 
-if [ -f .env ]; then
-  echo "✓ .env already exists, skipping example.env download"
-else
-  curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/example.env" -o .env
-  echo "✓ example.env downloaded as .env"
+curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/deploy.sh" -o deploy.sh
+chmod +x deploy.sh
+echo "✓ deploy.sh"
+
+curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/example.env" -o example.env
+echo "  example.env (reference)"
+
+if [ ! -f .env ]; then
+  cp example.env .env
+  echo "  .env created from example.env"
 fi
 
 echo ""
 echo "Files downloaded. Next steps:"
-echo "1. Edit .env and fill in all values"
+echo "1. Edit .env and fill in all required values (see example.env for reference)"
 echo "2. Run: docker compose up -d"
 echo "3. Check health: docker compose ps"

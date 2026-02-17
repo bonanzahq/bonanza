@@ -73,7 +73,7 @@ Rails.application.configure do
   config.action_mailer.default_url_options = {
     host: ENV.fetch("APP_HOST", "localhost"),
     port: ENV.fetch("APP_PORT", 443).to_i,
-    protocol: "https"
+    protocol: ENV.fetch("APP_PROTOCOL", "https")
   }
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to

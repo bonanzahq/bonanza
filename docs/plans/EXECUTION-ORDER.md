@@ -126,6 +126,14 @@ in place and the application actually running before any feature work begins.
 - **Note:** Since same host as v1, the deployment script needs to handle port
   conflicts. Beta can run on a different port on the same machine.
 
+### B6. TLS/HTTPS for Production
+
+- **Plan:** `tls-debugging.md`
+- **Blocked:** University firewall likely blocking inbound ports 80/443,
+  preventing Let's Encrypt ACME challenges. Requires FHP IT coordination.
+- **Alternatives if ports stay closed:** DNS-01 challenge, institutional
+  certificate, or edge reverse proxy.
+
 ## Phase C: Features
 
 **Goal:** Implement the feature gaps between v1 and Redux.

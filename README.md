@@ -127,6 +127,32 @@ initial admin user from `ADMIN_EMAIL` and `ADMIN_PASSWORD` environment
 variables. These are required on first deploy and can be removed from `.env`
 afterwards.
 
+### TLS / HTTPS
+
+Caddy handles TLS automatically via Let's Encrypt when `CADDY_ADDRESS` is set
+to a domain name (e.g. `bonanza2.fh-potsdam.de`). Set it to `:8080` for plain
+HTTP (e.g. during initial testing).
+
+**Port requirements:** Only port 443 is exposed. Port 80 is not used because
+the FH Potsdam firewall blocks it. Caddy obtains certificates via the
+TLS-ALPN-01 challenge (port 443 only). If port 443 is also blocked, see
+`docs/plans/tls-debugging.md` for alternatives (DNS-01, institutional certs).
+
+**Troubleshooting:** If Caddy logs show ACME timeout errors, check that no
+other process (e.g. nginx) is using port 443:
+
+```bash
+sudo ss -tlnp | grep :443
+```
+
+To reset Caddy's ACME state and retry certificate provisioning:
+
+```bash
+docker compose down
+docker volume rm $(docker volume ls -q | grep caddy_data)
+docker compose up -d
+```
+
 ### Updating
 
 ```bash
