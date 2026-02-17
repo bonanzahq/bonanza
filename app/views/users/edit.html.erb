@@ -25,13 +25,6 @@
         <div class="p-3 bg-light mb-3 rounded">
           
           <%= render "form", user: @user %>
-
-          <% if current_user != @user && can?(:send_password_reset, @user) %>
-            <div class="mb-3">
-              <label class="form-label">Passwort</label>
-              <%= button_to "Passwort-Reset E-Mail senden", send_password_reset_user_path(@user), method: :post, class: "btn btn-secondary" %>
-            </div>
-          <% end %>
           
         </div>
     </div>
