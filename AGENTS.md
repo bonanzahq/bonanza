@@ -48,7 +48,7 @@ docker compose up -d
 The app is available at `http://localhost:3000`. Caddy reverse proxy is on
 port 80/443. Mailpit UI is at `http://localhost:8025`.
 
-Default seed credentials: `admin@example.com` / `password`
+Default seed credentials: `admin@example.com` / `platypus-umbrella-cactus`
 
 If the database or ES get into a bad state, nuke everything and restart:
 
