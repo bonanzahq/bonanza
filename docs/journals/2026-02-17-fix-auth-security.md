@@ -39,6 +39,19 @@ Fixed two auth/security bugs and polished the UI based on Fabian's review.
   and propagates as a 500. The actual exception is swallowed without logging.
 - **Unstyled Devise emails**: Already tracked as git-bug 08c505b.
 
+### CI fix
+
+- `test/integration/devise_turbo_test.rb` had two tests referencing removed
+  Devise registration routes (`new_user_registration_path`, `edit_user_registration_path`).
+  Removed the registration form test (route gone by design), updated the profile
+  edit test to use `edit_user_path`.
+
+### Documentation
+
+- Updated AGENTS.md test database setup: the Docker Compose DB has no port
+  mapping to the host, so documented using a standalone `docker run` container
+  with `-p 5432:5432` instead.
+
 ## Tests
 
 8 integration tests in `test/controllers/users_controller_test.rb`:
@@ -62,3 +75,5 @@ All existing tests (user_test, ability_test) unaffected.
 - `app/views/users/edit.html.erb` - no net changes (intermediate fix reverted)
 - `app/assets/stylesheets/application.sass.scss` - `.accordion-compact` styles
 - `test/controllers/users_controller_test.rb` - new test file
+- `test/integration/devise_turbo_test.rb` - removed/updated tests for removed registration routes
+- `AGENTS.md` - documented standalone test DB setup
