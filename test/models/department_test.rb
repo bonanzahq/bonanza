@@ -40,6 +40,22 @@ class DepartmentTest < ActiveSupport::TestCase
     assert_equal original_staffed_at.to_i, department.staffed_at.to_i
   end
 
+  test "setting staffed with string '1' from form params sets staffed to true" do
+    department = create(:department)
+    department.staffed = false
+    department.staffed = "1"
+
+    assert department.staffed?
+    assert department.staffed_at.present?
+  end
+
+  test "setting staffed with string '0' from form params sets staffed to false" do
+    department = create(:department)
+    department.staffed = "0"
+
+    assert_not department.staffed?
+  end
+
   test "setting staffed to false clears staffed but not staffed_at" do
     department = create(:department)
     department.staffed = false
