@@ -104,7 +104,7 @@ services:
     ports:
       - "443:443"
     environment:
-      CADDY_ADDRESS: ${CADDY_ADDRESS:-:443}
+      CADDY_ADDRESS: ${CADDY_ADDRESS:-${APP_HOST:-:443}}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - bonanza_caddy_data:/data
