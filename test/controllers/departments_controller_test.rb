@@ -35,7 +35,7 @@ class DepartmentsControllerTest < ActionDispatch::IntegrationTest
 
     patch unstaff_department_path(@department)
 
-    assert_redirected_to root_path
+    assert_redirected_to public_home_page_path
     assert @department.reload.staffed, "Department should still be staffed"
   end
 
@@ -45,7 +45,7 @@ class DepartmentsControllerTest < ActionDispatch::IntegrationTest
 
     patch staff_department_path(@department)
 
-    assert_redirected_to root_path
+    assert_redirected_to public_home_page_path
     assert_not @department.reload.staffed, "Department should still be unstaffed"
   end
 
