@@ -1,15 +1,5 @@
 <%= form_with(model: parent_item, data: {controller: "parent-item-edit-form form-validation"}) do |form| %>
-  <% if parent_item.errors.any? %>
-    <div style="color: red">
-      <h2><%= parent_item.errors.count == 1 ? "Ein Fehler verhindert" : "#{parent_item.errors.count} Fehler verhindern" %> das Speichern:</h2>
-
-      <ul>
-        <% parent_item.errors.each do |error| %>
-          <li><%= error.message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= render "shared/form_errors", model: parent_item %>
 
   <div class="mb-2">
     <%= form.label :name, "Name", class: "form-label" %>
