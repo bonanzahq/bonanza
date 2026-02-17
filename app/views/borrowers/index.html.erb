@@ -19,9 +19,9 @@
         <%= link_to "Werkstattinfos bearbeiten", edit_department_path(current_user.current_department), class: 'icon-before edit' %>
 
         <% if current_user.current_department.staffed %>
-            <%= link_to "Werkstatt vorübergehend schließen",  unstaff_department_path(current_user.current_department), class: 'icon-before umbrella' %>
+            <%= button_to "Werkstatt vorübergehend schließen", unstaff_department_path(current_user.current_department), method: :patch, class: 'icon-before umbrella', form_class: 'inline-button-form' %>
         <% else %>
-            <%= link_to "Werkstatt wieder öffnen", staff_department_path(current_user.current_department), class: 'icon-before umbrella' %>
+            <%= button_to "Werkstatt wieder öffnen", staff_department_path(current_user.current_department), method: :patch, class: 'icon-before umbrella', form_class: 'inline-button-form' %>
         <% end %>
         <% if current_user.admin? or current_user.leader? %>
             <%= link_to "Rechtstexte bearbeiten",  verwaltung_texte_path, class: 'icon-before edit' %>
