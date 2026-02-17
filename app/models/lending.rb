@@ -281,7 +281,8 @@ class Lending < ApplicationRecord
             line_item.item.save!
             begin
               line_item.item.parent_item.reindex
-            rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED, Elastic::Transport::Transport::Error
+            rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED, Elastic::Transport::Transport::Error => e
+              Rails.logger.warn("Elasticsearch unavailable: #{e.message}")
             end
           end
           user = User.current_user

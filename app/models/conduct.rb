@@ -41,6 +41,7 @@ class Conduct < ApplicationRecord
 
     def reindex_borrower
       borrower.reindex
-    rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED, Elastic::Transport::Transport::Error
+    rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED, Elastic::Transport::Transport::Error => e
+      Rails.logger.warn("Elasticsearch unavailable: #{e.message}")
     end
 end
