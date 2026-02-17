@@ -112,11 +112,11 @@ class ParentItemsController < ApplicationController
   private
 
     def get_weekly_lending_activity(date_begin, date_end, parent_item_id)
-      return ActiveRecord::Base.connection.execute <<-SQL
+      sql = ActiveRecord::Base.sanitize_sql_array([<<-SQL, date_begin, date_end, parent_item_id])
         SELECT week, count(custom_lendings)
         FROM (
             SELECT week
-            FROM generate_series('#{date_begin}'::date, '#{date_end}'::date, '1 week')
+            FROM generate_series(?::date, ?::date, '1 week')
             AS week
           ) weeks
           LEFT JOIN ( 
@@ -124,7 +124,7 @@ class ParentItemsController < ApplicationController
             INNER JOIN "line_items" ON "line_items"."lending_id" = "lendings"."id"
             INNER JOIN "items" ON "items"."id" = "line_items"."item_id"
             INNER JOIN "parent_items" ON "parent_items"."id" = "items"."parent_item_id" 
-            WHERE "parent_items"."id" = '#{parent_item_id}'
+            WHERE "parent_items"."id" = ?
           ) custom_lendings
 
           ON ( week <= lent_at::DATE AND lent_at::DATE < week + INTERVAL '1 week') OR
@@ -134,6 +134,7 @@ class ParentItemsController < ApplicationController
           GROUP BY week
           ORDER BY week
         SQL
+      ActiveRecord::Base.connection.execute(sql)
     end
 
     # Use callbacks to share common setup or constraints between actions.
