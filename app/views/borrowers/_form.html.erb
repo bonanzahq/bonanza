@@ -63,7 +63,7 @@
   </div>
 
   <div class="actions">
-    <%= link_to "Abbrechen", :back, class: "btn btn-outline-secondary" %>
+    <%= link_to "Abbrechen", borrower.persisted? ? borrower_path(borrower) : borrowers_path, class: "btn btn-outline-secondary" %>
     <%= form.submit "Speichern", class: "btn btn-primary" %>
   </div>
 <% end %>
