@@ -43,8 +43,8 @@ class UserTest < ActiveSupport::TestCase
   test "requires department_memberships" do
     user = User.new(
       email: "test@example.com",
-      password: "password123",
-      password_confirmation: "password123",
+      password: "Kj9#mQ2$vB5xRt8!",
+      password_confirmation: "Kj9#mQ2$vB5xRt8!",
       firstname: "Test",
       lastname: "User"
     )
@@ -57,14 +57,14 @@ class UserTest < ActiveSupport::TestCase
     assert_not duplicate.valid?
   end
 
-  test "password must be at least 8 characters" do
-    user = build(:user, password: "short12", password_confirmation: "short12")
+  test "password must be at least 12 characters" do
+    user = build(:user, password: "short12!Xk9", password_confirmation: "short12!Xk9")
     assert_not user.valid?
     assert user.errors[:password].any?
   end
 
-  test "password with exactly 8 characters is valid" do
-    user = build(:user, password: "valid123", password_confirmation: "valid123")
+  test "password with 12 strong characters is valid" do
+    user = build(:user, password: "Kj9#mQ2$vB5xRt8!", password_confirmation: "Kj9#mQ2$vB5xRt8!")
     assert user.valid?
   end
 

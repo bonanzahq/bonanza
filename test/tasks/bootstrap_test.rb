@@ -20,7 +20,7 @@ class BootstrapTest < ActiveSupport::TestCase
     User.where(admin: true).delete_all
 
     ENV["ADMIN_EMAIL"] = "admin@bonanza.test"
-    ENV["ADMIN_PASSWORD"] = "secure_password123"
+    ENV["ADMIN_PASSWORD"] = "Kj9#mQ2$vB5xRt8!"
 
     Rake::Task["bootstrap:admin"].invoke
 
@@ -34,7 +34,7 @@ class BootstrapTest < ActiveSupport::TestCase
     LegalText.destroy_all
 
     ENV["ADMIN_EMAIL"] = "admin@bonanza.test"
-    ENV["ADMIN_PASSWORD"] = "secure_password123"
+    ENV["ADMIN_PASSWORD"] = "Kj9#mQ2$vB5xRt8!"
 
     Rake::Task["bootstrap:admin"].invoke
 
@@ -49,7 +49,7 @@ class BootstrapTest < ActiveSupport::TestCase
     initial_count = User.count
 
     ENV["ADMIN_EMAIL"] = "admin@bonanza.test"
-    ENV["ADMIN_PASSWORD"] = "secure_password123"
+    ENV["ADMIN_PASSWORD"] = "Kj9#mQ2$vB5xRt8!"
 
     Rake::Task["bootstrap:admin"].invoke
 
@@ -59,7 +59,7 @@ class BootstrapTest < ActiveSupport::TestCase
   test "aborts when ADMIN_EMAIL is missing" do
     User.where(admin: true).delete_all
 
-    ENV["ADMIN_PASSWORD"] = "secure_password123"
+    ENV["ADMIN_PASSWORD"] = "Kj9#mQ2$vB5xRt8!"
 
     assert_raises(SystemExit) do
       Rake::Task["bootstrap:admin"].invoke
@@ -81,7 +81,7 @@ class BootstrapTest < ActiveSupport::TestCase
     Department.destroy_all
 
     ENV["ADMIN_EMAIL"] = "admin@bonanza.test"
-    ENV["ADMIN_PASSWORD"] = "secure_password123"
+    ENV["ADMIN_PASSWORD"] = "Kj9#mQ2$vB5xRt8!"
 
     Rake::Task["bootstrap:admin"].invoke
 
