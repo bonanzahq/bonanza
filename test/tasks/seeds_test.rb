@@ -5,18 +5,17 @@ require "test_helper"
 
 class SeedsTest < ActiveSupport::TestCase
   test "seeds do not execute in production environment" do
+    original_env = Rails.env
     Rails.env = "production"
 
-    initial_user_count = User.count
-    initial_department_count = Department.count
-    initial_parent_item_count = ParentItem.count
-
-    load Rails.root.join("db/seeds.rb")
-
-    assert_equal initial_user_count, User.count, "Seeds should not create users in production"
-    assert_equal initial_department_count, Department.count, "Seeds should not create departments in production"
-    assert_equal initial_parent_item_count, ParentItem.count, "Seeds should not create items in production"
+    assert_no_difference "User.count", "Seeds should not create users in production" do
+      assert_no_difference "Department.count", "Seeds should not create departments in production" do
+        assert_no_difference "ParentItem.count", "Seeds should not create items in production" do
+          load Rails.root.join("db/seeds.rb")
+        end
+      end
+    end
   ensure
-    Rails.env = "test"
+    Rails.env = original_env
   end
 end
