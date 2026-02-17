@@ -8,6 +8,7 @@ class User < ApplicationRecord
 
   validates :department_memberships, presence: true
   validates_presence_of :password_confirmation, :if => :password
+  validates :password, password_strength: true, if: :password
 
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
