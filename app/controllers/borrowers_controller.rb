@@ -99,15 +99,13 @@ class BorrowersController < ApplicationController
     @borrower = Borrower.find_by(:email_token => params[:token]) if params[:token].present?
 
     respond_to do |format|
-      begin
-        raise 'Fehler mit Token' unless @borrower
-
-        @borrower.send_confirmation_pending_email
-        
+      if @borrower.nil?
+        format.html { redirect_to borrowers_url, alert: "Fehler mit Token" }
+      elsif @borrower.send_confirmation_pending_email == false
+        format.html { redirect_to borrowers_url, alert: "Die E-Mail zum Bestätigen der Ausleihbedingungen konnte nicht versandt werden." }
+      else
         format.turbo_stream { flash.now[:notice] = "Eine E-Mail zum Bestätigen deiner Registrierung wurde versandt." }
         format.html { redirect_to @borrower, notice: "Eine E-Mail zum Bestätigen deiner Registrierung wurde versandt." }
-      rescue ActiveRecord::Rollback => e
-        format.html { redirect_to borrowers_url, alert: 'Die E-Mail zum Bestätigen der Ausleihbedingungen konnte nicht versandt werden.' }
       end
     end
   end
@@ -138,8 +136,11 @@ class BorrowersController < ApplicationController
 
     respond_to do |format|
       if @borrower.save(context: :self)
-        @borrower.send_confirmation_pending_email
-        format.html { redirect_to borrower_email_pending_url() }
+        if @borrower.send_confirmation_pending_email == false
+          format.html { redirect_to borrower_email_pending_url(), alert: @borrower.errors.full_messages.join(", ") }
+        else
+          format.html { redirect_to borrower_email_pending_url() }
+        end
       else
         format.html { render :self_register, status: :unprocessable_entity, alert: "Bei der Registrierung ist etwas schiefgelaufen." }
       end

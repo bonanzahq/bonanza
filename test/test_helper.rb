@@ -4,6 +4,7 @@
 ENV["RAILS_ENV"] ||= "test"
 require_relative "../config/environment"
 require "rails/test_help"
+require "minitest/mock"
 
 # Ensure routes are loaded for Devise to register mappings
 Rails.application.reload_routes!
