@@ -1,3 +1,8 @@
+# ABOUTME: Seed data for development and test environments.
+# ABOUTME: Creates sample users, items, borrowers, and lendings for local development.
+
+return if Rails.env.production?
+
 Searchkick.disable_callbacks
 
 department = Department.create!(
