@@ -58,3 +58,4 @@ docs/bonanza-dev-notes
 .playwright-mcp/*.log
 CHECKLIST*.md
 HANDOFF*.md
+HANDOFF.md
