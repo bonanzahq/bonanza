@@ -98,7 +98,7 @@ class ParentItem < ApplicationRecord
     end
 
     def reject_accessory(attributes)
-      attributes[:name].strip!
+      attributes[:name]&.strip!
 
       exists = attributes[:id].present?
       empty = attributes[:name].blank?

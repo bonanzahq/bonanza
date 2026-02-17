@@ -73,6 +73,19 @@ class ParentItemTest < ActiveSupport::TestCase
     assert @parent_item.errors[:base].any? { |e| e.include?("Zubehör") }
   end
 
+  test "updating with nil accessory name does not raise" do
+    accessory = create(:accessory, parent_item: @parent_item)
+    create(:item, parent_item: @parent_item, status: :lent)
+
+    # Disabled form fields submit without name value (nil).
+    # reject_accessory must handle this without raising.
+    assert_nothing_raised do
+      @parent_item.assign_attributes(
+        accessories_attributes: { "0" => { id: accessory.id, name: nil } }
+      )
+    end
+  end
+
   test "accessories can be changed when no items are lent" do
     accessory = create(:accessory, parent_item: @parent_item)
     create(:item, parent_item: @parent_item, status: :available)
