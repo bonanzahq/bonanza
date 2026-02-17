@@ -102,7 +102,6 @@ services:
     image: caddy:2.10.2
     restart: unless-stopped
     ports:
-      - "80:80"
       - "443:443"
     environment:
       CADDY_ADDRESS: ${CADDY_ADDRESS:-:80}
