@@ -1,1 +1,1 @@
-{"author":{"id":"cff9ab1d2ee9741039b2a60d90cca378a5320ba753398f6f3df8d03abcebee1b"},"ops":[{"type":5,"timestamp":1771340112,"nonce":"T6ZaXmNS+JxWcyuIE/SXV7NrqrU=","added":["in-progress"],"removed":null}]}
+{"author":{"id":"cff9ab1d2ee9741039b2a60d90cca378a5320ba753398f6f3df8d03abcebee1b"},"ops":[{"type":3,"timestamp":1771340113,"nonce":"gpQVbxA1EQGSdGHbH06ZuuMlSiM=","message":"Root cause: staff/unstaff routes used GET, which Turbo Drive prefetches on hover. Fix: changed to PATCH routes with button_to. PR: https://github.com/bonanzahq/bonanza/pull/105","files":null}]}
