@@ -25,6 +25,7 @@ fi
 # Validate required environment variables in production
 if [ "$RAILS_ENV" = "production" ]; then
   missing=""
+  [ -z "${APP_HOST:-}" ] && missing="$missing APP_HOST"
   [ -z "${DB_PASSWORD:-}" ] && missing="$missing DB_PASSWORD"
   [ -z "${ES_PASSWORD:-}" ] && missing="$missing ES_PASSWORD"
   [ -z "${SECRET_KEY_BASE:-}" ] && missing="$missing SECRET_KEY_BASE"
