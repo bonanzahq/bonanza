@@ -11,7 +11,7 @@ Rails.application.routes.draw do
 
   devise_for :users,
     path: '',
-    path_names: { sign_in: 'login', sign_out: 'logout', password: 'password', confirmation: 'verification', unlock: 'unblock', registration: 'register', sign_up: 'register' }, 
+    path_names: { sign_in: 'login', sign_out: 'logout', password: 'password', confirmation: 'verification', unlock: 'unblock' },
     controllers: { invitations: 'users/invitations' }
 
   devise_scope :user do
