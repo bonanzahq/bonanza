@@ -34,6 +34,17 @@ class ParentItemTest < ActiveSupport::TestCase
     end
   end
 
+  test "lent item note can be updated via nested attributes" do
+    item = create(:item, parent_item: @parent_item, status: :lent)
+    @parent_item.reload
+
+    @parent_item.update(
+      items_attributes: { "0" => { id: item.id, note: "updated via parent", quantity: 1, _destroy: false } }
+    )
+
+    assert_equal "updated via parent", item.reload.note
+  end
+
   test "items are ordered by id ascending" do
     item_a = create(:item, parent_item: @parent_item)
     item_b = create(:item, parent_item: @parent_item)

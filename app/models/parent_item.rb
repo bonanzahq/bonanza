@@ -6,7 +6,7 @@ class ParentItem < ApplicationRecord
   has_many :items, -> {order "id ASC"}, dependent: :destroy
   has_many :accessories, :dependent => :destroy
   
-  accepts_nested_attributes_for :items, reject_if: proc { |attributes| attributes['id'].present? && Item.find(attributes['id']).lent? }, :allow_destroy => true
+  accepts_nested_attributes_for :items, :allow_destroy => true
   accepts_nested_attributes_for :accessories, :reject_if => :reject_accessory, :allow_destroy => true
 
   validate :accessories_cannot_change_if_lent
