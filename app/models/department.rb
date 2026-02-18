@@ -17,12 +17,12 @@ class Department < ApplicationRecord
 	end
 
 	def staffed=(val)
-    if val == true
+    val = ActiveModel::Type::Boolean.new.cast(val)
+    if val
       if self[:staffed] != true
         self[:staffed] = true
         self[:staffed_at] = DateTime.now
       end
-      
     elsif val == false
       self[:staffed] = false
     end

@@ -13,7 +13,7 @@
   <body class="<% if Rails.env.development? || (user_signed_in? && current_user.admin?) %> is-admin <% end %> <% if user_signed_in? && current_user.current_department.staffed == false %> unstaffed <% end %>">
     <% if Rails.env.development? || (user_signed_in? && current_user.admin?) %>
       <div style="padding: 10px 20px; background-color: <%= Rails.env.production? ? "#FA6400;" : "#AAEB28" %>">
-        <strong><%= Rails.env.humanize %> Environment</strong> <%= user_signed_in? ? current_user.current_department.name : "Bonanza" %> | </div>
+        <strong><%= Rails.env.humanize %> Environment</strong> <%= user_signed_in? ? current_user.current_department.name : "Bonanza" %>
       </div>
     <% end %>
 

@@ -1,14 +1,5 @@
 <%= form_with(model: borrower, url: borrower_self_create_url, data: {turbo: false, controller: 'form-validation'}) do |form| %>
-  <% if borrower.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(borrower.errors.count, "error") %> prohibited this borrower from being saved:</h2>
-      <ul>
-        <% borrower.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= render "shared/form_errors", model: borrower %>
 
 <div class="row">
   <div class="col-8">

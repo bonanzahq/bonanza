@@ -159,6 +159,33 @@ class BorrowerTest < ActiveSupport::TestCase
     assert @borrower.has_bans_in?(department)
   end
 
+  # -- send_confirmation_pending_email --
+
+  test "send_confirmation_pending_email adds error and returns false on mail failure" do
+    @borrower.save!
+
+    # Stub deliver_now to simulate SMTP failure
+    failing_mail = Object.new
+    failing_mail.define_singleton_method(:deliver_now) { raise Errno::ECONNREFUSED, "Connection refused" }
+
+    mailer_proxy = Object.new
+    mailer_proxy.define_singleton_method(:confirm_email) { failing_mail }
+
+    BorrowerMailer.stub(:with, ->(_) { mailer_proxy }) do
+      result = @borrower.send_confirmation_pending_email
+
+      assert_equal false, result
+      assert @borrower.errors[:base].any?, "should add error to model"
+    end
+  end
+
+  test "send_confirmation_pending_email creates token" do
+    @borrower.save!
+    @borrower.send_confirmation_pending_email
+
+    assert @borrower.email_token.present?
+  end
+
   test "has_warnings_in? only matches warned conducts" do
     department = create(:department)
     @borrower.save!

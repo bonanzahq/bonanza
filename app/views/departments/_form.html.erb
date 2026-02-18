@@ -1,15 +1,5 @@
 <%= form_with(model: department, data: {turbo: false, controller: 'validation'}) do |form| %>
-  <% if department.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(department.errors.count, "error") %> prohibited this department from being saved:</h2>
-
-      <ul>
-        <% department.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= render "shared/form_errors", model: department %>
 
   <div class="mb-2">
     <%= form.label :name, "Name", class: "form-label" %>
@@ -62,7 +52,7 @@
   <% end %>
 
   <div class="actions">
-      <%= link_to "Abbrechen", :back, class: "btn btn-outline-secondary" %>
+      <%= link_to "Abbrechen", borrowers_path, class: "btn btn-outline-secondary" %>
       <%= form.submit "Speichern", class: "btn btn-primary" %>
   </div>
 <% end %>

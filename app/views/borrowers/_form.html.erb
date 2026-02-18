@@ -1,15 +1,5 @@
 <%= form_with(model: borrower, data: {controller: 'form-validation'}) do |form| %>
-  <% if borrower.errors.any? %>
-    <div style="color: red">
-      <h2><%= pluralize(borrower.errors.count, "error") %> prohibited this borrower from being saved:</h2>
-
-      <ul>
-        <% borrower.errors.each do |error| %>
-          <li><%= error.full_message %></li>
-        <% end %>
-      </ul>
-    </div>
-  <% end %>
+  <%= render "shared/form_errors", model: borrower %>
 
   <div class="mb-2">
     <%= form.label :firstname, "Vorname", class: "form-label" %>
@@ -63,7 +53,7 @@
   </div>
 
   <div class="actions">
-    <%= link_to "Abbrechen", :back, class: "btn btn-outline-secondary" %>
+    <%= link_to "Abbrechen", borrower.persisted? ? borrower_path(borrower) : borrowers_path, class: "btn btn-outline-secondary" %>
     <%= form.submit "Speichern", class: "btn btn-primary" %>
   </div>
 <% end %>

@@ -1,0 +1,12 @@
+<%# Displays model validation errors as a Bootstrap alert. %>
+<%# Usage: render "shared/form_errors", model: @my_model %>
+<% if model.errors.any? %>
+  <div class="alert alert-danger">
+    <h2><%= model.errors.count == 1 ? "Ein Fehler verhindert" : "#{model.errors.count} Fehler verhindern" %> das Speichern:</h2>
+    <ul class="mb-0">
+      <% model.errors.each do |error| %>
+        <li><%= error.full_message %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

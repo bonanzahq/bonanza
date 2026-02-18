@@ -127,6 +127,7 @@
     <% end %>
 
     <div class="actions">
+      <%= link_to "Abbrechen", current_user == user ? root_path : verwaltung_verleihende_path, class: "btn btn-outline-secondary" %>
       <%= f.submit "Speichern", class: "btn btn-primary" %>
     </div>
 <% end %>

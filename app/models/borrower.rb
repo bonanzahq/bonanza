@@ -37,9 +37,10 @@ class Borrower < ApplicationRecord
     create_token
     begin
       BorrowerMailer.with(borrower: self).confirm_email.deliver_now
-    rescue Exception => e
+    rescue StandardError => e
+      Rails.logger.error("Failed to send confirmation email to #{email}: #{e.message}")
       self.errors.add(:base, "Die E-Mail zur Bestätigung der Registrierung konnte leider nicht verschickt werden. Versuche es in einigen Minuten nochmal.")
-      raise ActiveRecord::Rollback # so that the save will be rolled back
+      false
     end
   end
 
