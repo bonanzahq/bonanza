@@ -1,6 +1,52 @@
 ---
 de:
   activerecord:
+    attributes:
+      borrower:
+        firstname: "Vorname"
+        lastname: "Nachname"
+        email: "E-Mail"
+        phone: "Telefon"
+        student_id: "Matrikelnummer"
+        borrower_type: "Art"
+        tos_accepted: "Ausleihbedingungen"
+        insurance_checked: "Versicherung"
+        id_checked: "Ausweis"
+      user:
+        firstname: "Vorname"
+        lastname: "Nachname"
+        email: "E-Mail"
+        password: "Passwort"
+        password_confirmation: "Passwort-Bestätigung"
+        admin: "Admin"
+        current_department: "Aktuelle Abteilung"
+        current_department_id: "Aktuelle Abteilung"
+        department_memberships: "Abteilungszugehörigkeiten"
+      department:
+        name: "Name"
+        note: "Notiz"
+        room: "Raum"
+        time: "Zeit"
+        default_lending_duration: "Standard-Ausleihdauer"
+        genus: "Genus"
+        hidden: "Versteckt"
+        staffed: "Besetzt"
+        staffed_at: "Besetzt seit"
+      parent_item:
+        name: "Name"
+        description: "Beschreibung"
+        price: "Preis"
+        department: "Abteilung"
+        department_id: "Abteilung"
+      item:
+        uid: "UID"
+        quantity: "Anzahl"
+        status: "Status"
+        condition: "Zustand"
+        note: "Notiz"
+        storage_location: "Lagerort"
+        parent_item: "Artikelstamm"
+        parent_item_id: "Artikelstamm"
     errors:
       models:
         user:
