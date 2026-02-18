@@ -1,0 +1,12 @@
+Hallo <%= @user.firstname %>,
+
+heute sind <%= @lendings.count %> Ausleihen mit <%= @line_items_count %> Artikeln zur Rueckgabe geplant <%= t(@department.genderize('in_the')) %> <%= @department.name %>.
+
+<% if @lendings.any? %>
+Ausleihen:
+<% @lendings.each do |lending| %>
+- <%= lending.borrower.fullname %> | <%= lending.line_items.where(returned_at: nil).count %> Artikel | Ausgeliehen seit: <%= l(lending.lent_at.to_date, format: :short) %> | Faellig: Heute
+<% end %>
+<% end %>
+
+<%= root_url %> - das Ausleihsystem der Werkstaetten an der FHP
