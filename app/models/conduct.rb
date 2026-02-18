@@ -1,3 +1,6 @@
+# ABOUTME: Conduct model - warnings and bans for borrowers, scoped to a department.
+# ABOUTME: Includes expiration logic, warning escalation, and automatic conduct cleanup.
+
 class Conduct < ApplicationRecord
   belongs_to :borrower
   belongs_to :department
@@ -17,25 +20,70 @@ class Conduct < ApplicationRecord
 
   after_commit :reindex_borrower, on: [:create, :update, :destroy]
 
-  # this will be invoked by a cron job each day at 7:30pm. Needs rework!
-  # def self.remove_old_automatic_conducts
-  #   conducts = Conduct.where(permanent: false, duration: nil).where("DATE(created_at) = #{PortableQuery.date_add(PortableQuery.today, '-60')}").destroy_all
-  #   conducts += Conduct.where.not(permanent: true, duration: nil).where("DATE(#{PortableQuery.date_add('DATE(created_at)', 'duration')}) = #{PortableQuery.today}").destroy_all
-  #   conducts.each do |conduct|
-  #     LenderMailer.ban_lifted_notification_email(conduct).deliver_now
-  #   end
-  # end
+  # Destroys conducts whose duration has elapsed and stale automatic conducts.
+  # Returns the destroyed records so callers can act on them (e.g. send emails).
+  def self.remove_expired
+    expired_with_duration = where(permanent: false)
+      .where.not(duration: nil)
+      .where("created_at + (duration * INTERVAL '1 day') < ?", Time.current)
+
+    stale_automatic = where(permanent: false, duration: nil, user_id: nil)
+      .where("created_at < ?", 60.days.ago)
+
+    removed = []
+    (expired_with_duration.to_a + stale_automatic.to_a).uniq.each do |conduct|
+      conduct.destroy
+      removed << conduct
+    end
+    removed
+  end
+
+  # Creates an automatic ban when a borrower accumulates 2 or more warnings
+  # in a department and has no existing ban. Returns nil if escalation is not needed.
+  def self.check_warning_escalation(borrower, department)
+    warning_count = where(borrower: borrower, department: department, kind: :warned).count
+    return nil unless warning_count >= 2
+    return nil if where(borrower: borrower, department: department, kind: :banned).exists?
+
+    create!(
+      borrower: borrower,
+      department: department,
+      kind: :banned,
+      reason: "Automatische Sperre nach #{warning_count} Verwarnungen",
+      permanent: false,
+      duration: 30,
+      user_id: nil
+    )
+  end
+
+  def expired?
+    return false if permanent?
+    return false if duration.nil?
+    created_at + duration.days < Time.current
+  end
+
+  def days_remaining
+    return nil if permanent?
+    return nil if duration.nil?
+    remaining = ((created_at + duration.days - Time.current) / 1.day).ceil
+    [remaining, 0].max
+  end
+
+  def expiration_date
+    return nil if permanent?
+    return nil if duration.nil?
+    (created_at + duration.days).to_date
+  end
+
+  def automatic?
+    user_id.nil?
+  end
 
   private
     def user_added_duration_or_perma?
-      logger.debug("\n \n CHECKING IF PERMANENT or DURATION \n \n")
-      logger.debug("permanent: #{permanent.to_s} \n")
-      logger.debug("duration: #{duration.to_s} \n")
-      logger.debug("\n")
-
       if user && permanent == false && duration.to_i <= 0
-        self.errors.add(:permanent, "Die Sperre muss dauerhaft sein oder es muss eine Dauer angeben werden.")
-        return false
+        errors.add(:permanent, "Die Sperre muss dauerhaft sein oder es muss eine Dauer angeben werden.")
+        false
       end
     end
 
