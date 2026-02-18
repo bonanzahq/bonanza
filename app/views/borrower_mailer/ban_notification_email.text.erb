@@ -1,0 +1,20 @@
+<%# ABOUTME: Plain text version of the borrower ban notification email. %>
+<%# ABOUTME: Informs the borrower they have been banned from lending in a department. %>
+Du wurdest gesperrt.
+
+Hallo <%= @borrower.firstname %>,
+
+Du wurdest leider heute von <%= @conduct.user.fullname %> <%= @conduct.permanent ? "auf unbestimmte Zeit" : "für #{@conduct.duration} Tage" %> von der Ausleihe <%= t(@conduct.department.genderize('in_the')) %> <%= @conduct.department.name %> ausgeschlossen.
+
+Grund: <%= @conduct.reason %>
+
+Wir bedauern sehr, dass es dazu kommen musste. Über die Aufhebung der Sperre wirst Du erneut per E-Mail informiert.
+
+---
+Bonanza – das Ausleihsystem der Werkstätten an der FHP
+<%= root_url %>
+
+Öffnungszeiten & Infos der Werkstätten: <%= departments_url %>
+Ausleihbedingungen: <%= ausleihbedingungen_url %>
+Datenschutz: <%= datenschutz_url %>
+Impressum: <%= impressum_url %>

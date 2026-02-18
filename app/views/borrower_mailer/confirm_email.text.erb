@@ -1,0 +1,22 @@
+<%# ABOUTME: Plain text version of the borrower registration confirmation email. %>
+<%# ABOUTME: Contains the same content as the HTML version without markup. %>
+Registrierung bestätigen.
+
+Hallo <%= @borrower.firstname %>,
+
+Deine Registrierung bei Bonanza ist fast abgeschlossen.
+
+Klicke auf den Link unten, um Deine Registrierung zu bestätigen. Danach kannst Du bei den teilnehmenden Werkstätten Artikel ausleihen.
+
+<%= confirm_email_url(token: @borrower.email_token) %>
+
+Kein Passwort bekommen oder festgelegt? – Nachdem Du in der FH etwas geliehen hast, bekommst Du zu jedem wichtigen Zeitpunkt eine E-Mail. Als Bestätigung der Ausleihen, wenn die Rückgabe näher rückt und wenn Du mal verpennst, etwas rechtzeitig zurückzugeben. Du brauchst deshalb auch keinen Benutzeraccount. Deine E-Mail-Adresse und andere Daten kannst Du jederzeit bei den Mitarbeitenden der Werkstätten ändern lassen.
+
+---
+Bonanza – das Ausleihsystem der Werkstätten an der FHP
+<%= root_url %>
+
+Öffnungszeiten & Infos der Werkstätten: <%= departments_url %>
+Ausleihbedingungen: <%= ausleihbedingungen_url %>
+Datenschutz: <%= datenschutz_url %>
+Impressum: <%= impressum_url %>
