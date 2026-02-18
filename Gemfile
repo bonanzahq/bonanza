@@ -127,6 +127,8 @@ group :development do
 end
 
 
+gem "solid_queue", "1.3.1"
+
 gem "zxcvbn", "= 1.0.0"
 
 gem "unpwn", "= 1.0.1"
