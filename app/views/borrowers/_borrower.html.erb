@@ -132,6 +132,8 @@
 <% if can? :manage, borrower %>
   <div class="actions">
     <%= link_to 'Bearbeiten', edit_borrower_path, class: 'btn btn-outline-secondary' %>
+    <%= link_to "Daten exportieren", export_data_borrower_path(borrower), class: "btn btn-outline-secondary btn-sm" %>
+    <%= button_to "Daten loeschen", request_deletion_borrower_path(borrower), method: :post, class: "btn btn-outline-danger btn-sm", data: { turbo_confirm: "Soll diese Person wirklich geloescht/anonymisiert werden?" } %>
       <div class="right">
         <a href="#" class="btn btn-outline-secondary" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="addConductModal"><span class="icon-before warning">Sperren</span></a>
       </div>
