@@ -19,6 +19,7 @@ class Conduct < ApplicationRecord
   end
 
   after_commit :reindex_borrower, on: [:create, :update, :destroy]
+  after_create_commit :notify_and_escalate
 
   # Destroys conducts whose duration has elapsed and stale automatic conducts.
   # Returns the destroyed records so callers can act on them (e.g. send emails).
@@ -80,6 +81,16 @@ class Conduct < ApplicationRecord
   end
 
   private
+    def notify_and_escalate
+      if banned? && automatic?
+        BorrowerMailer.auto_ban_notification_email(self).deliver_later(queue: :critical)
+      end
+
+      if warned?
+        Conduct.check_warning_escalation(borrower, department)
+      end
+    end
+
     def user_added_duration_or_perma?
       if user && permanent == false && duration.to_i <= 0
         errors.add(:permanent, "Die Sperre muss dauerhaft sein oder es muss eine Dauer angeben werden.")
