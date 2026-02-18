@@ -35,13 +35,7 @@ class Borrower < ApplicationRecord
 
   def send_confirmation_pending_email
     create_token
-    begin
-      BorrowerMailer.with(borrower: self).confirm_email.deliver_now
-    rescue StandardError => e
-      Rails.logger.error("Failed to send confirmation email to #{email}: #{e.message}")
-      self.errors.add(:base, "Die E-Mail zur Bestätigung der Registrierung konnte leider nicht verschickt werden. Versuche es in einigen Minuten nochmal.")
-      false
-    end
+    BorrowerMailer.with(borrower: self).confirm_email.deliver_later
   end
 
   def self.search_people( query, lending_status = nil, conducts = nil, borrower_type = nil, page )
