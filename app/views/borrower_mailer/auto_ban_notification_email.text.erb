@@ -1,0 +1,23 @@
+<%# ABOUTME: Plain text version of the automatic ban notification email. %>
+<%# ABOUTME: Notifies the borrower of an automatic ban triggered by repeated warnings. %>
+Automatische Sperre.
+
+Hallo <%= @borrower.firstname %>,
+
+Du wurdest aufgrund wiederholter Verwarnungen automatisch für <%= @conduct.duration %> Tage von der Ausleihe <%= t(@department.genderize('in_the')) %> <%= @department.name %> ausgeschlossen.
+
+Grund: <%= @conduct.reason %>
+
+Gesperrt bis: <%= l(@conduct.created_at + @conduct.duration.days, format: :long) %>
+
+Bei Fragen wende Dich bitte an das Team <%= t(@department.genderize('of_the'), department: @department.name) %>:
+<%= departments_url %>
+
+---
+Bonanza – das Ausleihsystem der Werkstätten an der FHP
+<%= root_url %>
+
+Öffnungszeiten & Infos der Werkstätten: <%= departments_url %>
+Ausleihbedingungen: <%= ausleihbedingungen_url %>
+Datenschutz: <%= datenschutz_url %>
+Impressum: <%= impressum_url %>

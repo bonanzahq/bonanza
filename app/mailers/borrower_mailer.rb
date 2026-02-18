@@ -17,4 +17,13 @@ class BorrowerMailer < ApplicationMailer
     mail(to: @borrower.email, :reply_to => "#{@user.fullname} <#{@user.email}>", subject: 'Deine Sperre wurde aufgehoben!')
   end
 
+  def auto_ban_notification_email(conduct)
+    @conduct = conduct
+    @borrower = conduct.borrower
+    @department = conduct.department
+    mail(
+      to: @borrower.email,
+      subject: "Automatische Sperre #{t(@department.genderize('in_the'))} #{@department.name}"
+    )
+  end
 end
