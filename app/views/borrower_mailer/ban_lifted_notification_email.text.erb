@@ -1,0 +1,19 @@
+<%# ABOUTME: Plain text version of the borrower ban-lifted notification email. %>
+<%# ABOUTME: Informs the borrower that their ban has been removed and they can borrow again. %>
+Sperre aufgehoben.
+
+Hallo <%= @borrower.firstname %>,
+
+Deine Sperre <%= t(@conduct.department.genderize('in_the')) %> <%= @conduct.department.name %> wurde von <%= @user.fullname %> aufgehoben. Du kannst ab jetzt wieder Artikel <%= t(@conduct.department.genderize('in_the')) %> <%= @conduct.department.name %> ausleihen.
+
+Die aktuellen Öffnungszeiten und Infos <%= t(@conduct.department.genderize('of_the'), department: @conduct.department.name) %> findest Du hier:
+<%= departments_url %>
+
+---
+Bonanza – das Ausleihsystem der Werkstätten an der FHP
+<%= root_url %>
+
+Öffnungszeiten & Infos der Werkstätten: <%= departments_url %>
+Ausleihbedingungen: <%= ausleihbedingungen_url %>
+Datenschutz: <%= datenschutz_url %>
+Impressum: <%= impressum_url %>
