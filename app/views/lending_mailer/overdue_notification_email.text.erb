@@ -1,0 +1,25 @@
+<%# ABOUTME: Plain text version of the overdue lending notification email. %>
+<%# ABOUTME: Warns borrowers that their lending period has been exceeded. %>
+Leihfrist überschritten.
+
+Hallo <%= @borrower.firstname %>,
+
+Die Ausleihfrist für Deine Ausleihe <%= @department.name %> ist seit <%= @days_overdue %> <%= @days_overdue == 1 ? "Tag" : "Tagen" %> überschritten. Das Rückgabedatum war der <%= @due_date.strftime("%d.%m.%Y") %>. Bitte gib die folgenden Artikel so schnell wie möglich zurück.
+
+Überfällige Artikel:
+<% @lending.line_items.each do |line_item| %>
+- <%= line_item.item.parent_item.name %> (UID: <%= line_item.item.uid %>, Menge: <%= line_item.quantity %>)
+<% end %>
+
+Bitte wende Dich an <%= @user.fullname %> (<%= @user.email %>) um die Rückgabe zu koordinieren.
+
+Öffnungszeiten & Infos: <%= departments_url %>
+
+---
+Bonanza – das Ausleihsystem der Werkstätten an der FHP
+<%= root_url %>
+
+Öffnungszeiten & Infos: <%= departments_url %>
+Ausleihbedingungen: <%= ausleihbedingungen_url %>
+Datenschutz: <%= datenschutz_url %>
+Impressum: <%= impressum_url %>
