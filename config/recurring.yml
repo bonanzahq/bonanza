@@ -13,3 +13,23 @@ production:
   clear_solid_queue_finished_jobs:
     command: "SolidQueue::Job.clear_finished_in_batches(sleep_between_batches: 0.3)"
     schedule: every hour at minute 12
+  gdpr_anonymize_inactive_borrowers:
+    class: GdprAnonymizeInactiveBorrowersJob
+    schedule: every Sunday at 3am Europe/Berlin
+  gdpr_anonymize_old_borrowers:
+    class: GdprAnonymizeOldBorrowersJob
+    schedule: every Sunday at 3:15am Europe/Berlin
+  gdpr_cleanup_old_conducts:
+    class: GdprCleanupOldConductsJob
+    schedule: every Sunday at 3:30am Europe/Berlin
+
+development:
+  gdpr_anonymize_inactive_borrowers:
+    class: GdprAnonymizeInactiveBorrowersJob
+    schedule: every Sunday at 3am Europe/Berlin
+  gdpr_anonymize_old_borrowers:
+    class: GdprAnonymizeOldBorrowersJob
+    schedule: every Sunday at 3:15am Europe/Berlin
+  gdpr_cleanup_old_conducts:
+    class: GdprCleanupOldConductsJob
+    schedule: every Sunday at 3:30am Europe/Berlin
