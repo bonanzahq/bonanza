@@ -136,108 +136,40 @@ class Lending < ApplicationRecord
     end
   end
 
-  # cronjob will invoke this everyday at 7:00pm to notify lenders of overdue lendings
-  def self.notify_lender_of_overdue_lending
-    # logger.info("notifying lenders of overdue lendings")
-    # lendings = Lending.where(returned_at: nil).where("notification_counter < 2").where("DATE(#{PortableQuery.date_add('DATE(lent_at)', 'duration')}) <= #{PortableQuery.today}")
+  # cronjob will invoke this everyday at 7:00pm to notify borrowers of overdue lendings
+  def self.notify_borrowers_of_overdue_lending
+    overdue = where(returned_at: nil)
+      .where.not(lent_at: nil, duration: nil)
+      .where("lent_at + (duration * INTERVAL '1 day') < ?", Date.current)
 
-    # lendings.each do |lending|
-    #   logger.debug("lending #{lending.id}")
-    #   if lending.department.staffed
-    #     logger.debug("department is staffed")
-    #     # werkstatt ist besetzt?
-    #     logger.debug("Date.today: #{Date.today}")
-    #     logger.debug("lent at: #{lending.lent_at.to_date}")
-    #     logger.debug("duration: #{lending.duration}")
-    #     logger.debug("rechnung: #{(Date.today - lending.lent_at.to_date - lending.duration).to_i}")
-    #     if ((Date.today - lending.lent_at.to_date - lending.duration).to_i % 7 == 0)
-    #       logger.debug("first")
-    #       # notifications werde alle sieben tage ab dem Rückgabedatum verschickt
-    #       if lending.lent_at.to_date < lending.department.staffed_at.to_date
-    #         logger.debug("lending was before closed department")
-    #         logger.debug("deparment was closed: #{lending.department.staffed_at.to_date}")
-    #         # ausleihen, die vor der krankheit getätigt wurde
-
-    #         if( (Date.today-lending.department.staffed_at.to_date).to_i >= 6)
-    #           # notifications werden 7 tage nach dem die werkstatt wieder geöffnet hat, verschickt
-    #           send_overdue_notification_mail(lending)
-    #         else
-    #           # do nothing e.g. wait
-    #         end
-    #       else
-    #         # ausleihen die im normalen ablauf getätigt wurden
-    #         send_overdue_notification_mail(lending)
-    #       end
-
-    #     elsif ((Date.today - lending.lent_at.to_date - lending.duration).to_i % 7 == 6 )
-    #       logger.debug("second")
-    #       # notifications werde alle sieben tage ab einem Tag vor dem Rückgabedatum verschickt
-
-    #       if (lending.lent_at.to_date < lending.department.staffed_at.to_date)
-    #         if ((Date.today-lending.department.staffed_at.to_date).to_i >= 5 )
-    #           # upcoming return notifications werden 6 tage nach dem die werkstatt wieder geöffnet hat, verschickt
-    #           begin
-    #             LendingMailer.upcoming_overdue_return_notification_email(lending).deliver_now
-    #           rescue Exception => e
-    #             # TODO log exception
-    #           end
-    #           logger.info("sent upcoming_overdue_return_notification_email")
-    #         else
-    #           # do nothing e.g. wait
-
-    #         end
-    #       else
-    #         # Ausleihen die im normalen Ablauf getätigt wurden
-    #         begin
-    #           LendingMailer.upcoming_overdue_return_notification_email(lending).deliver_now
-    #         rescue Exception => e
-    #           # TODO log exception
-    #         end
-    #         logger.info("sent upcoming_overdue_return_notification_email")
-    #       end
-    #     else
-    #       logger.debug("nothin applied")
-    #     end
-
-    #   end
-    # end
-    # logger.info("finished notifying lenders of overdue lendings")
+    overdue.find_each do |lending|
+      next unless lending.department.staffed
+      LendingMailer.overdue_notification_email(lending).deliver_later(queue: :default)
+    end
   end
 
-  # cronjob will invoke this everyday at 6:00pm OK
-  def self.notify_lender_of_upcoming_return
-    # logger.info("notifying lenders of upcoming lendings")
-    # upcoming_returns = Lending.where(returned_at: nil).where("DATE(#{PortableQuery.date_add('DATE(lent_at)', 'duration')}) = #{PortableQuery.date_add(PortableQuery.today, '1')}")
+  # cronjob will invoke this everyday at 6:00pm to notify borrowers of upcoming returns
+  def self.notify_borrowers_of_upcoming_return
+    upcoming = where(returned_at: nil)
+      .where.not(lent_at: nil, duration: nil)
+      .where("DATE(lent_at + (duration * INTERVAL '1 day')) = ?", 1.day.from_now.to_date)
 
-    # upcoming_returns.each do |lending|
-    #   if lending.department.staffed
-    #     # send kind notification mail of upcoming return if department is staffed
-    #     begin
-    #       LendingMailer.upcoming_return_notification_email(lending).deliver_now
-    #     rescue Exception => e
-    #       # TODO log exception
-    #     end
-    #   end
-    # end
-    # logger.info("finished notifying lenders of upcoming lendings")
+    upcoming.find_each do |lending|
+      next unless lending.department.staffed
+      LendingMailer.upcoming_return_notification_email(lending).deliver_later(queue: :default)
+    end
   end
 
-  # cronjob will invoke this everyday at 6:45pm OK
-  def self.notify_lender_of_staffed_department
-    # logger.info("notifying lenders of staffed department")
-    # overdue_returns = Lending.where(returned_at: nil).where("DATE(#{PortableQuery.date_add('DATE(lent_at)', 'duration')}) < #{PortableQuery.today}")
+  # cronjob will invoke this everyday at 6:45pm to notify overdue borrowers when department reopens
+  def self.notify_borrowers_of_staffed_department
+    overdue = where(returned_at: nil)
+      .where.not(lent_at: nil, duration: nil)
+      .where("lent_at + (duration * INTERVAL '1 day') < ?", Date.current)
 
-    # overdue_returns.each do |lending|
-    #   if lending.department.staffed_at.to_date == Date.today
-    #     # send notification of staffed department to overdue lendings
-    #     begin
-    #       LendingMailer.department_staffed_again_notification_email(lending).deliver_now
-    #     rescue Exception => e
-    #       # TODO log exception
-    #     end
-    #   end
-    # end
-    # logger.info("finished notifying lenders of overdue lendings")
+    overdue.find_each do |lending|
+      next unless lending.department.staffed_at&.to_date == Date.current
+      LendingMailer.department_staffed_again_notification_email(lending).deliver_later(queue: :default)
+    end
   end
 
   private
@@ -289,61 +221,13 @@ class Lending < ApplicationRecord
 
           completed!
           touch :lent_at
+          LendingMailer.confirmation_email(self).deliver_later(queue: :critical)
         end
       rescue => e
         logger.error("Fehler beim Finalisieren der Ausleihe: #{e.message}")
         return false
       end
       
-    end
-
-    def self.send_overdue_notification_mail(lending)
-
-      # if lending.notification_counter == 0
-      #   # first warning
-      #   begin
-      #     LendingMailer.overdue_notification_email(lending).deliver_now
-      #     logger.info("sent overdue_notification_email")
-      #     lending.increment(:notification_counter)
-
-      #     # add conduct warned to lender
-      #     conduct = Conduct.new
-      #     conduct.reason = "Leihfrist überschritten"
-      #     conduct.lender_id = lending.lender.id
-      #     conduct.department_id = lending.department_id
-      #     conduct.warned!
-          
-      #     lending.conducts << conduct
-      #     lending.save
-      #   rescue Exception => e
-      #     logger.error("error on overdue_notification_email for lending id #{lending.id}")
-      #   end
-      
-      # elsif lending.notification_counter == 1
-      #   # second notification with ban
-
-      #   begin
-      #     LendingMailer.banned_notification_email(lending).deliver
-      #     logger.info("sent banned_notification_email")
-      #     lending.increment(:notification_counter)
-          
-      #     # add conduct banned to lender
-      #     conduct = Conduct.new
-      #     conduct.reason = "Leihfrist zum zweiten Mal überschritten"
-      #     conduct.lender_id = lending.lender.id
-      #     conduct.department_id = lending.department_id
-      #     conduct.duration = 8
-      #     conduct.banned!
-          
-      #     lending.conducts << conduct
-          
-      #     # lending.notification_counter = 0
-      #     lending.save
-      #   rescue Exception => e
-      #     logger.error("error on banned_notification_email for lending id #{lending.id}")
-      #   end
-
-      # end
     end
 
     def create_token
