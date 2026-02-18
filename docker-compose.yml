@@ -98,6 +98,45 @@ services:
         max-size: "10m"
         max-file: "5"
 
+  worker:
+    image: bonanzahq/bonanza:${IMAGE_TAG:-latest}
+    restart: unless-stopped
+    command: ["bundle", "exec", "rake", "solid_queue:start"]
+    environment:
+      RAILS_ENV: production
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: postgres
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-}
+      DB_NAME: bonanza_redux_production
+      ES_HOST: elasticsearch
+      ES_PORT: "9200"
+      ES_PASSWORD: ${ELASTIC_PASSWORD:-}
+      APP_HOST: ${APP_HOST:-}
+      APP_PORT: ${APP_PORT:-443}
+      APP_PROTOCOL: ${APP_PROTOCOL:-https}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USERNAME: ${SMTP_USERNAME:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      MAILER_FROM: ${MAILER_FROM:-}
+      RAILS_LOG_TO_STDOUT: "true"
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE:-}
+      RAILS_MAX_THREADS: "15"
+      SKIP_REINDEX: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "5"
+
   caddy:
     image: caddy:2.10.2
     restart: unless-stopped

@@ -4,6 +4,8 @@
 require "test_helper"
 
 class BorrowerTest < ActiveSupport::TestCase
+  include ActionMailer::TestHelper
+
   setup do
     @borrower = build(:borrower)
   end
@@ -161,21 +163,11 @@ class BorrowerTest < ActiveSupport::TestCase
 
   # -- send_confirmation_pending_email --
 
-  test "send_confirmation_pending_email adds error and returns false on mail failure" do
+  test "send_confirmation_pending_email enqueues a confirmation email" do
     @borrower.save!
 
-    # Stub deliver_now to simulate SMTP failure
-    failing_mail = Object.new
-    failing_mail.define_singleton_method(:deliver_now) { raise Errno::ECONNREFUSED, "Connection refused" }
-
-    mailer_proxy = Object.new
-    mailer_proxy.define_singleton_method(:confirm_email) { failing_mail }
-
-    BorrowerMailer.stub(:with, ->(_) { mailer_proxy }) do
-      result = @borrower.send_confirmation_pending_email
-
-      assert_equal false, result
-      assert @borrower.errors[:base].any?, "should add error to model"
+    assert_enqueued_emails(1) do
+      @borrower.send_confirmation_pending_email
     end
   end
 

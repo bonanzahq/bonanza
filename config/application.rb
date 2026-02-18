@@ -22,5 +22,7 @@ module BonanzaRedux
     config.i18n.default_locale = :de
 
     config.exceptions_app = self.routes
+
+    config.active_job.queue_adapter = :solid_queue
   end
 end

@@ -47,6 +47,30 @@ services:
     environment:
       CADDY_ADDRESS: ":8080"
 
+  worker:
+    build: .
+    user: root
+    environment:
+      RAILS_ENV: development
+      DB_HOST: db
+      DB_PORT: "5432"
+      DB_USER: postgres
+      DB_PASSWORD: password
+      DB_NAME: bonanza_redux_development
+      ES_HOST: elasticsearch
+      ES_PORT: "9200"
+      APP_HOST: localhost
+      APP_PORT: 8080
+      SMTP_HOST: mailpit
+      SMTP_PORT: 1025
+      SECRET_KEY_BASE: dev-not-secret
+      RAILS_MAX_THREADS: "15"
+      SKIP_REINDEX: "true"
+    volumes:
+      - .:/app
+      - bonanza_node_modules:/app/node_modules
+    command: ["bundle", "exec", "rake", "solid_queue:start"]
+
   mailpit:
     image: axllent/mailpit:v1.29.0
     restart: unless-stopped

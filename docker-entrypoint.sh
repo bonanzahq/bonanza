@@ -72,7 +72,9 @@ if [ "$RAILS_ENV" != "production" ]; then
   bundle exec rails db:seed || echo "db:seed had errors (non-fatal, likely duplicate data)"
 fi
 
-echo "Reindexing Elasticsearch..."
-bundle exec rails runner "ParentItem.reindex; Borrower.reindex" || echo "Reindex failed (non-fatal, run manually if needed)"
+if [ -z "${SKIP_REINDEX:-}" ]; then
+  echo "Reindexing Elasticsearch..."
+  bundle exec rails runner "ParentItem.reindex; Borrower.reindex" || echo "Reindex failed (non-fatal, run manually if needed)"
+fi
 
 exec "$@"

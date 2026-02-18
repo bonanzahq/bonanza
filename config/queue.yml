@@ -1,0 +1,26 @@
+# ABOUTME: Solid Queue configuration defining workers, dispatchers, and queues.
+# ABOUTME: Loaded automatically by Solid Queue when the worker process starts.
+
+default: &default
+  dispatchers:
+    - polling_interval: 1
+      batch_size: 500
+  workers:
+    - queues: critical
+      threads: 3
+      polling_interval: 0.1
+    - queues: default
+      threads: 5
+      polling_interval: 0.5
+    - queues: low
+      threads: 2
+      polling_interval: 2
+
+development:
+  <<: *default
+
+test:
+  <<: *default
+
+production:
+  <<: *default
