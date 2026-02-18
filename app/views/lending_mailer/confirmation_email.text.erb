@@ -1,0 +1,26 @@
+<%# ABOUTME: Plain text version of the lending confirmation email. %>
+<%# ABOUTME: Shows borrowed items, due date, and a link to the public lending view. %>
+Ausleihbestätigung
+
+Hallo <%= @borrower.firstname %>,
+
+Deine Ausleihe <%= @department.name %> wurde bestätigt. Bitte gib die folgenden Artikel bis zum <%= @due_date.strftime("%d.%m.%Y") %> zurück.
+
+Ausgeliehene Artikel:
+<% @lending.line_items.each do |line_item| %>
+- <%= line_item.item.parent_item.name %> (UID: <%= line_item.item.uid %>, Menge: <%= line_item.quantity %>)
+<% end %>
+
+Ausleihe ansehen:
+<%= token_lending_url(id: @lending.id, token: @lending.token) %>
+
+Bei Fragen wende Dich an <%= @user.fullname %> (<%= @user.email %>).
+
+---
+Bonanza – das Ausleihsystem der Werkstätten an der FHP
+<%= root_url %>
+
+Öffnungszeiten & Infos: <%= departments_url %>
+Ausleihbedingungen: <%= ausleihbedingungen_url %>
+Datenschutz: <%= datenschutz_url %>
+Impressum: <%= impressum_url %>

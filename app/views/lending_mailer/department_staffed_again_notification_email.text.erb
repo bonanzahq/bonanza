@@ -1,0 +1,23 @@
+<%# ABOUTME: Plain text version of the department reopened notification email. %>
+<%# ABOUTME: Asks borrowers with overdue lendings to return their items now. %>
+Die <%= @department.name %> ist wieder geöffnet.
+
+Hallo <%= @borrower.firstname %>,
+
+Die <%= @department.name %> ist wieder geöffnet. Deine Ausleihe war bereits am <%= @due_date.strftime("%d.%m.%Y") %> fällig. Bitte gib die folgenden Artikel so schnell wie möglich zurück.
+
+Ausgeliehene Artikel:
+<% @lending.line_items.each do |line_item| %>
+- <%= line_item.item.parent_item.name %> (UID: <%= line_item.item.uid %>, Menge: <%= line_item.quantity %>)
+<% end %>
+
+Öffnungszeiten & Infos: <%= departments_url %>
+
+---
+Bonanza – das Ausleihsystem der Werkstätten an der FHP
+<%= root_url %>
+
+Öffnungszeiten & Infos: <%= departments_url %>
+Ausleihbedingungen: <%= ausleihbedingungen_url %>
+Datenschutz: <%= datenschutz_url %>
+Impressum: <%= impressum_url %>
