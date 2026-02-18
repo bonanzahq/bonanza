@@ -1,0 +1,23 @@
+<%# ABOUTME: Plain text version of the upcoming return reminder email. %>
+<%# ABOUTME: Sent 5 days before the lending due date as a friendly reminder. %>
+Rückgabe in 5 Tagen.
+
+Hallo <%= @borrower.firstname %>,
+
+Nur eine kurze Erinnerung: Die Rückgabefrist für Deine Ausleihe <%= @department.name %> läuft am <%= @due_date.strftime("%d.%m.%Y") %> ab. Bitte bring die folgenden Artikel rechtzeitig zurück.
+
+Ausgeliehene Artikel:
+<% @lending.line_items.each do |line_item| %>
+- <%= line_item.item.parent_item.name %> (UID: <%= line_item.item.uid %>, Menge: <%= line_item.quantity %>)
+<% end %>
+
+Öffnungszeiten & Infos: <%= departments_url %>
+
+---
+Bonanza – das Ausleihsystem der Werkstätten an der FHP
+<%= root_url %>
+
+Öffnungszeiten & Infos: <%= departments_url %>
+Ausleihbedingungen: <%= ausleihbedingungen_url %>
+Datenschutz: <%= datenschutz_url %>
+Impressum: <%= impressum_url %>
