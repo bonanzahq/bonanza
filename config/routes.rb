@@ -34,7 +34,12 @@ Rails.application.routes.draw do
 
   delete 'artikel/:id/file/:file_id', :to => 'parent_items#destroy_file', as: 'delete_parent_item_file'
 
-  resources :borrowers, path: 'verwaltung'
+  resources :borrowers, path: 'verwaltung' do
+    member do
+      get :export_data
+      post :request_deletion
+    end
+  end
 
   scope 'checkout' do
     resources :borrowers, as: 'checkout_borrower', except: :index
