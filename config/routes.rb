@@ -41,7 +41,7 @@ Rails.application.routes.draw do
   end
 
   post 'ausleiher/:id/verhalten', to: 'borrowers#add_conduct', as: 'borrower_add_conduct'
-  get 'ausleiher/:id/verhalten/:conducts_id/entfernen', to: 'borrowers#remove_conduct', as: 'borrower_remove_conduct'
+  delete 'ausleiher/:id/verhalten/:conducts_id/entfernen', to: 'borrowers#remove_conduct', as: 'borrower_remove_conduct'
 
   match 'ausleihe', to: 'lending#index', via: [:get, :post], :as => 'lending'
   post 'ausleihe/zum_ausleihkorb', to: 'lending#populate', :as => 'lending_populate'

@@ -146,7 +146,7 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
     sign_in @user
 
     assert_difference "Conduct.count", -1 do
-      get borrower_remove_conduct_path(@borrower, conducts_id: conduct.id)
+      delete borrower_remove_conduct_path(@borrower, conducts_id: conduct.id)
     end
     assert_redirected_to borrower_path(@borrower)
   end
@@ -159,7 +159,7 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
     sign_in @user
 
     assert_no_difference "Conduct.count" do
-      get borrower_remove_conduct_path(@borrower, conducts_id: conduct.id)
+      delete borrower_remove_conduct_path(@borrower, conducts_id: conduct.id)
     end
   end
 

@@ -128,7 +128,7 @@
                       </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                        <%= link_to "Sperre aufheben", borrower_remove_conduct_path(borrower, conduct), class: "btn btn-danger" if conduct.department == current_user.current_department %>
+                        <%= button_to "Sperre aufheben", borrower_remove_conduct_path(borrower, conduct), method: :delete, class: "btn btn-danger" if conduct.department == current_user.current_department %>
                       </div>
                     </div>
                   </div>

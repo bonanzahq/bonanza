@@ -55,19 +55,20 @@ class BorrowersControllerConductTest < ActionDispatch::IntegrationTest
     sign_in @user
 
     assert_enqueued_emails 1 do
-      get borrower_remove_conduct_path(@borrower, conducts_id: conduct.id)
+      delete borrower_remove_conduct_path(@borrower, conducts_id: conduct.id)
     end
   end
 
-  test "remove_conduct actually delivers ban_lifted_notification_email (job can be performed after conduct is destroyed)" do
+  test "remove_conduct actually delivers ban_lifted_notification_email after conduct is destroyed" do
     conduct = create(:conduct, :banned, borrower: @borrower, department: @department, user: @user, permanent: true)
     sign_in @user
 
     assert_emails 1 do
       perform_enqueued_jobs do
-        get borrower_remove_conduct_path(@borrower, conducts_id: conduct.id)
+        delete borrower_remove_conduct_path(@borrower, conducts_id: conduct.id)
       end
     end
+    refute Conduct.exists?(conduct.id)
   end
 
   test "remove_conduct does not enqueue email for conduct from different department" do
@@ -77,7 +78,7 @@ class BorrowersControllerConductTest < ActionDispatch::IntegrationTest
     sign_in @user
 
     assert_enqueued_emails 0 do
-      get borrower_remove_conduct_path(@borrower, conducts_id: conduct.id)
+      delete borrower_remove_conduct_path(@borrower, conducts_id: conduct.id)
     end
   end
 
