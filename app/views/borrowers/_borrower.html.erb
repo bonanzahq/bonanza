@@ -44,28 +44,34 @@
           <% if conduct.kind == "warned" %>
           <li class="small line">
             <div class="flex-grow-1">
-              In <%= conduct.department.name %> <strong><%= "bis #{l(conduct.created_at.to_date + conduct.duration.to_i, :format => "%a, %d.%m.%Y" )} " %></strong> verwarnt wegen überschrittener Ausleihfrist.
+              In <%= conduct.department.name %>
+              <% if conduct.expired? %>
+                <strong>Abgelaufen</strong>
+              <% elsif conduct.permanent? %>
+                <strong>Dauerhaft</strong>
+              <% elsif conduct.expiration_date %>
+                <strong>Noch <%= conduct.days_remaining %> Tage (bis <%= l(conduct.expiration_date, format: "%d.%m.%Y") %>)</strong>
+              <% else %>
+                <strong>Automatisch (60 Tage)</strong>
+              <% end %>
+              verwarnt wegen überschrittener Ausleihfrist.
           <% elsif conduct.kind == "banned" %>
           <li class="small text-danger line">
             <div class="flex-grow-1">
-              <% if conduct.permanent %>
-                  In <%= conduct.department.name %> 
-                  <% if conduct.user %>
-                    von <%= conduct.user.fullname %>
-                  <% end %>
-
-                  <strong>dauerhaft</strong> 
-                  
-              <% else %>
-                  In <%= conduct.department.name %> 
-                  <% if conduct.user %>
-                    von <%= conduct.user.fullname %>
-                  <% end %>
-
-                  <strong><%= "bis #{l(conduct.created_at.to_date + conduct.duration.to_i, :format => "%a, %d.%m.%Y" )} " %></strong>
+              In <%= conduct.department.name %>
+              <% if conduct.user %>
+                von <%= conduct.user.fullname %>
               <% end %>
-
-              gesperrt. 
+              <% if conduct.expired? %>
+                <strong>Abgelaufen</strong>
+              <% elsif conduct.permanent? %>
+                <strong>dauerhaft</strong>
+              <% elsif conduct.expiration_date %>
+                <strong>Noch <%= conduct.days_remaining %> Tage (bis <%= l(conduct.expiration_date, format: "%d.%m.%Y") %>)</strong>
+              <% else %>
+                <strong>Automatisch (60 Tage)</strong>
+              <% end %>
+              gesperrt.
               <%= "Grund: #{conduct.reason}" if conduct.reason %>
           <% end %>
           

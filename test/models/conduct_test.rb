@@ -171,7 +171,9 @@ class ConductTest < ActiveSupport::TestCase
     create(:conduct, borrower: borrower, department: department, user: user, kind: :warned, permanent: true)
     create(:conduct, borrower: borrower, department: department, user: user, kind: :warned, permanent: true)
 
-    ban = Conduct.check_warning_escalation(borrower, department)
+    # The after_create_commit callback fires check_warning_escalation when the second
+    # warning is created, so the ban is already in the database at this point.
+    ban = Conduct.where(borrower: borrower, department: department, kind: :banned).last
     assert ban.present?
     assert ban.banned?
     assert ban.automatic?
