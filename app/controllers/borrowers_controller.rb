@@ -186,10 +186,10 @@ class BorrowersController < ApplicationController
     when :anonymized
       redirect_to borrowers_url, notice: "Die personenbezogenen Daten wurden anonymisiert."
     when :deleted
-      redirect_to borrowers_url, notice: "Der Datensatz wurde vollstaendig geloescht."
+      redirect_to borrowers_url, notice: "Der Datensatz wurde vollständig gelöscht."
     end
   rescue ActiveRecord::RecordNotDestroyed => e
-    redirect_to @borrower, alert: "Loeschung nicht moeglich: #{e.message}"
+    redirect_to @borrower, alert: "Löschung nicht möglich: #{e.message}"
   end
 
   private

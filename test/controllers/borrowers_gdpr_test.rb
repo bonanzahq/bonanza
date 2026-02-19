@@ -49,4 +49,12 @@ class BorrowersGdprTest < ActionDispatch::IntegrationTest
     @borrower.reload
     refute @borrower.anonymized?
   end
+
+  test "request_deletion shows error flash when borrower has active lendings" do
+    sign_in @user
+    lending = create(:lending, :completed, user: @user, department: @department, borrower: @borrower)
+    create(:line_item, lending: lending)
+    post request_deletion_borrower_path(@borrower)
+    assert_equal "Löschung nicht möglich: Offene Ausleihen vorhanden", flash[:alert]
+  end
 end
