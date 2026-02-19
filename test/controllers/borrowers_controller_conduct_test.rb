@@ -26,6 +26,18 @@ class BorrowersControllerConductTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "add_conduct actually delivers ban_notification_email (job can be performed after conduct is saved)" do
+    sign_in @user
+
+    assert_emails 1 do
+      perform_enqueued_jobs do
+        post borrower_add_conduct_path(@borrower), params: {
+          conduct: { reason: "Zu spät zurückgegeben", permanent: true }
+        }
+      end
+    end
+  end
+
   test "add_conduct does not enqueue email when conduct is invalid" do
     sign_in @user
 
@@ -44,6 +56,17 @@ class BorrowersControllerConductTest < ActionDispatch::IntegrationTest
 
     assert_enqueued_emails 1 do
       get borrower_remove_conduct_path(@borrower, conducts_id: conduct.id)
+    end
+  end
+
+  test "remove_conduct actually delivers ban_lifted_notification_email (job can be performed after conduct is destroyed)" do
+    conduct = create(:conduct, :banned, borrower: @borrower, department: @department, user: @user, permanent: true)
+    sign_in @user
+
+    assert_emails 1 do
+      perform_enqueued_jobs do
+        get borrower_remove_conduct_path(@borrower, conducts_id: conduct.id)
+      end
     end
   end
 
