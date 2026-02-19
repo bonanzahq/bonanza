@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_18_143600) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_19_123834) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -83,6 +83,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_18_143600) do
     t.text "reason"
     t.datetime "updated_at", null: false
     t.bigint "user_id"
+    t.index ["borrower_id", "department_id"], name: "index_conducts_unique_active_ban_per_department", unique: true, where: "(kind = 1)"
     t.index ["borrower_id"], name: "index_conducts_on_borrower_id"
     t.index ["department_id"], name: "index_conducts_on_department_id"
     t.index ["lending_id"], name: "index_conducts_on_lending_id"

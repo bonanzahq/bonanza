@@ -139,7 +139,7 @@
     </div>
     <% end %>
 
-    <% if can?(:manage, borrower) && (current_user.admin? || !borrower.has_bans_here?) %>
+    <% if can?(:manage, borrower) && !borrower.has_bans_here? %>
       <a href="#" class="btn btn-outline-secondary btn-sm" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="addConductModal"><span class="icon-before warning">Sperren</span></a>
     <% end %>
   </div>
@@ -157,7 +157,7 @@
           <h5 class="modal-title"><%= borrower.fullname %> sperren?</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-        <% if current_user.admin? or !borrower.has_bans_here? %>
+        <% if !borrower.has_bans_here? %>
           <%= form_with model: @conduct, url: borrower_add_conduct_path(borrower), data: {turbo: false} do |form| %>
           <div class="modal-body">
             <p>Ausleihende Personen können für eine gewisse Zeit oder dauerhaft gesperrt werden. Die betroffene Person wird über den Grund und die Dauer der Sperre und gegebenenfalls deren Aufhebung per E-Mail informiert.</p>
