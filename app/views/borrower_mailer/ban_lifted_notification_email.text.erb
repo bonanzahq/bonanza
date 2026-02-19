@@ -4,9 +4,9 @@ Sperre aufgehoben.
 
 Hallo <%= @borrower.firstname %>,
 
-Deine Sperre <%= t(@conduct.department.genderize('in_the')) %> <%= @conduct.department.name %> wurde von <%= @user.fullname %> aufgehoben. Du kannst ab jetzt wieder Artikel <%= t(@conduct.department.genderize('in_the')) %> <%= @conduct.department.name %> ausleihen.
+Deine Sperre <%= t(@department_genderize_in_the) %> <%= @department_name %> wurde von <%= @user_fullname %> aufgehoben. Du kannst ab jetzt wieder Artikel <%= t(@department_genderize_in_the) %> <%= @department_name %> ausleihen.
 
-Die aktuellen Öffnungszeiten und Infos <%= t(@conduct.department.genderize('of_the'), department: @conduct.department.name) %> findest Du hier:
+Die aktuellen Öffnungszeiten und Infos <%= t(@department_genderize_of_the, department: @department_name) %> findest Du hier:
 <%= departments_url %>
 
 ---

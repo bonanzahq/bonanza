@@ -61,27 +61,39 @@ class BorrowerMailerTest < ActionMailer::TestCase
 
   test "ban_lifted_notification_email is addressed to the borrower" do
     conduct, user = build_ban_lifted_conduct
-    email = BorrowerMailer.with(borrower: conduct.borrower).ban_lifted_notification_email(conduct, user)
+    email = BorrowerMailer.with(borrower: conduct.borrower).ban_lifted_notification_email(**ban_lifted_primitives(conduct, user))
     assert_equal [conduct.borrower.email], email.to
   end
 
   test "ban_lifted_notification_email has correct subject" do
     conduct, user = build_ban_lifted_conduct
-    email = BorrowerMailer.with(borrower: conduct.borrower).ban_lifted_notification_email(conduct, user)
+    email = BorrowerMailer.with(borrower: conduct.borrower).ban_lifted_notification_email(**ban_lifted_primitives(conduct, user))
     assert_equal "Deine Sperre wurde aufgehoben!", email.subject
   end
 
   test "ban_lifted_notification_email has correct reply_to" do
     conduct, user = build_ban_lifted_conduct
-    email = BorrowerMailer.with(borrower: conduct.borrower).ban_lifted_notification_email(conduct, user)
+    email = BorrowerMailer.with(borrower: conduct.borrower).ban_lifted_notification_email(**ban_lifted_primitives(conduct, user))
     assert_equal [user.email], email.reply_to
   end
 
   test "ban_lifted_notification_email has both HTML and text parts" do
     conduct, user = build_ban_lifted_conduct
-    email = BorrowerMailer.with(borrower: conduct.borrower).ban_lifted_notification_email(conduct, user)
+    email = BorrowerMailer.with(borrower: conduct.borrower).ban_lifted_notification_email(**ban_lifted_primitives(conduct, user))
     assert_not_nil email.html_part
     assert_not_nil email.text_part
+  end
+
+  test "ban_lifted_notification_email renders correctly after conduct is destroyed" do
+    conduct, user = build_ban_lifted_conduct
+    primitives = ban_lifted_primitives(conduct, user)
+    borrower = conduct.borrower
+    conduct.destroy
+
+    email = BorrowerMailer.with(borrower: borrower).ban_lifted_notification_email(**primitives)
+    assert_equal [borrower.email], email.to
+    assert_equal "Deine Sperre wurde aufgehoben!", email.subject
+    assert_not_nil email.html_part
   end
 
   # auto_ban_notification_email
@@ -126,5 +138,15 @@ class BorrowerMailerTest < ActionMailer::TestCase
     borrower = create(:borrower)
     conduct = create(:conduct, borrower: borrower, department: department, user: user, kind: :banned, duration: 30, permanent: false)
     [ conduct, user ]
+  end
+
+  def ban_lifted_primitives(conduct, user)
+    {
+      department_name: conduct.department.name,
+      department_genderize_in_the: conduct.department.genderize("in_the"),
+      department_genderize_of_the: conduct.department.genderize("of_the"),
+      user_fullname: user.fullname,
+      user_email: user.email
+    }
   end
 end
