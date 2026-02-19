@@ -72,10 +72,11 @@ class BorrowersController < ApplicationController
     respond_to do |format|
       begin
         @conduct = @borrower.conducts.find(params[:conducts_id])
-        if @conduct.department == current_user.current_department && @conduct.destroy
+        if @conduct.department == current_user.current_department
           BorrowerMailer.with(borrower: @borrower)
             .ban_lifted_notification_email(@conduct, current_user)
             .deliver_later(queue: :default)
+          @conduct.destroy
           format.html { redirect_to @borrower, notice: 'Sperre/Verwarnung wurde entfernt.' }
         else
           format.html { redirect_to @borrower, alert: 'Sperre/Verwarnung konnte nicht entfernt werden.' }
