@@ -20,6 +20,15 @@ production:
   cleanup_abandoned_carts:
     class: CleanupAbandonedCartsJob
     schedule: every day at 11:30pm Europe/Berlin
+  gdpr_anonymize_inactive_borrowers:
+    class: GdprAnonymizeInactiveBorrowersJob
+    schedule: every Sunday at 3am Europe/Berlin
+  gdpr_anonymize_old_borrowers:
+    class: GdprAnonymizeOldBorrowersJob
+    schedule: every Sunday at 3:15am Europe/Berlin
+  gdpr_cleanup_old_conducts:
+    class: GdprCleanupOldConductsJob
+    schedule: every Sunday at 3:30am Europe/Berlin
 
 development:
   send_overdue_notifications:
@@ -40,3 +49,12 @@ development:
   cleanup_abandoned_carts:
     class: CleanupAbandonedCartsJob
     schedule: every day at 11:30pm Europe/Berlin
+  gdpr_anonymize_inactive_borrowers:
+    class: GdprAnonymizeInactiveBorrowersJob
+    schedule: every Sunday at 3am Europe/Berlin
+  gdpr_anonymize_old_borrowers:
+    class: GdprAnonymizeOldBorrowersJob
+    schedule: every Sunday at 3:15am Europe/Berlin
+  gdpr_cleanup_old_conducts:
+    class: GdprCleanupOldConductsJob
+    schedule: every Sunday at 3:30am Europe/Berlin
