@@ -1,4 +1,6 @@
 class User < ApplicationRecord
+  include GdprAuditable
+
   has_many :department_memberships, :dependent => :destroy
   has_many :departments, -> { distinct }, :through => :department_memberships
 
@@ -64,6 +66,23 @@ class User < ApplicationRecord
 
   def role_in(department)
     department_memberships.where(department: department).first.role
+  end
+
+  def anonymize!
+    transaction do
+      department_memberships.update_all(role: :deleted)
+      update_columns(
+        firstname: "Ehemaliger",
+        lastname: "Mitarbeiter",
+        email: "former-#{id}-#{SecureRandom.hex(4)}@anonymized.local",
+        encrypted_password: ""
+      )
+      log_gdpr_event("anonymize")
+    end
+  end
+
+  def anonymized?
+    email&.end_with?("@anonymized.local")
   end
 
   def self.current_user
