@@ -64,7 +64,7 @@
   </div>
 </div>
 
-<% if can? :manage, borrower %>
+<% if borrower.conducts.any? || (can?(:manage, borrower)) %>
 
   <div class="mb-4 mt-4">
     <h6 class="text-muted mb-2">Sperre</h6>
@@ -139,19 +139,13 @@
     </div>
     <% end %>
 
-    <% if current_user.admin? || !borrower.has_bans_here? %>
+    <% if can?(:manage, borrower) && (current_user.admin? || !borrower.has_bans_here?) %>
       <a href="#" class="btn btn-outline-secondary btn-sm" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="addConductModal"><span class="icon-before warning">Sperren</span></a>
     <% end %>
   </div>
+<% end %>
 
-  <div class="mb-4">
-    <h6 class="text-muted mb-2">Daten</h6>
-    <div class="d-flex align-items-center gap-2">
-      <a href="#" class="btn btn-outline-secondary btn-sm disabled" aria-disabled="true">Daten exportieren</a>
-      <a href="#" class="btn btn-outline-danger btn-sm" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="deleteBorrowerModal">Daten löschen</a>
-    </div>
-  </div>
-
+<% if can? :manage, borrower %>
   <div class="actions">
     <%= link_to 'Bearbeiten', edit_borrower_path, class: 'btn btn-outline-secondary btn-sm' %>
   </div>
@@ -197,25 +191,6 @@
             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Schließen</button>
           </div>
         <% end %>
-      </div>
-    </div>
-  </div>
-
-  <div class="modal fade" id="deleteBorrowerModal" tabindex="-1">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Daten löschen</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <p>Die persönlichen Daten von <%= borrower.fullname %> werden gelöscht/anonymisiert. Die Ausleihhistorie bleibt für statistische Zwecke ohne Personenbezug erhalten.</p>
-          <p class="mb-0 text-danger fw-bold">Diese Aktion kann nicht rückgängig gemacht werden.</p>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-          <%= button_to "Daten löschen", borrower_path(borrower), method: :delete, class: "btn btn-danger", form: { data: { turbo_confirm: false } } %>
-        </div>
       </div>
     </div>
   </div>
