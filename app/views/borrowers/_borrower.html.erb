@@ -128,7 +128,7 @@
                       </div>
                       <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                        <%= link_to "Sperre aufheben", borrower_remove_conduct_path(borrower, conduct), class: "btn btn-danger" if conduct.department == current_user.current_department %>
+                        <%= button_to "Sperre aufheben", borrower_remove_conduct_path(borrower, conduct), method: :delete, class: "btn btn-danger" if conduct.department == current_user.current_department %>
                       </div>
                     </div>
                   </div>
@@ -139,7 +139,7 @@
     </div>
     <% end %>
 
-    <% if can?(:manage, borrower) && (current_user.admin? || !borrower.has_bans_here?) %>
+    <% if can?(:manage, borrower) && !borrower.has_bans_here? %>
       <a href="#" class="btn btn-outline-secondary btn-sm" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="addConductModal"><span class="icon-before warning">Sperren</span></a>
     <% end %>
   </div>
@@ -159,7 +159,7 @@
           <h5 class="modal-title"><%= borrower.fullname %> sperren?</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
-        <% if current_user.admin? or !borrower.has_bans_here? %>
+        <% if !borrower.has_bans_here? %>
           <%= form_with model: @conduct, url: borrower_add_conduct_path(borrower), data: {turbo: false} do |form| %>
           <div class="modal-body">
             <p>Ausleihende Personen können für eine gewisse Zeit oder dauerhaft gesperrt werden. Die betroffene Person wird über den Grund und die Dauer der Sperre und gegebenenfalls deren Aufhebung per E-Mail informiert.</p>
