@@ -68,7 +68,7 @@ class User < ApplicationRecord
     department_memberships.where(department: department).first.role
   end
 
-  def anonymize!
+  def anonymize!(performed_by: nil)
     transaction do
       department_memberships.update_all(role: :deleted)
       update_columns(
@@ -77,7 +77,7 @@ class User < ApplicationRecord
         email: "former-#{id}-#{SecureRandom.hex(4)}@anonymized.local",
         encrypted_password: ""
       )
-      log_gdpr_event("anonymize")
+      log_gdpr_event("anonymize", performed_by: performed_by)
     end
   end
 
