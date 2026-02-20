@@ -4,7 +4,7 @@
 require "test_helper"
 
 class BorrowersControllerTest < ActionDispatch::IntegrationTest
-  include ActiveJob::TestHelper
+  include ActionMailer::TestHelper
 
   setup do
     @department = create(:department)
@@ -81,7 +81,10 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
   test "create enqueues account_created_email" do
     sign_in @user
 
-    assert_enqueued_emails(1) do
+    assert_enqueued_with(
+      job: ActionMailer::MailDeliveryJob,
+      args: ->(a) { a[0..1] == [ "BorrowerMailer", "account_created_email" ] }
+    ) do
       post borrowers_path, params: {
         borrower: {
           firstname: "Email",
