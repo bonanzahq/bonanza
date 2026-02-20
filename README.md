@@ -172,4 +172,50 @@ docker compose up -d
 bash deploy.sh
 ```
 
+## GDPR Compliance
+
+The system implements GDPR data protection requirements for borrower and
+staff personal data.
+
+### Data Export
+
+Staff can export a borrower's personal data as JSON from the borrower detail
+page. The export includes personal information, lending history, and conduct
+records.
+
+### Right to Erasure
+
+Staff can request deletion of a borrower from the borrower detail page:
+
+- **Borrowers with lending history within 7 years**: personal fields are
+  anonymized (replaced with placeholders), but lending and conduct records are
+  retained for accounting compliance (HGB §257).
+- **Borrowers with no recent lending history**: the record is fully destroyed.
+- **Borrowers with active lendings**: deletion is blocked until all items are
+  returned.
+
+### Automatic Anonymization
+
+Two background jobs run on a weekly schedule:
+
+- **Inactive borrowers**: borrowers with no lending history who haven't been
+  updated in 24+ months are anonymized.
+- **Old borrowers**: borrowers whose most recent lending is older than 7 years
+  are anonymized.
+
+### Audit Logging
+
+Every GDPR action (export, anonymization, deletion request) is recorded in
+the `gdpr_audit_logs` table. Each entry tracks the action, the affected
+record, and the staff member who triggered it (nil for automated jobs). Audit
+logs persist even if the target record is later destroyed.
+
+Query audit logs from the Rails console:
+
+```ruby
+GdprAuditLog.all
+GdprAuditLog.for_action("anonymize")
+GdprAuditLog.for_target(Borrower.find(1))
+```
+
 See `AGENTS.md` for project conventions and issue tracking workflow.
