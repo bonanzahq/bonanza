@@ -1,1 +1,1 @@
-{"author":{"id":"cff9ab1d2ee9741039b2a60d90cca378a5320ba753398f6f3df8d03abcebee1b"},"ops":[{"type":5,"timestamp":1771580127,"nonce":"HzSbkB+/Q0nbs5/aX4LDKiW8BYA=","added":["phase-d"],"removed":null}]}
+{"author":{"id":"cff9ab1d2ee9741039b2a60d90cca378a5320ba753398f6f3df8d03abcebee1b"},"ops":[{"type":8,"timestamp":1771596776,"nonce":"PlhFaH1OFAuJN6DsVXGZgUhU+fo=","target":"da8262d73e90a1817212803ed3138db5b1fdbe63e375cb495d4b73dc284f3875","new_metadata":{"github-id":"I_kwDORKr0287sjkHe","github-url":"https://github.com/bonanzahq/bonanza/issues/144"}}]}
