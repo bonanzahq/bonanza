@@ -6,6 +6,10 @@ class Conduct < ApplicationRecord
   belongs_to :department
   belongs_to :lending, optional: true
   belongs_to :user, optional: true
+  belongs_to :lifted_by, class_name: "User", optional: true
+
+  scope :active, -> { where(lifted_at: nil) }
+  scope :lifted, -> { where.not(lifted_at: nil) }
 
   enum :kind, { warned: 0, banned: 1 }
 
@@ -15,7 +19,7 @@ class Conduct < ApplicationRecord
   validates :duration, numericality: { only_integer: true, allow_nil: true, message: "Es muss eine Anzahl an Tagen angegeben werden." }
   validates :borrower_id, uniqueness: {
     scope: :department_id,
-    conditions: -> { where(kind: :banned) },
+    conditions: -> { where(kind: :banned, lifted_at: nil) },
     message: "Es gibt bereits eine aktive Sperre für diese Person in dieser Werkstatt."
   }, if: :banned?
 
@@ -29,11 +33,11 @@ class Conduct < ApplicationRecord
   # Destroys conducts whose duration has elapsed and stale automatic conducts.
   # Returns the destroyed records so callers can act on them (e.g. send emails).
   def self.remove_expired
-    expired_with_duration = where(permanent: false)
+    expired_with_duration = active.where(permanent: false)
       .where.not(duration: nil)
       .where("created_at + (duration * INTERVAL '1 day') < ?", Time.current)
 
-    stale_automatic = where(permanent: false, duration: nil, user_id: nil)
+    stale_automatic = active.where(permanent: false, duration: nil, user_id: nil)
       .where("created_at < ?", 60.days.ago)
 
     removed = []
@@ -49,7 +53,7 @@ class Conduct < ApplicationRecord
   def self.check_warning_escalation(borrower, department)
     warning_count = where(borrower: borrower, department: department, kind: :warned).count
     return nil unless warning_count >= 2
-    return nil if where(borrower: borrower, department: department, kind: :banned).exists?
+    return nil if active.where(borrower: borrower, department: department, kind: :banned).exists?
 
     create!(
       borrower: borrower,
@@ -60,6 +64,14 @@ class Conduct < ApplicationRecord
       duration: 30,
       user_id: nil
     )
+  end
+
+  def lifted?
+    lifted_at.present?
+  end
+
+  def lift!(user)
+    update!(lifted_at: Time.current, lifted_by: user)
   end
 
   def expired?
