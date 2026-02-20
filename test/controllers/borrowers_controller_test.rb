@@ -246,4 +246,31 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
     get borrower_email_pending_path
     assert_response :success
   end
+
+  # -- GDPR: export_data --
+
+  test "export_data creates an audit log entry" do
+    sign_in @user
+
+    assert_difference "GdprAuditLog.count", 1 do
+      get export_data_borrower_path(@borrower)
+    end
+
+    log = GdprAuditLog.last
+    assert_equal "export", log.action
+    assert_equal @borrower, log.target
+    assert_equal @user, log.performed_by
+  end
+
+  # -- GDPR: request_deletion --
+
+  test "request_deletion creates audit log entries" do
+    sign_in @user
+
+    assert_difference "GdprAuditLog.count" do
+      post request_deletion_borrower_path(@borrower)
+    end
+
+    assert GdprAuditLog.exists?(action: "deletion_requested", target: @borrower)
+  end
 end
