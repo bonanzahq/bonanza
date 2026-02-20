@@ -111,11 +111,26 @@ gaffer_tape = ParentItem.create!(
 )
 Item.create!(uid: "", quantity: 8, status: "available", note: "", storage_location: "Regal 3", parent_item: gaffer_tape, lending_counter: 0, condition: "flawless")
 
-# --- Borrower and lending ---
+# --- Borrowers ---
 
-borrower = Borrower.create!(
-  firstname: "Peter", lastname: "Parker", email: "test@example.com", phone: "012345678", borrower_type: "student", id_checked: true, insurance_checked: true, student_id: "123456789", email_token: nil, tos_accepted: true, tos_accepted_at: Time.current
-)
+borrower_data = [
+  { firstname: "Peter", lastname: "Parker", email: "test@example.com", phone: "012345678", borrower_type: "student", student_id: "123456789" },
+  { firstname: "Ellen", lastname: "Ripley", email: "ripley@nostromo.example.com", phone: "055512001", borrower_type: "employee" },
+  { firstname: "Marty", lastname: "McFly", email: "marty@hillvalley.example.com", phone: "055512002", borrower_type: "student", student_id: "198510211" },
+  { firstname: "Dana", lastname: "Scully", email: "scully@fbi.example.com", phone: "055512003", borrower_type: "employee" },
+  { firstname: "Leia", lastname: "Organa", email: "leia@alderaan.example.com", phone: "055512004", borrower_type: "student", student_id: "197705250" },
+  { firstname: "Wednesday", lastname: "Addams", email: "wednesday@nevermore.example.com", phone: "055512005", borrower_type: "student", student_id: "200511230" },
+  { firstname: "Gandalf", lastname: "Graurock", email: "gandalf@mittelerde.example.com", phone: "055512006", borrower_type: "employee" },
+  { firstname: "Shuri", lastname: "Udaku", email: "shuri@wakanda.example.com", phone: "055512007", borrower_type: "student", student_id: "201803150" },
+  { firstname: "Ferris", lastname: "Bueller", email: "ferris@dayoff.example.com", phone: "055512008", borrower_type: "student", student_id: "198606110" },
+  { firstname: "Imperator", lastname: "Furiosa", email: "furiosa@citadel.example.com", phone: "055512009", borrower_type: "employee" },
+]
+
+borrowers = borrower_data.map do |data|
+  Borrower.create!(data.merge(id_checked: true, insurance_checked: true, email_token: nil, tos_accepted: true, tos_accepted_at: Time.current))
+end
+
+borrower = borrowers.first
 lending = Lending.create!(
   borrower: borrower, lent_at: 1.hour.ago, returned_at: Time.current, note: "", state: "completed", token: SecureRandom.urlsafe_base64(64), user: user, department: department, duration: 14, notification_counter: nil
 )

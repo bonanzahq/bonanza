@@ -16,16 +16,8 @@ class CheckoutController < ApplicationController
   def index
     redirect_to lending_path unless @lending.has_line_items?
 
-    if params[:b].present? && params[:b].length > 0
-      begin
-        @borrowers = Borrower.search_people(params[:b], nil, nil, true, 1)
-      rescue Faraday::ConnectionFailed # elasticsearch couldn't be reached
-        @borrowers = [Borrower.first]
-      end
-    else
-      if params[:state] == "borrower"
-        @borrowers = []
-      end
+    if params[:state] == "borrower"
+      @borrowers = Borrower.search_people(params[:b], nil, nil, true, 1)
     end
   end
 

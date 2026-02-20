@@ -68,6 +68,20 @@ class CheckoutControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "borrower state shows borrower list without search query" do
+    # Elasticsearch is not available in test, so @borrowers will be Borrower.none.
+    # This test only verifies the page renders without crashing and the results
+    # container is present. Actual borrower rendering requires a running ES instance.
+    lending_id = populate_cart
+    lending = Lending.find(lending_id)
+    lending.update_column(:state, Lending.states[:borrower])
+
+    get checkout_state_path("borrower")
+    assert_response :success
+    assert_select "div.results.borrowers"
+    assert_select "p i.text-muted", false, "Should not show 'no results' when no search query given"
+  end
+
   test "index rejects skipping to confirmation from borrower" do
     lending_id = populate_cart
     lending = Lending.find(lending_id)
