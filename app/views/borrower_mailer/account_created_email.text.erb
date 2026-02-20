@@ -1,0 +1,20 @@
+<%# ABOUTME: Plain text email sent when staff creates a borrower account. %>
+<%# ABOUTME: Informs the borrower that their data is stored in the lending system. %>
+Dein Konto bei Bonanza wurde erstellt.
+
+Hallo <%= @borrower.firstname %>,
+
+ein Mitarbeitender der <%= @department_name %> hat ein Konto für Dich im Ausleihsystem Bonanza angelegt. Damit kannst Du bei den teilnehmenden Werkstätten der FH Potsdam Artikel ausleihen.
+
+Deine E-Mail-Adresse und andere Daten werden in Bonanza gespeichert. Du kannst Deine Daten jederzeit bei den Mitarbeitenden der Werkstätten ändern oder löschen lassen.
+
+Nachdem Du etwas ausgeliehen hast, bekommst Du zu jedem wichtigen Zeitpunkt eine E-Mail: als Bestätigung der Ausleihe, wenn die Rückgabe näher rückt, und wenn Du etwas nicht rechtzeitig zurückgibst.
+
+---
+Bonanza – das Ausleihsystem der Werkstätten an der FHP
+<%= root_url %>
+
+Öffnungszeiten & Infos der Werkstätten: <%= departments_url %>
+Ausleihbedingungen: <%= ausleihbedingungen_url %>
+Datenschutz: <%= datenschutz_url %>
+Impressum: <%= impressum_url %>

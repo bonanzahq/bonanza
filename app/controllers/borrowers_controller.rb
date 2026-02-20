@@ -137,6 +137,9 @@ class BorrowersController < ApplicationController
 
     respond_to do |format|
       if @borrower.save
+        BorrowerMailer.with(borrower: @borrower)
+          .account_created_email(department_name: current_user.current_department.name)
+          .deliver_later
         format.html { redirect_to borrower_url(@borrower), notice: "Die ausleihende Person wurde angelegt." }
       else
         format.html { render :new, status: :unprocessable_entity }
