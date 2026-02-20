@@ -105,7 +105,7 @@ class Borrower < ApplicationRecord
     conducts.where(department: dpt, kind: 'warned').any?
   end
 
-  def anonymize!
+  def anonymize!(performed_by: nil)
     transaction do
       update_columns(
         firstname: "Geloescht",
@@ -116,7 +116,7 @@ class Borrower < ApplicationRecord
         email_token: nil,
         borrower_type: :deleted
       )
-      log_gdpr_event("anonymize")
+      log_gdpr_event("anonymize", performed_by: performed_by)
     end
   end
 
@@ -167,13 +167,15 @@ class Borrower < ApplicationRecord
     }
   end
 
-  def request_deletion!
+  def request_deletion!(performed_by: nil)
     if lendings.where(returned_at: nil).exists?
       raise ActiveRecord::RecordNotDestroyed, "Offene Ausleihen vorhanden"
     end
 
+    log_gdpr_event("deletion_requested", performed_by: performed_by)
+
     if lendings.where("created_at > ?", 7.years.ago).exists?
-      anonymize!
+      anonymize!(performed_by: performed_by)
       :anonymized
     else
       destroy!

@@ -36,7 +36,7 @@ Rails.application.routes.draw do
 
   resources :borrowers, path: 'verwaltung' do
     member do
-      get :export_data
+      post :export_data
       post :request_deletion
     end
   end
