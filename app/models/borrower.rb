@@ -26,7 +26,7 @@ class Borrower < ApplicationRecord
       email: email,
       student_id: student_id,
       lendings: line_items.where(returned_at: nil).any? ? 'active' : 'none',
-      conducts: conducts.any? ? conducts.collect(&:kind) : ['blameless'],
+      conducts: conducts.active.any? ? conducts.active.collect(&:kind) : ['blameless'],
       borrower_type: borrower_type
     }
   end
@@ -94,15 +94,15 @@ class Borrower < ApplicationRecord
   end
 
   def has_misconduct_in?(dpt)
-    conducts.where(department: dpt).any?
+    conducts.active.where(department: dpt).any?
   end
 
   def has_bans_in?(dpt)
-    conducts.where(department: dpt, kind: 'banned').any?
+    conducts.active.where(department: dpt, kind: 'banned').any?
   end
 
   def has_warnings_in?(dpt)
-    conducts.where(department: dpt, kind: 'warned').any?
+    conducts.active.where(department: dpt, kind: 'warned').any?
   end
 
   def anonymize!(performed_by: nil)
@@ -153,8 +153,8 @@ class Borrower < ApplicationRecord
           end
         }
       end,
-      conducts: conducts.includes(:department).map do |conduct|
-        {
+      conducts: conducts.includes(:department, :lifted_by).map do |conduct|
+        entry = {
           type: conduct.kind,
           reason: conduct.reason,
           created_at: conduct.created_at&.iso8601,
@@ -162,6 +162,11 @@ class Borrower < ApplicationRecord
           duration_days: conduct.duration,
           permanent: conduct.permanent
         }
+        if conduct.lifted?
+          entry[:lifted_at] = conduct.lifted_at.iso8601
+          entry[:lifted_by] = conduct.lifted_by&.fullname
+        end
+        entry
       end,
       exported_at: Time.current.iso8601
     }

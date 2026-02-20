@@ -1,5 +1,5 @@
 # ABOUTME: Tests for Conduct model business logic.
-# ABOUTME: Covers validations, kind enum, expiration logic, and warning escalation.
+# ABOUTME: Covers validations, kind enum, expiration logic, warning escalation, and soft-delete lifting.
 
 require "test_helper"
 
@@ -234,5 +234,98 @@ class ConductTest < ActiveSupport::TestCase
     user = create(:user, department: create(:department))
     create(:conduct, borrower: borrower, department: department, user: user, kind: :warned, permanent: true)
     assert_nil Conduct.check_warning_escalation(borrower, department)
+  end
+
+  # -- lift! --
+
+  test "lift! sets lifted_at and lifted_by" do
+    conduct = create(:conduct, :banned, :with_duration)
+    lifter = create(:user, department: create(:department))
+
+    conduct.lift!(lifter)
+
+    assert conduct.lifted_at.present?
+    assert_equal lifter, conduct.lifted_by
+    assert conduct.persisted?
+    refute conduct.destroyed?
+  end
+
+  test "lifted? returns true for lifted conduct" do
+    conduct = create(:conduct, :banned, :with_duration)
+    lifter = create(:user, department: create(:department))
+    conduct.lift!(lifter)
+
+    assert conduct.lifted?
+  end
+
+  test "lifted? returns false for active conduct" do
+    conduct = create(:conduct, :banned, :with_duration)
+    refute conduct.lifted?
+  end
+
+  # -- scopes --
+
+  test "active scope excludes lifted conducts" do
+    active = create(:conduct, :banned, :with_duration)
+    lifted = create(:conduct, :banned, :with_duration, borrower: create(:borrower))
+    lifted.update!(lifted_at: Time.current, lifted_by: create(:user, department: create(:department)))
+
+    assert_includes Conduct.active, active
+    assert_not_includes Conduct.active, lifted
+  end
+
+  test "lifted scope returns only lifted conducts" do
+    active = create(:conduct, :banned, :with_duration)
+    lifted = create(:conduct, :banned, :with_duration, borrower: create(:borrower))
+    lifted.update!(lifted_at: Time.current, lifted_by: create(:user, department: create(:department)))
+
+    assert_includes Conduct.lifted, lifted
+    assert_not_includes Conduct.lifted, active
+  end
+
+  # -- uniqueness only for active bans --
+
+  test "second ban is valid when first ban is lifted" do
+    borrower = create(:borrower)
+    department = create(:department)
+    user = create(:user, department: create(:department))
+    first_ban = create(:conduct, :banned, :with_duration, borrower: borrower, department: department, user: user)
+    first_ban.update!(lifted_at: Time.current, lifted_by: user)
+
+    second_ban = build(:conduct, :banned, :with_duration, borrower: borrower, department: department, user: user)
+    assert second_ban.valid?
+  end
+
+  # -- remove_expired skips lifted --
+
+  test "remove_expired skips lifted conducts" do
+    borrower = create(:borrower)
+    department = create(:department)
+    user = create(:user, department: create(:department))
+    conduct = create(:conduct, :expired, borrower: borrower, department: department, user: user)
+    conduct.update!(lifted_at: Time.current, lifted_by: user)
+
+    removed = Conduct.remove_expired
+    assert_equal 0, removed.size
+    assert Conduct.exists?(conduct.id)
+  end
+
+  # -- check_warning_escalation ignores lifted bans --
+
+  test "check_warning_escalation creates ban when existing ban is lifted" do
+    borrower = create(:borrower)
+    department = create(:department)
+    user = create(:user, department: create(:department))
+    create(:conduct, borrower: borrower, department: department, user: user, kind: :warned, permanent: true)
+    create(:conduct, borrower: borrower, department: department, user: user, kind: :warned, permanent: true)
+
+    # An auto-ban was created by the callback. Lift it.
+    auto_ban = Conduct.where(borrower: borrower, department: department, kind: :banned).first!
+    auto_ban.update!(lifted_at: Time.current, lifted_by: user)
+
+    # Now escalation should create a new ban since the old one is lifted.
+    new_ban = Conduct.check_warning_escalation(borrower, department)
+    assert new_ban.present?
+    assert new_ban.banned?
   end
 end

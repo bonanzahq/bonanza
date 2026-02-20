@@ -172,14 +172,17 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
 
   # -- remove_conduct --
 
-  test "remove_conduct removes conduct scoped to current department" do
+  test "remove_conduct lifts conduct instead of destroying it" do
     lending = create(:lending, :completed, user: @user, department: @department, borrower: @borrower)
     conduct = create(:conduct, :banned, borrower: @borrower, department: @department, user: @user, lending: lending)
     sign_in @user
 
-    assert_difference "Conduct.count", -1 do
+    assert_no_difference "Conduct.count" do
       delete borrower_remove_conduct_path(@borrower, conducts_id: conduct.id)
     end
+    conduct.reload
+    assert conduct.lifted?
+    assert_equal @user, conduct.lifted_by
     assert_redirected_to borrower_path(@borrower)
   end
 
@@ -190,9 +193,9 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
     conduct = create(:conduct, :banned, borrower: @borrower, department: other_dept, user: other_user, lending: lending)
     sign_in @user
 
-    assert_no_difference "Conduct.count" do
-      delete borrower_remove_conduct_path(@borrower, conducts_id: conduct.id)
-    end
+    delete borrower_remove_conduct_path(@borrower, conducts_id: conduct.id)
+    conduct.reload
+    refute conduct.lifted?
   end
 
   # -- guest authorization --

@@ -138,6 +138,10 @@ Staff can issue warnings and bans to borrowers, scoped per department.
 - **Warning**: A recorded misconduct note. Does not block lending.
 - **Ban**: Blocks the borrower from lending in that department. Can be
   temporary (with a duration in days) or permanent.
+- **Lifting**: When a ban is lifted, the conduct record is soft-deleted
+  (retains `lifted_at` timestamp and `lifted_by` reference). Lifted conducts
+  remain visible in a collapsible history section on the borrower detail page
+  but no longer block lending or count toward active conduct checks.
 
 A borrower can be warned or banned in one department while remaining in good
 standing in another.
