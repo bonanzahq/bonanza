@@ -251,3 +251,19 @@ The system manages three types of legal content:
 - **Imprint (Impressum)**: Publicly accessible.
 
 Admins can edit and version all legal texts through the staff interface.
+
+## GDPR Compliance
+
+The system implements GDPR Article 5(2) demonstrable compliance:
+
+- **Data export**: Borrower personal data can be exported as JSON (personal
+  info, lending history, conducts).
+- **Right to erasure**: Borrowers can request deletion. Records with lending
+  history within the 7-year retention period (HGB SS257) are anonymized;
+  records beyond retention are fully destroyed.
+- **Automatic anonymization**: Background jobs anonymize inactive borrowers
+  (24+ months without activity) and borrowers past the 7-year retention period.
+- **Audit logging**: Every GDPR action (anonymize, export, deletion request)
+  is recorded in `gdpr_audit_logs` with the target record, performing user
+  (or nil for system actions), and metadata. Audit logs persist independently
+  of the target record.
