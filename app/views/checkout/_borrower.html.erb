@@ -28,24 +28,15 @@
                 </div>
             <% end %>
 
-            <% if params[:b].present? %>
-                <div class="results borrowers">
-                    <% if @borrowers.empty? -%>
-                      <p>Keine ausleihenden Personen gefunden!.</p>
-                    <% else -%>
-                        <% @borrowers.each do |borrower| %>
+            <div class="results borrowers">
+                <% @borrowers.each do |borrower| %>
 
-                            <% unless @lending.borrower && @lending.borrower.id == borrower.id %>
-                                <%= render partial: "result_borrower", locals: {borrower: borrower, lending: @lending } %>
-                            <% end %>
-
-                        <% end %>
+                    <% unless @lending.borrower && @lending.borrower.id == borrower.id %>
+                        <%= render partial: "result_borrower", locals: {borrower: borrower, lending: @lending } %>
                     <% end %>
-                </div>
 
-            <% elsif not params[:b].present? and not @lending.borrower %>
-                <p class="mb-0"><i class="text-muted small">Suche nach ausleihende Personen</i></p>
-            <% end %>
+                <% end %>
+            </div>
 
         </div>
     </div>

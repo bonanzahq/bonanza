@@ -68,6 +68,17 @@ class CheckoutControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "borrower state shows borrower list without search query" do
+    lending_id = populate_cart
+    lending = Lending.find(lending_id)
+    lending.update_column(:state, Lending.states[:borrower])
+
+    get checkout_state_path("borrower")
+    assert_response :success
+    assert_select "div.results.borrowers"
+    assert_select "p i.text-muted", false, "Should not show 'search for borrowers' prompt"
+  end
+
   test "index rejects skipping to confirmation from borrower" do
     lending_id = populate_cart
     lending = Lending.find(lending_id)
