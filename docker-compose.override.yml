@@ -24,6 +24,11 @@ services:
       DEV_DATABASE_USER: postgres
       DEV_DATABASE_PASSWORD: password
       DEV_DATABASE_NAME: bonanza_redux_development
+      TEST_DATABASE_HOST: db
+      TEST_DATABASE_PORT: "5432"
+      TEST_DATABASE_USER: postgres
+      TEST_DATABASE_PASSWORD: password
+      TEST_DATABASE_NAME: bonanza_redux_test
       ES_HOST: elasticsearch
       ES_PORT: "9200"
       APP_HOST: localhost
@@ -57,6 +62,11 @@ services:
       DEV_DATABASE_USER: postgres
       DEV_DATABASE_PASSWORD: password
       DEV_DATABASE_NAME: bonanza_redux_development
+      TEST_DATABASE_HOST: db
+      TEST_DATABASE_PORT: "5432"
+      TEST_DATABASE_USER: postgres
+      TEST_DATABASE_PASSWORD: password
+      TEST_DATABASE_NAME: bonanza_redux_test
       ES_HOST: elasticsearch
       ES_PORT: "9200"
       APP_HOST: localhost
