@@ -17,11 +17,7 @@ class CheckoutController < ApplicationController
     redirect_to lending_path unless @lending.has_line_items?
 
     if params[:state] == "borrower"
-      begin
-        @borrowers = Borrower.search_people(params[:b], nil, nil, true, 1)
-      rescue Faraday::ConnectionFailed
-        @borrowers = [Borrower.first]
-      end
+      @borrowers = Borrower.search_people(params[:b], nil, nil, true, 1)
     end
   end
 
