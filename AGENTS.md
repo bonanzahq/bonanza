@@ -75,17 +75,22 @@ need a standalone PostgreSQL container:
 
 ```bash
 # Start a test-only PostgreSQL container (one-time, or after it's been removed)
-docker run -d --name bonanza-test-db -p 5432:5432 -e POSTGRES_PASSWORD=password postgres:17.7
+# Uses postgres/postgres credentials to match database.yml defaults
+docker run -d --name bonanza-test-db -p 5432:5432 \
+  -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres postgres:17.7
 
 # Create the test database (first time or after volume loss)
-mise exec -- env TEST_DATABASE_PASSWORD=password bundle exec rails db:test:prepare
+# No env vars needed -- defaults match the container above
+mise exec -- bundle exec rails db:create
+mise exec -- bundle exec rails db:schema:load
+mise exec -- bundle exec rails db:test:prepare
 
 # Build assets first (required for controller tests)
 pnpm install --frozen-lockfile
 pnpm build && pnpm build:css
 
 # Run tests (mise picks up Ruby from mise.toml)
-mise exec -- env TEST_DATABASE_PASSWORD=password bundle exec rails test
+mise exec -- bundle exec rails test
 
 # Stop the container when done (data persists)
 docker stop bonanza-test-db
@@ -95,10 +100,15 @@ docker start bonanza-test-db
 ```
 
 If port 5432 is already in use (e.g. by Docker Compose), stop that first.
+To use a different port, set `DEV_DATABASE_PORT` and `TEST_DATABASE_PORT`.
 
-The test database config is in `config/database.yml` under `test:` and reads
-from `TEST_DATABASE_PASSWORD`, `TEST_DATABASE_HOST` (default: localhost),
-`TEST_DATABASE_PORT` (default: 5432), and `TEST_DATABASE_USER` (default: postgres).
+The database config in `config/database.yml` uses env vars for all environments:
+
+- **Development**: `DEV_DATABASE_HOST`, `DEV_DATABASE_PORT`, `DEV_DATABASE_USER`,
+  `DEV_DATABASE_PASSWORD`, `DEV_DATABASE_NAME` (defaults: localhost:5432, postgres/postgres)
+- **Test**: `TEST_DATABASE_HOST`, `TEST_DATABASE_PORT`, `TEST_DATABASE_USER`,
+  `TEST_DATABASE_PASSWORD`, `TEST_DATABASE_NAME` (defaults: localhost:5432, postgres/postgres)
+- **Production**: `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`
 
 ```bash
 # Without Elasticsearch running, all tests pass.
