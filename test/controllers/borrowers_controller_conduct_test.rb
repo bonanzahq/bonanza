@@ -59,7 +59,7 @@ class BorrowersControllerConductTest < ActionDispatch::IntegrationTest
     end
   end
 
-  test "remove_conduct actually delivers ban_lifted_notification_email after conduct is destroyed" do
+  test "remove_conduct actually delivers ban_lifted_notification_email after conduct is lifted" do
     conduct = create(:conduct, :banned, borrower: @borrower, department: @department, user: @user, permanent: true)
     sign_in @user
 
@@ -68,7 +68,8 @@ class BorrowersControllerConductTest < ActionDispatch::IntegrationTest
         delete borrower_remove_conduct_path(@borrower, conducts_id: conduct.id)
       end
     end
-    refute Conduct.exists?(conduct.id)
+    conduct.reload
+    assert conduct.lifted?
   end
 
   test "remove_conduct does not enqueue email for conduct from different department" do

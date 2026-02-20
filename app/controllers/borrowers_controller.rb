@@ -82,8 +82,8 @@ class BorrowersController < ApplicationController
               user_email: current_user.email
             )
             .deliver_later(queue: :default)
-          @conduct.destroy
-          format.html { redirect_to @borrower, notice: 'Sperre/Verwarnung wurde entfernt.' }
+          @conduct.lift!(current_user)
+          format.html { redirect_to @borrower, notice: 'Sperre/Verwarnung wurde aufgehoben.' }
         else
           format.html { redirect_to @borrower, alert: 'Sperre/Verwarnung konnte nicht entfernt werden.' }
         end
