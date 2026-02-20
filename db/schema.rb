@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_19_123834) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_20_112215) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -112,6 +112,19 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_19_123834) do
     t.datetime "staffed_at"
     t.string "time"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "gdpr_audit_logs", force: :cascade do |t|
+    t.string "action", null: false
+    t.datetime "created_at", null: false
+    t.jsonb "metadata", default: {}, null: false
+    t.bigint "performed_by_id"
+    t.string "performed_by_type"
+    t.bigint "target_id", null: false
+    t.string "target_type", null: false
+    t.index ["action"], name: "index_gdpr_audit_logs_on_action"
+    t.index ["performed_by_type", "performed_by_id"], name: "index_gdpr_audit_logs_on_performed_by"
+    t.index ["target_type", "target_id"], name: "index_gdpr_audit_logs_on_target"
   end
 
   create_table "item_histories", force: :cascade do |t|
