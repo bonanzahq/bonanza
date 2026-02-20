@@ -74,94 +74,97 @@
 
     <% if active_conducts.any? %>
     <div class="mb-3">
-        <ul class="conducts-list">
-            <% active_conducts.each do |conduct| %>
-              
-              <% if conduct.kind == "warned" %>
-              <li class="small line">
-                <div class="flex-grow-1">
-                  In <%= conduct.department.name %>
-                  <% if conduct.expired? %>
-                    <strong>Abgelaufen</strong>
-                  <% elsif conduct.permanent? %>
-                    <strong>Dauerhaft</strong>
-                  <% elsif conduct.expiration_date %>
-                    <strong>Noch <%= conduct.days_remaining %> Tage (bis <%= l(conduct.expiration_date, format: "%d.%m.%Y") %>)</strong>
-                  <% else %>
-                    <strong>Automatisch (60 Tage)</strong>
-                  <% end %>
-                  verwarnt wegen überschrittener Ausleihfrist.
-              <% elsif conduct.kind == "banned" %>
-              <li class="small text-danger line">
-                <div class="flex-grow-1">
-                  In <%= conduct.department.name %>
-                  <% if conduct.user %>
-                    von <%= conduct.user.fullname %>
-                  <% end %>
-                  <% if conduct.expired? %>
-                    <strong>Abgelaufen</strong>
-                  <% elsif conduct.permanent? %>
-                    <strong>dauerhaft</strong>
-                  <% elsif conduct.expiration_date %>
-                    <strong>Noch <%= conduct.days_remaining %> Tage (bis <%= l(conduct.expiration_date, format: "%d.%m.%Y") %>)</strong>
-                  <% else %>
-                    <strong>Automatisch (60 Tage)</strong>
-                  <% end %>
-                  gesperrt.
-                  <%= "Grund: #{conduct.reason}" if conduct.reason %>
+        <% active_conducts.each do |conduct| %>
+          <% if conduct.kind == "warned" %>
+            <div class="small mb-3">
+              <p class="mb-1">
+                In <strong><%= conduct.department.name %></strong>
+                <% if conduct.expired? %>
+                  &ndash; <strong>Abgelaufen</strong>
+                <% elsif conduct.permanent? %>
+                  &ndash; <strong>Dauerhaft</strong>
+                <% elsif conduct.expiration_date %>
+                  &ndash; <strong>Noch <%= conduct.days_remaining %> Tage</strong> (bis <%= l(conduct.expiration_date, format: "%d.%m.%Y") %>)
+                <% else %>
+                  &ndash; <strong>Automatisch (60 Tage)</strong>
+                <% end %>
+                verwarnt wegen überschrittener Ausleihfrist.
+              </p>
+            </div>
+          <% elsif conduct.kind == "banned" %>
+            <div class="small text-danger mb-3">
+              <p class="mb-1">
+                In <strong><%= conduct.department.name %></strong>
+                <% if conduct.user %>
+                  von <%= conduct.user.fullname %>
+                <% end %>
+                <% if conduct.expired? %>
+                  &ndash; <strong>Abgelaufen</strong>
+                <% elsif conduct.permanent? %>
+                  &ndash; <strong>dauerhaft</strong> gesperrt
+                <% elsif conduct.expiration_date %>
+                  &ndash; <strong>Noch <%= conduct.days_remaining %> Tage</strong> (bis <%= l(conduct.expiration_date, format: "%d.%m.%Y") %>)
+                <% else %>
+                  &ndash; <strong>Automatisch (60 Tage)</strong>
+                <% end %>
+              </p>
+              <% if conduct.reason.present? %>
+                <p class="mb-1"><strong>Grund:</strong> <%= conduct.reason %></p>
               <% end %>
-              
-              </div>
-
-              <% if conduct.department == current_user.current_department && conduct.kind == "banned" %>
-                <a href="#" class="btn btn-sm btn-danger" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="removeConductModal_<%= dom_id(conduct) %>">Sperre&nbsp;aufheben</a>
+              <% if conduct.department == current_user.current_department %>
+                <p class="mb-0">
+                  <a href="#" class="btn btn-sm btn-danger" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="removeConductModal_<%= dom_id(conduct) %>">Sperre&nbsp;aufheben</a>
+                </p>
               <% end %>
-              </li>
+            </div>
 
-              <% if conduct.department == current_user.current_department && conduct.kind == "banned" %>
-                <div class="modal fade" id="removeConductModal_<%= dom_id(conduct) %>" tabindex="-1">
-                  <div class="modal-dialog">
-                    <div class="modal-content">
-                      <div class="modal-header">
-                        <h5 class="modal-title">Sperre aufheben</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                      </div>
-                      <div class="modal-body">
-                        <p>Möchtest Du die Sperre jetzt aufheben? <%= conduct.borrower.firstname %> wird darüber per E-Mail informiert und kann dann wieder Artikel ausleihen.</p>
-                      </div>
-                      <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
-                        <%= button_to "Sperre aufheben", borrower_remove_conduct_path(borrower, conduct), method: :delete, class: "btn btn-danger" if conduct.department == current_user.current_department %>
-                      </div>
+            <% if conduct.department == current_user.current_department %>
+              <div class="modal fade" id="removeConductModal_<%= dom_id(conduct) %>" tabindex="-1">
+                <div class="modal-dialog">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h5 class="modal-title">Sperre aufheben</h5>
+                      <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                      <p>Möchtest Du die Sperre jetzt aufheben? <%= conduct.borrower.firstname %> wird darüber per E-Mail informiert und kann dann wieder Artikel ausleihen.</p>
+                    </div>
+                    <div class="modal-footer">
+                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+                      <%= button_to "Sperre aufheben", borrower_remove_conduct_path(borrower, conduct), method: :delete, class: "btn btn-danger" %>
                     </div>
                   </div>
                 </div>
-              <% end %>
+              </div>
             <% end %>
-        </ul>
+          <% end %>
+        <% end %>
     </div>
     <% end %>
 
     <% if lifted_conducts.any? %>
     <details class="mb-3">
       <summary class="small text-muted" style="cursor: pointer;">Aufgehobene Sperren/Verwarnungen (<%= lifted_conducts.size %>)</summary>
-      <ul class="conducts-list mt-2">
+      <div class="mt-2">
         <% lifted_conducts.each do |conduct| %>
-          <li class="small text-muted line">
-            <div class="flex-grow-1">
-              In <%= conduct.department.name %>
+          <div class="small text-muted mb-3">
+            <p class="mb-1">
+              In <strong><%= conduct.department.name %></strong>
               <% if conduct.kind == "banned" %>
-                gesperrt.
-                <%= "Grund: #{conduct.reason}" if conduct.reason %>
+                gesperrt
               <% else %>
-                verwarnt wegen überschrittener Ausleihfrist.
+                verwarnt wegen überschrittener Ausleihfrist
               <% end %>
-              <br>
+            </p>
+            <% if conduct.kind == "banned" && conduct.reason.present? %>
+              <p class="mb-1"><strong>Grund:</strong> <%= conduct.reason %></p>
+            <% end %>
+            <p class="mb-0">
               <em>Aufgehoben am <%= l(conduct.lifted_at.to_date, format: "%d.%m.%Y") %><%= " von #{conduct.lifted_by.fullname}" if conduct.lifted_by %></em>
-            </div>
-          </li>
+            </p>
+          </div>
         <% end %>
-      </ul>
+      </div>
     </details>
     <% end %>
 
