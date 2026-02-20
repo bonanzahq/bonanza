@@ -64,15 +64,18 @@
   </div>
 </div>
 
+<% active_conducts = borrower.conducts.active %>
+<% lifted_conducts = borrower.conducts.lifted %>
+
 <% if borrower.conducts.any? || (can?(:manage, borrower)) %>
 
   <div class="mb-4 mt-4">
     <h6 class="text-muted mb-2">Sperre</h6>
 
-    <% if borrower.conducts.any? %>
+    <% if active_conducts.any? %>
     <div class="mb-3">
         <ul class="conducts-list">
-            <% borrower.conducts.each do |conduct| %>
+            <% active_conducts.each do |conduct| %>
               
               <% if conduct.kind == "warned" %>
               <li class="small line">
@@ -137,6 +140,29 @@
             <% end %>
         </ul>
     </div>
+    <% end %>
+
+    <% if lifted_conducts.any? %>
+    <details class="mb-3">
+      <summary class="small text-muted" style="cursor: pointer;">Aufgehobene Sperren/Verwarnungen (<%= lifted_conducts.size %>)</summary>
+      <ul class="conducts-list mt-2">
+        <% lifted_conducts.each do |conduct| %>
+          <li class="small text-muted line">
+            <div class="flex-grow-1">
+              In <%= conduct.department.name %>
+              <% if conduct.kind == "banned" %>
+                gesperrt.
+                <%= "Grund: #{conduct.reason}" if conduct.reason %>
+              <% else %>
+                verwarnt wegen überschrittener Ausleihfrist.
+              <% end %>
+              <br>
+              <em>Aufgehoben am <%= l(conduct.lifted_at.to_date, format: "%d.%m.%Y") %><%= " von #{conduct.lifted_by.fullname}" if conduct.lifted_by %></em>
+            </div>
+          </li>
+        <% end %>
+      </ul>
+    </details>
     <% end %>
 
     <% if can?(:manage, borrower) && !borrower.has_bans_here? %>
