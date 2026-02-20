@@ -36,6 +36,7 @@ class UserMailerTest < ActionMailer::TestCase
 
   test "todays_returns_email body contains borrower name" do
     email = UserMailer.todays_returns_email(@user, @department, @lendings)
-    assert_includes email.body.encoded, @borrower.fullname
+    text_body = email.text_part.body.decoded
+    assert_includes text_body, @borrower.fullname
   end
 end
