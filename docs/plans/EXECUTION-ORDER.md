@@ -138,32 +138,68 @@ in place and the application actually running before any feature work begins.
 
 **Goal:** Implement the feature gaps between v1 and Redux.
 
-### C1+C2. Background Jobs + Email Notifications (Combined)
+### C1+C2. Background Jobs + Email Notifications -- DONE
 
-- **Plans:** `c1_background-jobs.md` + `c2_email-notifications.md`
-- **Why combined:** c2 depends entirely on c1. Implementing email without
-  background jobs means synchronous `.deliver_now` which blocks requests.
-  Build them together.
-- **Execution order within:**
-  1. Install Solid Queue, configure ActiveJob
-  2. Add worker container to docker-compose
-  3. Implement mailers with `.deliver_later` from the start
-  4. Add clockwork scheduler container
-  5. Implement scheduled notification tasks
-- **SMTP:** FHP provides relay. Configure in environment variables.
+Merged via PRs #118-#124, #129. Solid Queue, all mailers, scheduled jobs.
 
-### C3. Conduct System
+### C3. Conduct System -- DONE
 
-- **Plan:** `c3_conduct-system.md`
-- **Requires:** Background jobs (for `.deliver_later` in ban notifications)
-- **Key work:** Replace commented-out `remove_old_automatic_conducts` with
-  working PostgreSQL queries, add warning escalation logic.
+Merged via PRs #122, #125, #129. Expiration logic, email wiring, escalation.
 
-### C4. GDPR & Data Retention
+### C4. GDPR & Data Retention -- DONE
 
-- **Plan:** `c4_gdpr-data-retention.md`
-- **Requires:** Conduct system (for conduct cleanup logic)
-- **Note:** Consult legal counsel on retention periods before deploying.
+Merged via PRs #126-#128, #129, #130. Anonymization, data export, deletion
+requests, audit logging.
+
+### C5. Phase C Bug Fixes
+
+Fix bugs discovered during Phase C integration testing. Must be resolved
+before moving to Phase D.
+
+- `b1765d9` Borrower selection view shows no initial list -- IN PROGRESS
+- `c293b30` Staff-created borrowers receive no notification email -- IN PROGRESS
+- `42cacfc` Retain conduct records when bans are lifted (needs schema change)
+- `0eb2044` Borrower detail page UI improvements
+
+### C6. Open Issue Review
+
+Review all open git-bug issues not tied to a phase. Decide for each:
+triage into Phase C6 (fix now) or defer to Phase D/backlog.
+
+Issues to review:
+- `fa87417` Verify role permissions for admin/leader/member
+- `115bb36` Add read-more/read-less to department descriptions
+- `8dac3fc` Add archived items view to verwaltung
+- `01fda2b` Allow deleting users
+- `1e789f4` Add PurgeCSS to asset compilation
+- `7913dbe` Relocate Verwaltung link from user dropdown to main navigation
+- `8be4096` Autocomplete CORS errors when accessing via Caddy proxy
+- `82b4fc0` Add department creation to admin Verwaltung UI
+- `3e5fa64` Improve Leihvertrag: print CSS, PDF download, email to borrower
+- `e9e4713` Add comment field when returning items
+- `ee1b1a0` Staff-created borrowers don't receive confirmation email
+- `f7f2187` Autocomplete broken when accessing app from network (non-localhost)
+- `c960606` Returns view needs search functionality
+- `36a3852` Investigate file storage persistence and backup strategy
+- `58fe488` Update shared Renovate config with Bundler rules
+- `a09b6ba` Move Docker infrastructure files into docker/ subdirectory
+- `5916e37` Email change needs proper verification flow
+- `08c505b` Style Devise mailer templates to match invitation email
+- `8a60474` Checkout borrower step has no explicit 'next step' button
+- `7248057` Redesign left-side navigation: consolidate scattered nav links
+- `0f3e59c` Department management not linked in navigation
+- `352ac20` Allow assigning users to department during department creation
+- `b0590e7` Upgrade staging server from Ubuntu 22.04 to 24.04
+- `5af0461` Remove Node.js from production Docker image
+- `4f8af1b` Switch Docker base image to ruby-slim
+- `682a427` TLS/HTTPS: Debug and fix Let's Encrypt certificate provisioning
+- `0cb7ace` Department switching: no UI for users in multiple departments
+- `8e69ffb` Item-department binding: unclear how items are assigned to departments
+- `03079a7` Discussion: role permissions for item management (Mitarbeitende)
+- `7147963` Verwaltung link hidden from members due to wrong permission check
+- `3153ad6` Warn users with weak passwords on login (nagware)
+- `54ba6a7` Extract all hardcoded German strings into locale files
+- `da8262d` Replace auto-dismissing toasts with persistent in-context error messages
 
 ## Phase D: Cutover
 
