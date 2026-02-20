@@ -184,6 +184,7 @@ class BorrowersController < ApplicationController
 
   def export_data
     authorize! :read, Borrower
+    @borrower.log_gdpr_event("export", performed_by: current_user)
     send_data(
       @borrower.export_personal_data.to_json,
       filename: "borrower-data-#{@borrower.id}-#{Date.current}.json",
@@ -193,7 +194,7 @@ class BorrowersController < ApplicationController
 
   def request_deletion
     authorize! :destroy, Borrower
-    result = @borrower.request_deletion!
+    result = @borrower.request_deletion!(performed_by: current_user)
 
     case result
     when :anonymized
