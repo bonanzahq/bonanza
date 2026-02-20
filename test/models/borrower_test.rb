@@ -189,4 +189,52 @@ class BorrowerTest < ActiveSupport::TestCase
 
     assert @borrower.has_warnings_in?(department)
   end
+
+  # -- Lifted conducts are excluded from queries --
+
+  test "has_bans_in? ignores lifted bans" do
+    department = create(:department)
+    @borrower.save!
+    lifter = create(:user, department: create(:department))
+    ban = create(:conduct, :banned, borrower: @borrower, department: department)
+    ban.lift!(lifter)
+
+    assert_not @borrower.has_bans_in?(department)
+  end
+
+  test "has_warnings_in? ignores lifted warnings" do
+    department = create(:department)
+    @borrower.save!
+    lifter = create(:user, department: create(:department))
+    warning = create(:conduct, borrower: @borrower, department: department, kind: :warned)
+    warning.update!(lifted_at: Time.current, lifted_by: lifter)
+
+    assert_not @borrower.has_warnings_in?(department)
+  end
+
+  test "has_misconduct_in? ignores lifted conducts" do
+    department = create(:department)
+    @borrower.save!
+    lifter = create(:user, department: create(:department))
+    conduct = create(:conduct, borrower: @borrower, department: department)
+    conduct.update!(lifted_at: Time.current, lifted_by: lifter)
+
+    assert_not @borrower.has_misconduct_in?(department)
+  end
+
+  # -- GDPR export includes lifted info --
+
+  test "export_personal_data includes lifted_at and lifted_by for lifted conducts" do
+    department = create(:department)
+    @borrower.save!
+    lifter = create(:user, department: department)
+    conduct = create(:conduct, :banned, borrower: @borrower, department: department)
+    conduct.lift!(lifter)
+
+    data = @borrower.export_personal_data
+    conduct_data = data[:conducts].first
+
+    assert conduct_data[:lifted_at].present?
+    assert_equal lifter.fullname, conduct_data[:lifted_by]
+  end
 end
