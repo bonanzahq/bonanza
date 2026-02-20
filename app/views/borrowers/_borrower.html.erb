@@ -140,21 +140,22 @@
     <% end %>
 
     <% if can?(:manage, borrower) && !borrower.has_bans_here? %>
-      <a href="#" class="btn btn-outline-secondary btn-sm" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="addConductModal"><span class="icon-before warning">Sperren</span></a>
+      <a href="#" class="btn btn-outline-secondary btn-sm" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="addConductModal">Sperren</a>
     <% end %>
   </div>
 <% end %>
 
 <% if can? :manage, borrower %>
+  <div class="mb-4">
+    <h6 class="text-muted mb-2">Daten</h6>
+    <div class="d-flex align-items-center gap-2">
+      <%= link_to "Daten exportieren", export_data_borrower_path(borrower), class: "btn btn-outline-secondary btn-sm" %>
+      <a href="#" class="btn btn-outline-danger btn-sm" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="deleteBorrowerDataModal">Daten löschen</a>
+    </div>
+  </div>
+
   <div class="actions">
     <%= link_to 'Bearbeiten', edit_borrower_path, class: 'btn btn-outline-secondary btn-sm' %>
-    <div>
-      <h6 class="text-muted mb-2">Daten</h6>
-      <div class="d-flex align-items-center gap-2">
-        <%= link_to "Daten exportieren", export_data_borrower_path(borrower), class: "btn btn-outline-secondary btn-sm" %>
-        <a href="#" class="btn btn-outline-danger btn-sm" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="deleteBorrowerDataModal">Daten löschen</a>
-      </div>
-    </div>
   </div>
 
   <div class="modal fade" id="deleteBorrowerDataModal" tabindex="-1">
@@ -170,7 +171,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Abbrechen</button>
-          <%= button_to "Daten löschen", request_deletion_borrower_path(borrower), method: :post, class: "btn btn-danger btn-sm" %>
+          <%= button_to "Daten löschen", request_deletion_borrower_path(borrower), method: :post, class: "btn btn-danger btn-sm", data: { turbo: false } %>
         </div>
       </div>
     </div>
@@ -196,7 +197,7 @@
             <div class="set-duration mb-2" data-controller="datepicker" data-datepicker-startdate-value="<%= Date.today.to_date %>">
               <p>Sperre bis </p>
               <%= form.hidden_field :duration, class: "form-control days", required: true, data: { "datepicker-target": "output"} %>
-              <input class="form-control date" type="text" name="" data-datepicker-target="input">
+              <input class="form-control date" type="text" name="" placeholder="Datum wählen" data-datepicker-target="input">
             </div>
 
             <div class="mb-2 form-check">
