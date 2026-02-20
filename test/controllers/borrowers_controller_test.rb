@@ -253,7 +253,7 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
     sign_in @user
 
     assert_difference "GdprAuditLog.count", 1 do
-      get export_data_borrower_path(@borrower)
+      post export_data_borrower_path(@borrower)
     end
 
     log = GdprAuditLog.last

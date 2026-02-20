@@ -149,7 +149,7 @@
   <div class="mb-4">
     <h6 class="text-muted mb-2">Daten</h6>
     <div class="d-flex align-items-center gap-2">
-      <%= link_to "Daten exportieren", export_data_borrower_path(borrower), class: "btn btn-outline-secondary btn-sm" %>
+      <%= button_to "Daten exportieren", export_data_borrower_path(borrower), method: :post, class: "btn btn-outline-secondary btn-sm" %>
       <a href="#" class="btn btn-outline-danger btn-sm" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="deleteBorrowerDataModal">Daten löschen</a>
     </div>
   </div>

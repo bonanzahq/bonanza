@@ -12,13 +12,13 @@ class BorrowersGdprTest < ActionDispatch::IntegrationTest
   end
 
   test "export_data requires authentication" do
-    get export_data_borrower_path(@borrower)
+    post export_data_borrower_path(@borrower)
     assert_redirected_to new_user_session_path
   end
 
   test "export_data returns JSON file" do
     sign_in @user
-    get export_data_borrower_path(@borrower)
+    post export_data_borrower_path(@borrower)
     assert_response :success
     assert_equal "application/json", response.content_type
   end
