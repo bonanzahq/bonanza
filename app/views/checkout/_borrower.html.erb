@@ -36,6 +36,10 @@
                     <% end %>
 
                 <% end %>
+
+                <% if @borrowers.empty? && params[:b].present? %>
+                    <p><i class="text-muted">Keine ausleihenden Personen gefunden!</i></p>
+                <% end %>
             </div>
 
         </div>
