@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_20_112215) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_20_142850) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -79,11 +79,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_20_112215) do
     t.integer "duration"
     t.integer "kind"
     t.bigint "lending_id"
+    t.datetime "lifted_at"
+    t.bigint "lifted_by_id"
     t.boolean "permanent", default: false, null: false
     t.text "reason"
     t.datetime "updated_at", null: false
     t.bigint "user_id"
-    t.index ["borrower_id", "department_id"], name: "index_conducts_unique_active_ban_per_department", unique: true, where: "(kind = 1)"
+    t.index ["borrower_id", "department_id"], name: "index_conducts_unique_active_ban_per_department", unique: true, where: "((kind = 1) AND (lifted_at IS NULL))"
     t.index ["borrower_id"], name: "index_conducts_on_borrower_id"
     t.index ["department_id"], name: "index_conducts_on_department_id"
     t.index ["lending_id"], name: "index_conducts_on_lending_id"
@@ -385,6 +387,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_20_112215) do
   add_foreign_key "conducts", "departments"
   add_foreign_key "conducts", "lendings"
   add_foreign_key "conducts", "users"
+  add_foreign_key "conducts", "users", column: "lifted_by_id"
   add_foreign_key "item_histories", "items"
   add_foreign_key "item_histories", "line_items"
   add_foreign_key "item_histories", "users"
