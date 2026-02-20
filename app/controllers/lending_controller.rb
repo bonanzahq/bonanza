@@ -135,20 +135,15 @@ class LendingController < ApplicationController
 
   def change_duration
     @lending = Lending.find(params[:id])
-
+    old_duration = @lending.duration
     @lending.duration = lending_params[:duration].to_i if lending_params[:duration].present?
     @lending.notification_counter = 0
-
     authorize! :change_duration, @lending
 
     respond_to do |format|
       if @lending.save
-        # begin
-        #   LendingMailer.duration_change_notification_email(@lending, current_user).deliver_now
-        # rescue Exception => e
-        #   # TODO log exception
-        # end
-        flash[:notice] = "Ausleihfirst erfolgreich geändert."
+        LendingMailer.duration_change_notification_email(@lending, old_duration).deliver_later(queue: :default)
+        flash[:notice] = "Ausleihfrist erfolgreich geändert."
         format.html { redirect_to token_lending_path(@lending, token: @lending.token)}
       else
         format.html { redirect_to token_lending_path(@lending, token: @lending.token), alert: @lending.errors.full_messages.join(", ") }

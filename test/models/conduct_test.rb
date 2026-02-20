@@ -171,7 +171,9 @@ class ConductTest < ActiveSupport::TestCase
     create(:conduct, borrower: borrower, department: department, user: user, kind: :warned, permanent: true)
     create(:conduct, borrower: borrower, department: department, user: user, kind: :warned, permanent: true)
 
-    ban = Conduct.check_warning_escalation(borrower, department)
+    # The after_create_commit callback fires check_warning_escalation when the second
+    # warning is created, so the ban is already in the database at this point.
+    ban = Conduct.where(borrower: borrower, department: department, kind: :banned).last
     assert ban.present?
     assert ban.banned?
     assert ban.automatic?
@@ -183,11 +185,47 @@ class ConductTest < ActiveSupport::TestCase
     department = create(:department)
     user = create(:user, department: create(:department))
     create(:conduct, borrower: borrower, department: department, user: user, kind: :warned, permanent: true)
+    # Second warning triggers escalation via after_create_commit, which creates the auto-ban.
     create(:conduct, borrower: borrower, department: department, user: user, kind: :warned, permanent: true)
-    create(:conduct, :banned, :with_duration, borrower: borrower, department: department, user: user)
+    assert Conduct.where(borrower: borrower, department: department, kind: :banned).exists?
 
     ban = Conduct.check_warning_escalation(borrower, department)
     assert_nil ban
+  end
+
+  # -- uniqueness of banned conducts per department --
+
+  test "second banned conduct for same borrower and department is invalid" do
+    borrower = create(:borrower)
+    department = create(:department)
+    user = create(:user, department: create(:department))
+    create(:conduct, :banned, :with_duration, borrower: borrower, department: department, user: user)
+
+    duplicate = build(:conduct, :banned, :with_duration, borrower: borrower, department: department, user: user)
+    assert_not duplicate.valid?
+    assert duplicate.errors[:borrower_id].any?
+  end
+
+  test "warnings allow multiple per borrower and department" do
+    borrower = create(:borrower)
+    department = create(:department)
+    user = create(:user, department: create(:department))
+    create(:conduct, borrower: borrower, department: department, user: user, kind: :warned, permanent: true)
+
+    second_warning = build(:conduct, borrower: borrower, department: department, user: user, kind: :warned, permanent: true)
+    assert second_warning.valid?
+  end
+
+  test "banned conduct for different department is valid" do
+    borrower = create(:borrower)
+    dept_a = create(:department)
+    dept_b = create(:department)
+    user_a = create(:user, department: dept_a)
+    user_b = create(:user, department: dept_b)
+    create(:conduct, :banned, :with_duration, borrower: borrower, department: dept_a, user: user_a)
+
+    second_ban = build(:conduct, :banned, :with_duration, borrower: borrower, department: dept_b, user: user_b)
+    assert second_ban.valid?
   end
 
   test "check_warning_escalation returns nil for fewer than 2 warnings" do

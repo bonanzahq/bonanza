@@ -173,7 +173,7 @@
 
         <!-- Visually Hidden Preheader Text : BEGIN -->
         <div style="max-height:0; overflow:hidden; mso-hide:all;" aria-hidden="true">
-            Hallo <%= @borrower.firstname %>, Deine Sperre <%= t(@conduct.department.genderize('in_the')) %> <%= @conduct.department.name %> wurde von <%= @user.fullname %> aufgehoben. Du kannst ab jetzt wieder Artikel <%= t(@conduct.department.genderize('in_the')) %> <%= @conduct.department.name %> ausleihen.
+            Hallo <%= @borrower.firstname %>, Deine Sperre <%= t(@department_genderize_in_the) %> <%= @department_name %> wurde von <%= @user_fullname %> aufgehoben. Du kannst ab jetzt wieder Artikel <%= t(@department_genderize_in_the) %> <%= @department_name %> ausleihen.
         </div>
         <!-- Visually Hidden Preheader Text : END -->
 
@@ -220,9 +220,9 @@
                                 <td style="padding: 40px; font-family: sans-serif; font-size: 16px; line-height: 24px; color: #272727;">
                                     <h1 style="margin: 0 0 20px 0; font-family: sans-serif; font-size: 24px; line-height: 32px; color: #272727;">Sperre aufgehoben.</h1>
                                     <h2 style="margin: 0 0 10px 0; font-family: sans-serif; font-size: 16px; line-height: 24px; color: #272727;">Hallo <%= @borrower.firstname %>,</h2>
-                                    <p style="margin: 0 0 10px 0;">Deine Sperre <%= t(@conduct.department.genderize('in_the')) %> <%= @conduct.department.name %> wurde von <%= @user.fullname %> aufgehoben. Du kannst ab jetzt wieder Artikel <%= t(@conduct.department.genderize('in_the')) %> <%= @conduct.department.name %> ausleihen.</p>
+                                    <p style="margin: 0 0 10px 0;">Deine Sperre <%= t(@department_genderize_in_the) %> <%= @department_name %> wurde von <%= @user_fullname %> aufgehoben. Du kannst ab jetzt wieder Artikel <%= t(@department_genderize_in_the) %> <%= @department_name %> ausleihen.</p>
 
-                                    <p style="margin: 0;">Die aktuellen Öffnungszeiten und Infos <%= t(@conduct.department.genderize('of_the'), department: @conduct.department.name ) %> findest Du hier: <%= link_to "Öffnungszeiten & Infos der Werkstätten", departments_url, style: "color: #BA3912;text-decoration:underline;" %></p>
+                                    <p style="margin: 0;">Die aktuellen Öffnungszeiten und Infos <%= t(@department_genderize_of_the, department: @department_name) %> findest Du hier: <%= link_to "Öffnungszeiten & Infos der Werkstätten", departments_url, style: "color: #BA3912;text-decoration:underline;" %></p>
                                 </td>
                             </tr>
                         </table>

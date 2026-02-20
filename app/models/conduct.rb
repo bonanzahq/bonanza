@@ -13,12 +13,18 @@ class Conduct < ApplicationRecord
   validates :borrower_id, presence: { message: "Es muss eine ausleihende Person angegeben werden." }
   validates :department, presence: { message: "Es muss eine Werkstatt angeben werden" }
   validates :duration, numericality: { only_integer: true, allow_nil: true, message: "Es muss eine Anzahl an Tagen angegeben werden." }
+  validates :borrower_id, uniqueness: {
+    scope: :department_id,
+    conditions: -> { where(kind: :banned) },
+    message: "Es gibt bereits eine aktive Sperre für diese Person in dieser Werkstatt."
+  }, if: :banned?
 
   validate do
     user_added_duration_or_perma?
   end
 
   after_commit :reindex_borrower, on: [:create, :update, :destroy]
+  after_create_commit :notify_and_escalate
 
   # Destroys conducts whose duration has elapsed and stale automatic conducts.
   # Returns the destroyed records so callers can act on them (e.g. send emails).
@@ -80,6 +86,16 @@ class Conduct < ApplicationRecord
   end
 
   private
+    def notify_and_escalate
+      if banned? && automatic?
+        BorrowerMailer.auto_ban_notification_email(self).deliver_later(queue: :critical)
+      end
+
+      if warned?
+        Conduct.check_warning_escalation(borrower, department)
+      end
+    end
+
     def user_added_duration_or_perma?
       if user && permanent == false && duration.to_i <= 0
         errors.add(:permanent, "Die Sperre muss dauerhaft sein oder es muss eine Dauer angeben werden.")

@@ -1,5 +1,5 @@
 class BorrowersController < ApplicationController
-  before_action :set_borrower, only: %i[ show edit update destroy add_conduct remove_conduct ]
+  before_action :set_borrower, only: %i[ show edit update destroy add_conduct remove_conduct export_data request_deletion ]
 
   before_action :authenticate_user!, except: [:confirm_email, :self_register, :self_create, :email_confirmation_pending]
   # skip_authorize_resource only: [:confirm_email, :self_create]
@@ -57,6 +57,9 @@ class BorrowersController < ApplicationController
 
     respond_to do |format|
       if @conduct.save
+        BorrowerMailer.with(borrower: @borrower)
+          .ban_notification_email(@conduct)
+          .deliver_later(queue: :critical)
         format.html { redirect_to @borrower, notice: "Die ausleihende Person wurde gesperrt." }
       else
         format.html { redirect_to @borrower, alert: "Die ausleihende Person konnte nicht gesperrt werden. #{@conduct.errors.messages.values.join(" ")}" }
@@ -69,7 +72,17 @@ class BorrowersController < ApplicationController
     respond_to do |format|
       begin
         @conduct = @borrower.conducts.find(params[:conducts_id])
-        if @conduct.department == current_user.current_department && @conduct.destroy
+        if @conduct.department == current_user.current_department
+          BorrowerMailer.with(borrower: @borrower)
+            .ban_lifted_notification_email(
+              department_name: @conduct.department.name,
+              department_genderize_in_the: @conduct.department.genderize("in_the"),
+              department_genderize_of_the: @conduct.department.genderize("of_the"),
+              user_fullname: current_user.fullname,
+              user_email: current_user.email
+            )
+            .deliver_later(queue: :default)
+          @conduct.destroy
           format.html { redirect_to @borrower, notice: 'Sperre/Verwarnung wurde entfernt.' }
         else
           format.html { redirect_to @borrower, alert: 'Sperre/Verwarnung konnte nicht entfernt werden.' }
@@ -167,6 +180,29 @@ class BorrowersController < ApplicationController
     respond_to do |format|
       format.html { redirect_to borrowers_url, notice: "Die ausleihende Person wurde gelöscht." }
     end
+  end
+
+  def export_data
+    authorize! :read, Borrower
+    send_data(
+      @borrower.export_personal_data.to_json,
+      filename: "borrower-data-#{@borrower.id}-#{Date.current}.json",
+      type: "application/json"
+    )
+  end
+
+  def request_deletion
+    authorize! :destroy, Borrower
+    result = @borrower.request_deletion!
+
+    case result
+    when :anonymized
+      redirect_to borrowers_url, notice: "Die personenbezogenen Daten wurden anonymisiert."
+    when :deleted
+      redirect_to borrowers_url, notice: "Der Datensatz wurde vollständig gelöscht."
+    end
+  rescue ActiveRecord::RecordNotDestroyed => e
+    redirect_to @borrower, alert: "Löschung nicht möglich: #{e.message}"
   end
 
   private

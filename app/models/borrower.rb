@@ -1,4 +1,6 @@
 class Borrower < ApplicationRecord
+  include GdprAuditable
+
   has_many :lendings
   has_many :line_items, :through => :lendings
   has_many :conducts, :dependent => :destroy
@@ -101,6 +103,82 @@ class Borrower < ApplicationRecord
 
   def has_warnings_in?(dpt)
     conducts.where(department: dpt, kind: 'warned').any?
+  end
+
+  def anonymize!
+    transaction do
+      update_columns(
+        firstname: "Geloescht",
+        lastname: "Person",
+        email: "deleted-#{id}-#{SecureRandom.hex(4)}@anonymized.local",
+        phone: "000000",
+        student_id: nil,
+        email_token: nil,
+        borrower_type: :deleted
+      )
+      log_gdpr_event("anonymize")
+    end
+  end
+
+  def anonymized?
+    email&.end_with?("@anonymized.local")
+  end
+
+  def export_personal_data
+    {
+      personal_information: {
+        id: id,
+        firstname: firstname,
+        lastname: lastname,
+        email: email,
+        phone: phone,
+        student_id: student_id,
+        type: borrower_type,
+        registered_at: created_at&.iso8601,
+        tos_accepted_at: tos_accepted_at&.iso8601
+      },
+      lendings: lendings.includes(line_items: { item: :parent_item }).map do |lending|
+        {
+          id: lending.id,
+          lent_at: lending.lent_at&.iso8601,
+          returned_at: lending.returned_at&.iso8601,
+          duration_days: lending.duration,
+          department: lending.department.name,
+          items: lending.line_items.map do |li|
+            {
+              name: li.item.parent_item.name,
+              uid: li.item.uid,
+              returned_at: li.returned_at&.iso8601
+            }
+          end
+        }
+      end,
+      conducts: conducts.includes(:department).map do |conduct|
+        {
+          type: conduct.kind,
+          reason: conduct.reason,
+          created_at: conduct.created_at&.iso8601,
+          department: conduct.department.name,
+          duration_days: conduct.duration,
+          permanent: conduct.permanent
+        }
+      end,
+      exported_at: Time.current.iso8601
+    }
+  end
+
+  def request_deletion!
+    if lendings.where(returned_at: nil).exists?
+      raise ActiveRecord::RecordNotDestroyed, "Offene Ausleihen vorhanden"
+    end
+
+    if lendings.where("created_at > ?", 7.years.ago).exists?
+      anonymize!
+      :anonymized
+    else
+      destroy!
+      :deleted
+    end
   end
 
   private

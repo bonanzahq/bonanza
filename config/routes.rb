@@ -34,14 +34,19 @@ Rails.application.routes.draw do
 
   delete 'artikel/:id/file/:file_id', :to => 'parent_items#destroy_file', as: 'delete_parent_item_file'
 
-  resources :borrowers, path: 'verwaltung'
+  resources :borrowers, path: 'verwaltung' do
+    member do
+      get :export_data
+      post :request_deletion
+    end
+  end
 
   scope 'checkout' do
     resources :borrowers, as: 'checkout_borrower', except: :index
   end
 
   post 'ausleiher/:id/verhalten', to: 'borrowers#add_conduct', as: 'borrower_add_conduct'
-  get 'ausleiher/:id/verhalten/:conducts_id/entfernen', to: 'borrowers#remove_conduct', as: 'borrower_remove_conduct'
+  delete 'ausleiher/:id/verhalten/:conducts_id/entfernen', to: 'borrowers#remove_conduct', as: 'borrower_remove_conduct'
 
   match 'ausleihe', to: 'lending#index', via: [:get, :post], :as => 'lending'
   post 'ausleihe/zum_ausleihkorb', to: 'lending#populate', :as => 'lending_populate'
