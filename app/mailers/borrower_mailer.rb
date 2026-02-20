@@ -20,6 +20,12 @@ class BorrowerMailer < ApplicationMailer
     mail(to: @borrower.email, reply_to: "#{@user_fullname} <#{@user_email}>", subject: "Deine Sperre wurde aufgehoben!")
   end
 
+  def account_created_email(department_name:)
+    @borrower = params[:borrower]
+    @department_name = department_name
+    mail(to: @borrower.email, subject: "Dein Konto bei Bonanza wurde erstellt")
+  end
+
   def auto_ban_notification_email(conduct)
     @conduct = conduct
     @borrower = conduct.borrower

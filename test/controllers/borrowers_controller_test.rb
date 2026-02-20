@@ -4,6 +4,8 @@
 require "test_helper"
 
 class BorrowersControllerTest < ActionDispatch::IntegrationTest
+  include ActionMailer::TestHelper
+
   setup do
     @department = create(:department)
     @user = create(:user, department: @department)
@@ -74,6 +76,36 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
       }
     end
     assert_redirected_to borrower_url(Borrower.last)
+  end
+
+  test "create enqueues account_created_email" do
+    sign_in @user
+
+    assert_enqueued_with(
+      job: ActionMailer::MailDeliveryJob,
+      args: ->(a) { a[0..1] == [ "BorrowerMailer", "account_created_email" ] }
+    ) do
+      post borrowers_path, params: {
+        borrower: {
+          firstname: "Email",
+          lastname: "Test",
+          email: "email-test-borrower@example.com",
+          phone: "0331 9999999",
+          borrower_type: "employee",
+          insurance_checked: true
+        }
+      }
+    end
+  end
+
+  test "create does not enqueue email on validation failure" do
+    sign_in @user
+
+    assert_no_enqueued_emails do
+      post borrowers_path, params: {
+        borrower: { firstname: "", lastname: "", email: "", phone: "" }
+      }
+    end
   end
 
   test "create rejects invalid borrower" do

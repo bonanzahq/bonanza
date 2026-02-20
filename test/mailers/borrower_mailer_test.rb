@@ -9,6 +9,7 @@ class BorrowerMailerTest < ActionMailer::TestCase
   setup do
     @borrower = create(:borrower)
     @borrower.update_column(:email_token, "abc123token")
+    @department = create(:department)
   end
 
   # confirm_email
@@ -121,6 +122,42 @@ class BorrowerMailerTest < ActionMailer::TestCase
     email = BorrowerMailer.auto_ban_notification_email(conduct)
     assert_not_nil email.html_part
     assert_not_nil email.text_part
+  end
+
+  # account_created_email
+
+  test "account_created_email is enqueued with deliver_later" do
+    assert_enqueued_emails(1) do
+      BorrowerMailer.with(borrower: @borrower).account_created_email(department_name: @department.name).deliver_later
+    end
+  end
+
+  test "account_created_email is addressed to the borrower" do
+    email = BorrowerMailer.with(borrower: @borrower).account_created_email(department_name: @department.name)
+    assert_equal [@borrower.email], email.to
+  end
+
+  test "account_created_email has correct subject" do
+    email = BorrowerMailer.with(borrower: @borrower).account_created_email(department_name: @department.name)
+    assert_equal "Dein Konto bei Bonanza wurde erstellt", email.subject
+  end
+
+  test "account_created_email has both HTML and text parts" do
+    email = BorrowerMailer.with(borrower: @borrower).account_created_email(department_name: @department.name)
+    assert_not_nil email.html_part
+    assert_not_nil email.text_part
+  end
+
+  test "account_created_email body contains department name" do
+    email = BorrowerMailer.with(borrower: @borrower).account_created_email(department_name: @department.name)
+    assert_includes email.text_part.body.to_s, @department.name
+    assert_includes email.html_part.body.to_s, @department.name
+  end
+
+  test "account_created_email body contains borrower firstname" do
+    email = BorrowerMailer.with(borrower: @borrower).account_created_email(department_name: @department.name)
+    assert_includes email.text_part.body.to_s, @borrower.firstname
+    assert_includes email.html_part.body.to_s, @borrower.firstname
   end
 
   private
