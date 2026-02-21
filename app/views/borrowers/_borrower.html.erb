@@ -7,21 +7,21 @@
   <div class="phone"><%= borrower.phone %></div>
 </div>
 <div class="line mb-4 small">
-  <div class="id"><%= borrower.student_id %></div>
+  <div><strong>Matrikelnr.:</strong> <%= borrower.student_id %></div>
   <% if borrower.id_checked %>
-    <div class="bnz-checked-correct" title="Ausweis geprüft">Ausweis geprüft</div>
+    <div class="text-success">Ausweis geprüft</div>
   <% else %>
-    <div class="bnz-checked-missing" title="Ausweis nicht geprüft">Ausweis geprüft</div>
+    <div class="text-danger">Ausweis nicht geprüft</div>
   <% end %>
   <% if borrower.insurance_checked %>
-    <div class="bnz-checked-correct" title="Haftpflicht geprüft">Haftpflicht geprüft</div>
+    <div class="text-success">Haftpflicht geprüft</div>
   <% else %>
-    <div class="bnz-checked-missing" title="Haftpflicht nicht geprüft">Haftpflicht geprüft</div>
+    <div class="text-danger">Haftpflicht nicht geprüft</div>
   <% end %>
   <% if borrower.tos_accepted %>
-    <div class="bnz-checked-correct" title="Registrierung bestätigt">Reg. bestätigt</div>
+    <div class="text-success">Nutzungsbedingungen akzeptiert</div>
   <% else %>
-    <div class="bnz-checked-missing" title="Registrierung nicht bestätigt">Reg. bestätigt</div>
+    <div class="text-danger">Nutzungsbedingungen nicht akzeptiert</div>
   <% end %>
 </div>
 
