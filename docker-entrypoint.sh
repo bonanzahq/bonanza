@@ -10,11 +10,15 @@ urlencode() {
 }
 
 # Resolve database connection variables based on environment.
-# Development uses DEV_DATABASE_* prefix, production uses DB_* prefix.
+# Production uses DB_*, test uses TEST_DATABASE_*, development uses DEV_DATABASE_*.
 if [ "$RAILS_ENV" = "production" ]; then
   PG_HOST="${DB_HOST:-db}"
   PG_PORT="${DB_PORT:-5432}"
   PG_USER="${DB_USER:-postgres}"
+elif [ "$RAILS_ENV" = "test" ]; then
+  PG_HOST="${TEST_DATABASE_HOST:-localhost}"
+  PG_PORT="${TEST_DATABASE_PORT:-5432}"
+  PG_USER="${TEST_DATABASE_USER:-postgres}"
 else
   PG_HOST="${DEV_DATABASE_HOST:-localhost}"
   PG_PORT="${DEV_DATABASE_PORT:-5432}"
