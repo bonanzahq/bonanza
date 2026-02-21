@@ -9,8 +9,24 @@ urlencode() {
   ruby -e "require 'uri'; puts URI::DEFAULT_PARSER.escape(ARGV[0], /[^A-Za-z0-9\-._~]/)" "$1"
 }
 
-# Construct connection URLs from components, URL-encoding passwords
-if [ -n "${DB_PASSWORD:-}" ]; then
+# Resolve database connection variables based on environment.
+# Production uses DB_*, test uses TEST_DATABASE_*, development uses DEV_DATABASE_*.
+if [ "$RAILS_ENV" = "production" ]; then
+  PG_HOST="${DB_HOST:-db}"
+  PG_PORT="${DB_PORT:-5432}"
+  PG_USER="${DB_USER:-postgres}"
+elif [ "$RAILS_ENV" = "test" ]; then
+  PG_HOST="${TEST_DATABASE_HOST:-localhost}"
+  PG_PORT="${TEST_DATABASE_PORT:-5432}"
+  PG_USER="${TEST_DATABASE_USER:-postgres}"
+else
+  PG_HOST="${DEV_DATABASE_HOST:-localhost}"
+  PG_PORT="${DEV_DATABASE_PORT:-5432}"
+  PG_USER="${DEV_DATABASE_USER:-postgres}"
+fi
+
+# Construct DATABASE_URL for production (database.yml handles dev/test via env vars)
+if [ "$RAILS_ENV" = "production" ] && [ -n "${DB_PASSWORD:-}" ]; then
   ENCODED_DB_PASSWORD=$(urlencode "$DB_PASSWORD")
   export DATABASE_URL="postgresql://${DB_USER:-postgres}:${ENCODED_DB_PASSWORD}@${DB_HOST:-db}:${DB_PORT:-5432}/${DB_NAME:-bonanza_redux_production}"
 fi
@@ -36,7 +52,7 @@ if [ "$RAILS_ENV" = "production" ]; then
 fi
 
 echo "Waiting for PostgreSQL..."
-until pg_isready -h "${DB_HOST:-db}" -p "${DB_PORT:-5432}" -U "${DB_USER:-postgres}" -q; do
+until pg_isready -h "$PG_HOST" -p "$PG_PORT" -U "$PG_USER" -q; do
   sleep 2
 done
 echo "PostgreSQL is ready."
