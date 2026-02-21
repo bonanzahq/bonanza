@@ -15,12 +15,10 @@ if [ "$RAILS_ENV" = "production" ]; then
   PG_HOST="${DB_HOST:-db}"
   PG_PORT="${DB_PORT:-5432}"
   PG_USER="${DB_USER:-postgres}"
-  PG_PASS="${DB_PASSWORD:-}"
 else
   PG_HOST="${DEV_DATABASE_HOST:-localhost}"
   PG_PORT="${DEV_DATABASE_PORT:-5432}"
   PG_USER="${DEV_DATABASE_USER:-postgres}"
-  PG_PASS="${DEV_DATABASE_PASSWORD:-postgres}"
 fi
 
 # Construct DATABASE_URL for production (database.yml handles dev/test via env vars)
