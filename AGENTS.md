@@ -70,8 +70,8 @@ commit a truncated schema.rb. If it happens: `git checkout -- db/schema.rb`.
 ### Running tests locally
 
 Tests run outside Docker but need a PostgreSQL instance on `localhost:5432`.
-The Docker Compose DB service does **not** expose a port to the host, so you
-need a standalone PostgreSQL container:
+The Docker Compose override exposes the DB on port 5432, so you can reuse it
+if the stack is running. Otherwise, start a standalone container:
 
 ```bash
 # Start a test-only PostgreSQL container (one-time, or after it's been removed)
