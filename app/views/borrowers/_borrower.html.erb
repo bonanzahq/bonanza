@@ -1,7 +1,7 @@
 <div class="d-flex justify-content-between align-items-start">
   <h3><%= borrower.fullname %></h3>
   <% if can? :manage, borrower %>
-    <%= link_to 'Bearbeiten', edit_borrower_path, class: 'btn btn-outline-secondary btn-sm' %>
+    <%= link_to 'bearbeiten', edit_borrower_path, class: 'icon edit' %>
   <% end %>
 </div>
 
