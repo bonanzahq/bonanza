@@ -7,7 +7,11 @@
   <div class="phone"><%= borrower.phone %></div>
 </div>
 <div class="line mb-4 small">
-  <div><strong>Matrikelnr.:</strong> <%= borrower.student_id %></div>
+  <% if borrower.student? %>
+    <div><strong>Matrikelnr.:</strong> <%= borrower.student_id %></div>
+  <% else %>
+    <div><strong>Mitarbeiter/in</strong></div>
+  <% end %>
   <% if borrower.id_checked %>
     <div class="text-success">Ausweis geprüft</div>
   <% else %>
