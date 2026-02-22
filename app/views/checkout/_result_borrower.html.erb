@@ -37,8 +37,8 @@
         <div class="body d-none">
             <div class="inner">
                 <div class="line mb-2">
-                    <div class="email"><%= borrower.email %></div>
-                    <div class="phone"><%= borrower.phone %></div>
+                    <div class="email"><%= mail_to borrower.email %></div>
+                    <div class="phone"><%= link_to borrower.phone, "tel:#{borrower.phone}" %></div>
                 </div>
                 <div class="line small">
                   <% if borrower.student? %>
