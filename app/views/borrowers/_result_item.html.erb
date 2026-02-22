@@ -25,7 +25,7 @@
                 <% end %>
             <% end %>
             <% if can? :update, borrower %>
-                <%= link_to 'bearbeiten', edit_borrower_path(borrower), class: "icon edit" %>
+                <%= link_to 'bearbeiten', edit_borrower_path(borrower), class: "icon edit", data: { turbo_frame: "_top" } %>
             <% end %>
         </div>
     </div>
