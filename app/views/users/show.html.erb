@@ -1,0 +1,54 @@
+<%# ABOUTME: Detail view for a user (verleihende Person). %>
+<%# ABOUTME: Shows name, email, department memberships and roles. %>
+
+<header class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7 bnz-tab-navigation d-flex align-items-stretch pt-3">
+        <h4>Verleihende Person</h4>
+    </div>
+    <div class="col-3 d-flex align-items-center">
+        <%= render 'shared/user_menu' %>
+    </div>
+</header>
+
+<div class="row">
+    <div class="col-2 pt-3 d-flex justify-content-end align-items-start">
+        <% if can? :read, User %>
+            <a href="/verwaltung/verleihende" class="link-back link-dark">Verleihende</a>
+        <% else %>
+            <a href="/ausleihe" class="link-back link-dark">Ausleihe</a>
+        <% end %>
+    </div>
+    <div class="col-7">
+        <div class="p-3 bg-light rounded mb-3 w-100">
+            <h3><%= @user.fullname %></h3>
+
+            <div class="line mb-2">
+                <div class="email"><%= mail_to @user.email %></div>
+            </div>
+
+            <div class="line mb-4 small">
+                <% if @user.admin? %>
+                    <div><strong>Admin</strong></div>
+                <% end %>
+                <% @user.department_memberships.includes(:department).each do |membership| %>
+                    <% next if membership.role == "deleted" %>
+                    <div><strong><%= membership.department.name %>:</strong> <%= t(membership.role, scope: 'role') %></div>
+                <% end %>
+            </div>
+
+            <div class="line mb-4 small">
+                <div><strong>Registriert:</strong> <%= l(@user.created_at.to_date, format: "%d.%m.%Y") %></div>
+            </div>
+
+            <% if can?(:update, @user) %>
+                <div class="actions">
+                    <%= link_to 'Bearbeiten', edit_user_path(@user), class: 'btn btn-outline-secondary btn-sm' %>
+                </div>
+            <% end %>
+        </div>
+    </div>
+    <div class="col-3">
+    </div>
+</div>
