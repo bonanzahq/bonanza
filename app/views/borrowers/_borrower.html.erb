@@ -1,6 +1,9 @@
-<h3>
-  <%= borrower.fullname %>
-</h3>
+<div class="d-flex justify-content-between align-items-start">
+  <h3><%= borrower.fullname %></h3>
+  <% if can? :manage, borrower %>
+    <%= link_to 'Bearbeiten', edit_borrower_path, class: 'btn btn-outline-secondary btn-sm' %>
+  <% end %>
+</div>
 
 <div class="line mb-2">
   <div class="email"><%= mail_to borrower.email %></div>
@@ -187,9 +190,7 @@
     </div>
   </div>
 
-  <div class="actions">
-    <%= link_to 'Bearbeiten', edit_borrower_path, class: 'btn btn-outline-secondary btn-sm' %>
-  </div>
+
 
   <div class="modal fade" id="deleteBorrowerDataModal" tabindex="-1">
     <div class="modal-dialog">

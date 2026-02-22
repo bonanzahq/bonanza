@@ -22,7 +22,12 @@
     </div>
     <div class="col-7">
         <div class="p-3 bg-light rounded mb-3 w-100">
-            <h3><%= @user.fullname %></h3>
+            <div class="d-flex justify-content-between align-items-start">
+                <h3><%= @user.fullname %></h3>
+                <% if can?(:update, @user) %>
+                    <%= link_to 'Bearbeiten', edit_user_path(@user), class: 'btn btn-outline-secondary btn-sm' %>
+                <% end %>
+            </div>
 
             <div class="line mb-2">
                 <div class="email"><%= mail_to @user.email %></div>
@@ -41,12 +46,6 @@
             <div class="line mb-4 small">
                 <div><strong>Registriert:</strong> <%= l(@user.created_at.to_date, format: "%d.%m.%Y") %></div>
             </div>
-
-            <% if can?(:update, @user) %>
-                <div class="actions">
-                    <%= link_to 'Bearbeiten', edit_user_path(@user), class: 'btn btn-outline-secondary btn-sm' %>
-                </div>
-            <% end %>
         </div>
     </div>
     <div class="col-3">
