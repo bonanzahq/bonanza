@@ -20,14 +20,19 @@ Started from git-bug 0eb2044 / GH#65 -- three UI problems on the borrower detail
   - Created `users/show.html.erb` detail view (parallel to borrower show)
   - Moved "Bearbeiten" to upper right pencil icon in both detail views
 
+### Additional changes
+- **Edit button placement**: Moved "Bearbeiten" from bottom of detail views to upper right, then replaced with pencil icon to match list view pattern.
+- **Turbo frame fix**: Edit pencil link in borrower list caused "Content missing" error because it was inside `<turbo-frame id="results">` without `data-turbo-frame: "_top"`. Links inside Turbo frames must explicitly break out or Turbo looks for a matching frame in the response.
+
 ## Technical notes
 - `link_to path, class: "icon edit"` without body text treats `class:` as link text. Must use `link_to 'bearbeiten', path, class: "icon edit"`.
 - `.line` class already has `display: flex; gap: 16px;` -- the `.line.small` override only needed `flex-direction: column; align-items: flex-start;`.
 - `load_and_authorize_resource` in UsersController handles `@user` for the show action automatically, so no controller changes needed for the new view.
 - Screenshots can't be uploaded to GitHub PRs via CLI -- the API doesn't support direct image uploads.
+- Any link added inside a `<turbo-frame>` needs `data: { turbo_frame: "_top" }` if it navigates to a full page without a matching frame tag.
 
 ## Open question
-Fabian raised accessibility as a concern -- ARIA labels, semantic HTML, screen reader support across the whole app. This needs an audit. Created a git-bug issue for it.
+Fabian raised accessibility as a concern -- ARIA labels, semantic HTML, screen reader support across the whole app. This needs an audit. Created git-bug issue c61deb7.
 
 ## PR
 https://github.com/bonanzahq/bonanza/pull/150
