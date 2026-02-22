@@ -24,6 +24,9 @@
                     <span class="icon-before reload">Bedingungen erneut senden</span>
                 <% end %>
             <% end %>
+            <% if can? :update, borrower %>
+                <%= link_to 'bearbeiten', edit_borrower_path(borrower), class: "icon edit" %>
+            <% end %>
         </div>
     </div>
 </div>
