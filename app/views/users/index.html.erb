@@ -41,7 +41,9 @@
                         <div class="bnz-card">
                           <div class="header">
                             <div class="left">
-                              <h4><%= membership.user.fullname %></h4>
+                              <%= link_to user_path(membership.user), class: "name" do %>
+                                <h4><%= membership.user.fullname %></h4>
+                              <% end %>
                               <span class="small"><%= t( role, scope: 'role') %></span> 
                               <a class="small" href="mailto:<%= membership.user.email %>"><%= membership.user.email %></a>
                             </div>
@@ -126,7 +128,9 @@
             <div class="bnz-card">
               <div class="header">
                 <div class="left">
-                  <h4><%= admin.fullname %></h4>
+                  <%= link_to user_path(admin), class: "name" do %>
+                    <h4><%= admin.fullname %></h4>
+                  <% end %>
                   <a class="small" href="mailto:<%= admin.email %>"><%= admin.email %></a>
                 </div>
                 <div class="right">

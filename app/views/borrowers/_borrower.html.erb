@@ -1,27 +1,34 @@
-<h3>
-  <%= borrower.fullname %>
-</h3>
+<div class="d-flex justify-content-between align-items-start">
+  <h3><%= borrower.fullname %></h3>
+  <% if can? :manage, borrower %>
+    <%= link_to 'bearbeiten', edit_borrower_path, class: 'icon edit' %>
+  <% end %>
+</div>
 
-<div class="line">
-  <div class="email"><%= borrower.email %></div>
-  <div class="phone"><%= borrower.phone %></div>
+<div class="line mb-2">
+  <div class="email"><%= mail_to borrower.email %></div>
+  <div class="phone"><%= link_to borrower.phone, "tel:#{borrower.phone}" %></div>
 </div>
 <div class="line mb-4 small">
-  <div class="id"><%= borrower.student_id %></div>
-  <% if borrower.id_checked %>
-    <div class="bnz-checked-correct" title="Ausweis geprüft">Ausweis geprüft</div>
+  <% if borrower.student? %>
+    <div><strong>Matrikelnr.:</strong> <%= borrower.student_id %></div>
   <% else %>
-    <div class="bnz-checked-missing" title="Ausweis nicht geprüft">Ausweis geprüft</div>
+    <div><strong>Mitarbeiter/in</strong></div>
+  <% end %>
+  <% if borrower.id_checked %>
+    <div>Ausweis geprüft</div>
+  <% else %>
+    <div class="text-danger">Ausweis nicht geprüft</div>
   <% end %>
   <% if borrower.insurance_checked %>
-    <div class="bnz-checked-correct" title="Haftpflicht geprüft">Haftpflicht geprüft</div>
+    <div>Haftpflicht geprüft</div>
   <% else %>
-    <div class="bnz-checked-missing" title="Haftpflicht nicht geprüft">Haftpflicht geprüft</div>
+    <div class="text-danger">Haftpflicht nicht geprüft</div>
   <% end %>
   <% if borrower.tos_accepted %>
-    <div class="bnz-checked-correct" title="Registrierung bestätigt">Reg. bestätigt</div>
+    <div>Nutzungsbedingungen akzeptiert</div>
   <% else %>
-    <div class="bnz-checked-missing" title="Registrierung nicht bestätigt">Reg. bestätigt</div>
+    <div class="text-danger">Nutzungsbedingungen nicht akzeptiert</div>
   <% end %>
 </div>
 
@@ -183,9 +190,7 @@
     </div>
   </div>
 
-  <div class="actions">
-    <%= link_to 'Bearbeiten', edit_borrower_path, class: 'btn btn-outline-secondary btn-sm' %>
-  </div>
+
 
   <div class="modal fade" id="deleteBorrowerDataModal" tabindex="-1">
     <div class="modal-dialog">
