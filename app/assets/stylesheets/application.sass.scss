@@ -573,6 +573,11 @@ header {
     gap: 16px;
 }
 
+.line.small {
+    flex-direction: column;
+    align-items: flex-start;
+}
+
 .line:last-child {
     margin-bottom: 0;
 }
