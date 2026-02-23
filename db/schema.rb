@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_20_142850) do
+ActiveRecord::Schema[8.1].define(version: 2026_02_23_141942) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -70,6 +70,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_20_142850) do
     t.boolean "tos_accepted", default: false, null: false
     t.datetime "tos_accepted_at"
     t.datetime "updated_at", null: false
+    t.index ["student_id"], name: "index_borrowers_unique_student_id", unique: true, where: "(student_id IS NOT NULL)"
   end
 
   create_table "conducts", force: :cascade do |t|
