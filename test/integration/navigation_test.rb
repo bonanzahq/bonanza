@@ -17,13 +17,31 @@ class NavigationTest < ActionDispatch::IntegrationTest
     assert_select ".dropdown-menu a[href='/verwaltung']", text: "Verwaltung"
   end
 
-  test "member does not see Verwaltung link in user dropdown" do
+  test "member sees Verwaltung link in user dropdown" do
     member = create(:user, department: @department)
     sign_in member
 
     get verwaltung_verleihende_path
     assert_response :success
+    assert_select ".dropdown-menu a[href='/verwaltung']", text: "Verwaltung"
+  end
+
+  test "leader sees Verwaltung link in user dropdown" do
+    leader = create(:user, :leader, department: @department)
+    sign_in leader
+
+    get verwaltung_verleihende_path
+    assert_response :success
+    assert_select ".dropdown-menu a[href='/verwaltung']", text: "Verwaltung"
+  end
+
+  test "guest does not see Verwaltung link in user dropdown" do
+    guest = create(:user, :guest, department: @department)
+    sign_in guest
+
+    get edit_user_path(guest)
+    assert_response :success
     assert_select ".dropdown-menu a[href='/verwaltung']", false,
-      "Member should not see Verwaltung link"
+      "Guest should not see Verwaltung link"
   end
 end
