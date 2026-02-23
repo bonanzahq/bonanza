@@ -237,4 +237,13 @@ class BorrowerTest < ActiveSupport::TestCase
     assert conduct_data[:lifted_at].present?
     assert_equal lifter.fullname, conduct_data[:lifted_by]
   end
+
+  # -- search_people error handling --
+
+  test "search_people rescues Searchkick::InvalidQueryError" do
+    Borrower.stub(:search, ->(*_args) { raise Searchkick::InvalidQueryError, "invalid query" }) do
+      result = Borrower.search_people("test[", nil, nil, nil, 1)
+      assert_empty result
+    end
+  end
 end

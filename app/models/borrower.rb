@@ -79,7 +79,7 @@ class Borrower < ApplicationRecord
       results = self.search(query, where: where, load: true, page: page, per_page: 10, order: [{_score: :desc}, {fullname: :asc}], misspellings: {edit_distance: 2}, fields: [{"fullname^20" => :word_middle}, {"email^14" => :word_middle}, {"student_id" => :exact}])
       results.to_a # force lazy evaluation inside rescue
       results
-    rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED, Elastic::Transport::Transport::Error => e
+    rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED, Elastic::Transport::Transport::Error, Searchkick::InvalidQueryError => e
       Rails.logger.warn("Elasticsearch unavailable: #{e.message}")
       Borrower.none.page(1).per(10)
     end
