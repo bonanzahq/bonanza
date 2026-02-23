@@ -64,6 +64,24 @@ class BorrowerTest < ActiveSupport::TestCase
     assert_not duplicate.valid?
   end
 
+  test "duplicate student_id raises at database level" do
+    create(:borrower, student_id: "s88888")
+
+    assert_raises(ActiveRecord::RecordNotUnique) do
+      duplicate = build(:borrower, student_id: "s88888")
+      duplicate.save(validate: false)
+    end
+  end
+
+  test "multiple employees with nil student_id do not conflict" do
+    create(:borrower, :employee)
+    second = build(:borrower, :employee)
+
+    assert_nothing_raised do
+      second.save(validate: false)
+    end
+  end
+
   # -- Employee validations --
 
   test "employee does not require id_checked" do
