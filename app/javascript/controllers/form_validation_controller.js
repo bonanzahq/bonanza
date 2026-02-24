@@ -26,7 +26,7 @@ export default class extends Controller {
       hyperform.addValidator(
         document.getElementById('borrower_student_id'),
         function (element) {
-          var valid = ! document.getElementById('borrower_borrower_type').value == "student" ||
+          var valid = !(document.getElementById('borrower_borrower_type').value == "student") ||
                 element.value
           element.setCustomValidity(
             valid?
