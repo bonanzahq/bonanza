@@ -34,6 +34,7 @@ role_user_data = [
   { email: "leader@example.com", firstname: "Lea", lastname: "Leader", role: "leader" },
   { email: "member@example.com", firstname: "Max", lastname: "Member", role: "member" },
   { email: "guest@example.com",  firstname: "Gabi", lastname: "Guest",  role: "guest"   },
+  { email: "hidden@example.com", firstname: "Hanna", lastname: "Hidden", role: "hidden" },
 ]
 
 role_user_data.each do |data|
