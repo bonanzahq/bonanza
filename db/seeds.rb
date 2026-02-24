@@ -30,44 +30,26 @@ user = User.create!(
 )
 User.current_user = user
 
-User.create!(
-  email: "leader@example.com",
-  password: "platypus-umbrella-cactus",
-  password_confirmation: "platypus-umbrella-cactus",
-  current_department: department,
-  firstname: "Lea",
-  lastname: "Leader",
-  admin: false,
-  department_memberships_attributes: [
-    { role: "leader", department: department }
-  ]
-)
+role_user_data = [
+  { email: "leader@example.com", firstname: "Lea", lastname: "Leader", role: "leader" },
+  { email: "member@example.com", firstname: "Max", lastname: "Member", role: "member" },
+  { email: "guest@example.com",  firstname: "Gabi", lastname: "Guest",  role: "guest"   },
+]
 
-User.create!(
-  email: "member@example.com",
-  password: "platypus-umbrella-cactus",
-  password_confirmation: "platypus-umbrella-cactus",
-  current_department: department,
-  firstname: "Max",
-  lastname: "Member",
-  admin: false,
-  department_memberships_attributes: [
-    { role: "member", department: department }
-  ]
-)
-
-User.create!(
-  email: "guest@example.com",
-  password: "platypus-umbrella-cactus",
-  password_confirmation: "platypus-umbrella-cactus",
-  current_department: department,
-  firstname: "Gabi",
-  lastname: "Guest",
-  admin: false,
-  department_memberships_attributes: [
-    { role: "guest", department: department }
-  ]
-)
+role_user_data.each do |data|
+  User.create!(
+    email: data[:email],
+    password: "platypus-umbrella-cactus",
+    password_confirmation: "platypus-umbrella-cactus",
+    current_department: department,
+    firstname: data[:firstname],
+    lastname: data[:lastname],
+    admin: false,
+    department_memberships_attributes: [
+      { role: data[:role], department: department }
+    ]
+  )
+end
 
 # --- Unique item (single) ---
 
