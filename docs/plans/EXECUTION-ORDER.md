@@ -151,55 +151,67 @@ Merged via PRs #122, #125, #129. Expiration logic, email wiring, escalation.
 Merged via PRs #126-#128, #129, #130. Anonymization, data export, deletion
 requests, audit logging.
 
-### C5. Phase C Bug Fixes
+### C5. Phase C Bug Fixes -- DONE
 
-Fix bugs discovered during Phase C integration testing. Must be resolved
-before moving to Phase D.
-
-- `b1765d9` Borrower selection view shows no initial list -- IN PROGRESS
-- `c293b30` Staff-created borrowers receive no notification email -- IN PROGRESS
-- `42cacfc` Retain conduct records when bans are lifted (needs schema change)
-- `0eb2044` Borrower detail page UI improvements
+All bugs discovered during Phase C integration testing are resolved.
 
 ### C6. Open Issue Review
 
-Review all open git-bug issues not tied to a phase. Decide for each:
-triage into Phase C6 (fix now) or defer to Phase D/backlog.
+Open issues not tied to a specific phase. To be triaged: fix now or defer
+to Phase D/backlog.
 
-Issues to review:
-- `fa87417` Verify role permissions for admin/leader/member
-- `115bb36` Add read-more/read-less to department descriptions
-- `8dac3fc` Add archived items view to verwaltung
-- `01fda2b` Allow deleting users
-- `1e789f4` Add PurgeCSS to asset compilation
-- `7913dbe` Relocate Verwaltung link from user dropdown to main navigation
-- `8be4096` Autocomplete CORS errors when accessing via Caddy proxy
-- `82b4fc0` Add department creation to admin Verwaltung UI
+**Core UX / workflow:**
 - `3e5fa64` Improve Leihvertrag: print CSS, PDF download, email to borrower
 - `e9e4713` Add comment field when returning items
-- `ee1b1a0` Staff-created borrowers don't receive confirmation email
-- `f7f2187` Autocomplete broken when accessing app from network (non-localhost)
 - `c960606` Returns view needs search functionality
-- `36a3852` Investigate file storage persistence and backup strategy
-- `58fe488` Update shared Renovate config with Bundler rules
-- `a09b6ba` Move Docker infrastructure files into docker/ subdirectory
-- `5916e37` Email change needs proper verification flow
-- `08c505b` Style Devise mailer templates to match invitation email
 - `8a60474` Checkout borrower step has no explicit 'next step' button
-- `7248057` Redesign left-side navigation: consolidate scattered nav links
+- `0cb7ace` Department switching: no UI for multi-department users
+- `da8262d` Replace auto-dismissing toasts with persistent error messages
+
+**Navigation / admin UI:**
+- `7248057` Redesign left-side navigation
 - `0f3e59c` Department management not linked in navigation
 - `352ac20` Allow assigning users to department during department creation
-- `b0590e7` Upgrade staging server from Ubuntu 22.04 to 24.04
-- `5af0461` Remove Node.js from production Docker image
-- `4f8af1b` Switch Docker base image to ruby-slim
-- `682a427` TLS/HTTPS: Debug and fix Let's Encrypt certificate provisioning
-- `0cb7ace` Department switching: no UI for users in multiple departments
-- `8e69ffb` Item-department binding: unclear how items are assigned to departments
-- `03079a7` Discussion: role permissions for item management (Mitarbeitende)
-- `7147963` Verwaltung link hidden from members due to wrong permission check
+- `8dac3fc` Add archived items view to verwaltung
+- `01fda2b` Allow deleting users
+- `115bb36` Add read-more/read-less to department descriptions
+
+**Auth / security:**
+- `fa87417` Verify role permissions for admin/leader/member
+- `5916e37` Email change verification flow
 - `3153ad6` Warn users with weak passwords on login (nagware)
-- `54ba6a7` Extract all hardcoded German strings into locale files
-- `da8262d` Replace auto-dismissing toasts with persistent in-context error messages
+- `03079a7` Discussion: role permissions for item management
+
+**Data / models:**
+- `8e69ffb` Item-department binding: unclear how items are assigned
+- `099211e` Insurance check not required for employees
+- `5426799` Decide where lifted conducts should be displayed
+- `09fd26e` Borrower list: sort by lending frequency and add pagination
+
+**Styling / i18n:**
+- `08c505b` Style Devise mailer templates
+- `54ba6a7` Extract hardcoded German strings into locale files
+
+**GDPR:**
+- `ce2d2d5` Self-service GDPR data export and deletion request for borrowers
+- `cb2a00f` Automatic anonymization of inactive staff users
+- `f0478dd` Early data minimization for inactive borrowers within retention period
+
+**Infrastructure / DevOps:**
+- `a09b6ba` Move Docker files into docker/ subdirectory
+- `5af0461` Remove Node.js from production Docker image
+- `4f8af1b` Switch Docker base to ruby-slim
+- `682a427` TLS/HTTPS: fix Let's Encrypt provisioning
+- `b0590e7` Upgrade staging server to Ubuntu 24.04
+- `1e789f4` Add PurgeCSS to asset compilation
+- `36a3852` Investigate file storage persistence and backup
+- `58fe488` Update shared Renovate config with Bundler rules
+- `66755f5` Add Dozzle with authentication to production compose
+- `2e557a4` README: Dozzle service missing from Docker services table
+
+**Other:**
+- `c61deb7` Accessibility audit: ARIA labels, semantic HTML, screen reader support
+- `2d5a914` Seed users for every role
 
 ## Phase D: Cutover
 
