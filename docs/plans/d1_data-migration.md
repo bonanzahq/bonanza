@@ -113,6 +113,12 @@ updated_at → updated_at
 
 # Fields to drop:
 - avatar_data (Paperclip, could migrate to ActiveStorage if needed)
+
+# Constraint: student_id unique index
+# v2 has a partial unique index on student_id (WHERE student_id IS NOT NULL).
+# The data migration must detect and resolve duplicate student_ids in v1 data
+# before inserting into v2. Strategy TBD -- options include merging duplicates,
+# suffixing, or flagging for manual review.
 ```
 
 ### 3. users (Major changes: roles → department_memberships)
