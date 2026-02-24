@@ -18,4 +18,26 @@ class SeedsTest < ActiveSupport::TestCase
   ensure
     Rails.env = original_env
   end
+
+  test "seeds create users for all department roles" do
+    assert_difference "User.count", 4 do
+      load Rails.root.join("db/seeds.rb")
+    end
+
+    admin = User.find_by!(email: "admin@example.com")
+    assert admin.admin, "admin@example.com should have admin=true"
+    assert_equal "leader", admin.current_role
+
+    leader = User.find_by!(email: "leader@example.com")
+    assert_not leader.admin, "leader@example.com should have admin=false"
+    assert_equal "leader", leader.current_role
+
+    member = User.find_by!(email: "member@example.com")
+    assert_not member.admin, "member@example.com should have admin=false"
+    assert_equal "member", member.current_role
+
+    guest = User.find_by!(email: "guest@example.com")
+    assert_not guest.admin, "guest@example.com should have admin=false"
+    assert_equal "guest", guest.current_role
+  end
 end
