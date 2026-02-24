@@ -20,7 +20,7 @@ class SeedsTest < ActiveSupport::TestCase
   end
 
   test "seeds create users for all department roles" do
-    assert_difference "User.count", 4 do
+    assert_difference "User.count", 5 do
       load Rails.root.join("db/seeds.rb")
     end
 
@@ -39,5 +39,9 @@ class SeedsTest < ActiveSupport::TestCase
     guest = User.find_by!(email: "guest@example.com")
     assert_not guest.admin, "guest@example.com should have admin=false"
     assert_equal "guest", guest.current_role
+
+    hidden = User.find_by!(email: "hidden@example.com")
+    assert_not hidden.admin, "hidden@example.com should have admin=false"
+    assert_equal "hidden", hidden.current_role
   end
 end
