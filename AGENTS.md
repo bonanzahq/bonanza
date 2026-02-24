@@ -180,23 +180,7 @@ All data is scoped to `current_department_id` on the User. Roles:
 
 ## Issue Tracking
 
-Issues are tracked with `git-bug`, a distributed issue tracker embedded in git.
-Issues sync bidirectionally to GitHub Issues via the configured bridge.
-
-Use the `git-bug` skill (invoke with `/git-bug`) for the full command reference.
-
-### Quick Reference
-
-```bash
-git bug bug                          # List open issues
-git bug bug new --non-interactive -t "Title" -m "Description"
-git bug bug show <ID>                # Show issue details
-git bug bug status close <ID>        # Close an issue
-git bug bug label new <ID> <label>   # Add a label
-git bug bug label rm <ID> <label>    # Remove a label
-git bug push                         # Push issues to git remote
-git bug bridge push                  # Sync issues to GitHub Issues
-```
+Issues are tracked with `git-bug`. See the git-bug skill for commands and sync rules.
 
 ### Labels
 
