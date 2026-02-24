@@ -30,6 +30,45 @@ user = User.create!(
 )
 User.current_user = user
 
+User.create!(
+  email: "leader@example.com",
+  password: "platypus-umbrella-cactus",
+  password_confirmation: "platypus-umbrella-cactus",
+  current_department: department,
+  firstname: "Lea",
+  lastname: "Leader",
+  admin: false,
+  department_memberships_attributes: [
+    { role: "leader", department: department }
+  ]
+)
+
+User.create!(
+  email: "member@example.com",
+  password: "platypus-umbrella-cactus",
+  password_confirmation: "platypus-umbrella-cactus",
+  current_department: department,
+  firstname: "Max",
+  lastname: "Member",
+  admin: false,
+  department_memberships_attributes: [
+    { role: "member", department: department }
+  ]
+)
+
+User.create!(
+  email: "guest@example.com",
+  password: "platypus-umbrella-cactus",
+  password_confirmation: "platypus-umbrella-cactus",
+  current_department: department,
+  firstname: "Gabi",
+  lastname: "Guest",
+  admin: false,
+  department_memberships_attributes: [
+    { role: "guest", department: department }
+  ]
+)
+
 # --- Unique item (single) ---
 
 arduino = ParentItem.create!(
