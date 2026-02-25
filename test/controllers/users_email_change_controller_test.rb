@@ -19,7 +19,7 @@ class UsersEmailChangeControllerTest < ActionDispatch::IntegrationTest
       user: { email: new_email }
     }
 
-    assert_nil @member.reload.email.match(new_email),
+    assert_not_equal new_email, @member.reload.email,
       "Email should not immediately change"
     assert_equal new_email, @member.reload.unconfirmed_email,
       "New email should be stored as unconfirmed"
@@ -33,7 +33,7 @@ class UsersEmailChangeControllerTest < ActionDispatch::IntegrationTest
       user: { email: new_email }
     }
 
-    assert_nil @member.reload.email.match(new_email),
+    assert_not_equal new_email, @member.reload.email,
       "Email should not immediately change"
     assert_equal new_email, @member.reload.unconfirmed_email,
       "New email should be stored as unconfirmed"
