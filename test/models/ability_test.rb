@@ -442,18 +442,26 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:change_duration, lending)
   end
 
-  # -- Hidden --
+  # -- Hidden (same permissions as member) --
 
-  test "hidden user gets no permissions beyond reading departments" do
+  test "hidden user has member-level permissions" do
     user = create(:user, :hidden, department: @department)
     ability = Ability.new(user)
+    parent_item = create(:parent_item, department: @department)
+    other_item = create(:parent_item, department: @other_department)
+    lending = create(:lending, user: user, department: @department)
 
-    assert ability.can?(:read, Department)
-    assert ability.cannot?(:update, user)
-    assert ability.cannot?(:read, User)
-    assert ability.cannot?(:read, Borrower)
-    assert ability.cannot?(:manage, ParentItem)
-    assert ability.cannot?(:manage, Lending)
+    assert ability.can?(:read, :all)
+    assert ability.can?(:update, user)
+    assert ability.can?(:manage, Borrower)
+    assert ability.can?(:manage, parent_item)
+    assert ability.cannot?(:manage, other_item)
+    assert ability.can?(:manage, lending)
+    assert ability.can?(:edit, :checkout)
+    assert ability.can?(:staff, @department)
+    assert ability.can?(:unstaff, @department)
+    assert ability.cannot?(:create, User)
+    assert ability.cannot?(:destroy, User)
   end
 
   # -- Deleted --
