@@ -211,7 +211,7 @@ to Phase D/backlog.
 
 **Other:**
 - `c61deb7` Accessibility audit: ARIA labels, semantic HTML, screen reader support
-- `2d5a914` Seed users for every role
+- ~~`2d5a914` Seed users for every role~~ -- DONE
 
 ## Phase D: Cutover
 
