@@ -28,7 +28,17 @@ On first boot the entrypoint creates the database, loads the schema, seeds
 data, and reindexes Elasticsearch. Subsequent boots only run pending
 migrations.
 
-Login with `admin@example.com` / `password`.
+### Seed users
+
+All seed users share the password `platypus-umbrella-cactus`.
+
+| Email                  | Role   | Admin |
+|------------------------|--------|-------|
+| `admin@example.com`    | leader | yes   |
+| `leader@example.com`   | leader | no    |
+| `member@example.com`   | member | no    |
+| `guest@example.com`    | guest  | no    |
+| `hidden@example.com`   | hidden | no    |
 
 ## Development
 
