@@ -30,6 +30,28 @@ user = User.create!(
 )
 User.current_user = user
 
+role_user_data = [
+  { email: "leader@example.com", firstname: "Lea", lastname: "Leader", role: "leader" },
+  { email: "member@example.com", firstname: "Max", lastname: "Member", role: "member" },
+  { email: "guest@example.com",  firstname: "Gabi", lastname: "Guest",  role: "guest"   },
+  { email: "hidden@example.com", firstname: "Hanna", lastname: "Hidden", role: "hidden" },
+]
+
+role_user_data.each do |data|
+  User.create!(
+    email: data[:email],
+    password: "platypus-umbrella-cactus",
+    password_confirmation: "platypus-umbrella-cactus",
+    current_department: department,
+    firstname: data[:firstname],
+    lastname: data[:lastname],
+    admin: false,
+    department_memberships_attributes: [
+      { role: data[:role], department: department }
+    ]
+  )
+end
+
 # --- Unique item (single) ---
 
 arduino = ParentItem.create!(
