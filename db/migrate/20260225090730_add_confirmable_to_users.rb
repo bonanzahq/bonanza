@@ -12,7 +12,7 @@ class AddConfirmableToUsers < ActiveRecord::Migration[8.1]
     # Users are created via invitation, not self-registration, so they are
     # already trusted. Without this, all existing users would be locked out.
     reversible do |dir|
-      dir.up { User.update_all(confirmed_at: Time.current) }
+      dir.up { execute "UPDATE users SET confirmed_at = NOW()" }
     end
   end
 end
