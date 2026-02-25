@@ -71,7 +71,7 @@ class Ability
       can [:edit, :update], :checkout
       can :take_back, LineItem, :item => { :parent_item => { :department => user.current_department } }
       can :read, :all
-    else user.guest?
+    elsif user.guest?
       can :read, Department
       can :update, User, :id => user.id
       can :read, Borrower
