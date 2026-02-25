@@ -177,6 +177,34 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.can?(:read, ParentItem)
   end
 
+  # -- Hidden --
+
+  test "hidden user gets no permissions beyond reading departments" do
+    user = create(:user, :hidden, department: @department)
+    ability = Ability.new(user)
+
+    assert ability.can?(:read, Department)
+    assert ability.cannot?(:update, user)
+    assert ability.cannot?(:read, User)
+    assert ability.cannot?(:read, Borrower)
+    assert ability.cannot?(:manage, ParentItem)
+    assert ability.cannot?(:manage, Lending)
+  end
+
+  # -- Deleted --
+
+  test "deleted user gets no permissions beyond reading departments" do
+    user = create(:user, :deleted, department: @department)
+    ability = Ability.new(user)
+
+    assert ability.can?(:read, Department)
+    assert ability.cannot?(:update, user)
+    assert ability.cannot?(:read, User)
+    assert ability.cannot?(:read, Borrower)
+    assert ability.cannot?(:manage, ParentItem)
+    assert ability.cannot?(:manage, Lending)
+  end
+
   # -- Not logged in --
 
   test "unauthenticated user can only read departments" do

@@ -33,5 +33,13 @@ FactoryBot.define do
     trait :guest do
       role { :guest }
     end
+
+    trait :hidden do
+      role { :hidden }
+    end
+
+    trait :deleted do
+      role { :deleted }
+    end
   end
 end
