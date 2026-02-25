@@ -47,6 +47,7 @@ role_user_data.each do |data|
     firstname: data[:firstname],
     lastname: data[:lastname],
     admin: false,
+    confirmed_at: Time.current,
     department_memberships_attributes: [
       { role: data[:role], department: department }
     ]
