@@ -36,12 +36,16 @@ class UserEmailConfirmationTest < ActiveSupport::TestCase
   end
 
   test "confirmation email is sent on email change" do
+    old_email = @user.email
     @user.update(email: "needs-confirmation@example.com")
 
-    assert_equal 1, ActionMailer::Base.deliveries.size,
-      "One email should be sent when email changes"
-    assert_match "needs-confirmation@example.com", ActionMailer::Base.deliveries.last.to.to_s,
+    assert_equal 2, ActionMailer::Base.deliveries.size,
+      "Two emails should be sent when email changes: confirmation to new address and notification to old"
+    recipients = ActionMailer::Base.deliveries.map(&:to).flatten
+    assert_includes recipients, "needs-confirmation@example.com",
       "Confirmation email should be sent to the new address"
+    assert_includes recipients, old_email,
+      "Change notification should be sent to the old address"
   end
 
   test "confirming email completes the change" do
