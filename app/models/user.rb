@@ -52,6 +52,10 @@ class User < ApplicationRecord
     current_role == 'guest'
   end
 
+  def hidden?
+    current_role == 'hidden'
+  end
+
   def member?
     current_role == 'member'
   end

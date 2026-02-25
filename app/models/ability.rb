@@ -59,7 +59,7 @@ class Ability
       can [:edit, :update], :checkout
       can :take_back, LineItem, :item => { :parent_item => { :department => user.current_department } }
       can :read, :all
-    elsif user.member?
+    elsif user.member? || user.hidden?
       can :update, Department, :id => user.current_department.id
       can :unstaff, Department, :id => user.current_department.id
       can :staff, Department, :id => user.current_department.id
