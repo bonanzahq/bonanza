@@ -116,6 +116,14 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:destroy, User)
   end
 
+  test "leader cannot create or destroy departments" do
+    user = create(:user, :leader, department: @department)
+    ability = Ability.new(user)
+
+    assert ability.cannot?(:create, Department)
+    assert ability.cannot?(:destroy, Department)
+  end
+
   test "leader can send_password_reset to same-department non-admin" do
     leader = create(:user, :leader, department: @department)
     member = create(:user, department: @department)
