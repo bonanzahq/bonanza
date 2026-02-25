@@ -237,6 +237,8 @@ class AbilityTest < ActiveSupport::TestCase
 
     assert ability.can?(:staff, @department)
     assert ability.can?(:unstaff, @department)
+    assert ability.cannot?(:staff, @other_department)
+    assert ability.cannot?(:unstaff, @other_department)
   end
 
   test "member can read all" do
