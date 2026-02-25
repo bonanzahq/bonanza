@@ -29,25 +29,12 @@ user = User.create!(
     { role: "leader", department: department }
   ]
 )
-User.create!(
-  email: "hidden@example.com",
-  password: "platypus-umbrella-cactus",
-  password_confirmation: "platypus-umbrella-cactus",
-  current_department: department,
-  firstname: "Hidden",
-  lastname: "User",
-  admin: false,
-  department_memberships_attributes: [
-    { role: "hidden", department: department }
-  ]
-)
-
 User.current_user = user
 
 role_user_data = [
   { email: "leader@example.com", firstname: "Lea", lastname: "Leader", role: "leader" },
   { email: "member@example.com", firstname: "Max", lastname: "Member", role: "member" },
-  { email: "guest@example.com",  firstname: "Gabi", lastname: "Guest",  role: "guest"   },
+  { email: "guest@example.com",  firstname: "Gabi", lastname: "Guest",  role: "guest"  },
   { email: "hidden@example.com", firstname: "Hanna", lastname: "Hidden", role: "hidden" },
 ]
 
