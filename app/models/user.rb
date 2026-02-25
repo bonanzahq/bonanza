@@ -13,8 +13,8 @@ class User < ApplicationRecord
   validates :password, :password_strength => true, :if => :password
 
   # Include default devise modules. Others available are:
-  # :confirmable, :lockable, :timeoutable, :trackable and :omniauthable
-  devise :invitable, :database_authenticatable, :recoverable, :rememberable, :validatable
+  # :lockable, :timeoutable, :trackable and :omniauthable
+  devise :invitable, :database_authenticatable, :recoverable, :rememberable, :validatable, :confirmable
 
   before_validation :ensure_current_department
   # before_create :create_memberships_in_all_departments
