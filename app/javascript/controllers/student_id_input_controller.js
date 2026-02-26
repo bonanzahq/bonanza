@@ -9,11 +9,11 @@ export default class extends Controller {
     if(this.element.value == "employee") {
       this.element.parentNode.classList.replace("mb-2", "mb-4")
       document.querySelector(".student-id").classList.add("d-none")
-      document.querySelector(".insurance-check").classList.add("d-none")
+      document.querySelector(".insurance-check")?.classList.add("d-none")
     } else {
       this.element.parentNode.classList.replace("mb-4", "mb-2")
       document.querySelector(".student-id").classList.remove("d-none")
-      document.querySelector(".insurance-check").classList.remove("d-none")
+      document.querySelector(".insurance-check")?.classList.remove("d-none")
     }
   }
 }
