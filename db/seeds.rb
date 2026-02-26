@@ -5,56 +5,51 @@ return if Rails.env.production?
 
 Searchkick.disable_callbacks
 
-department = Department.create!(
-  name: "Test Department",
-  room: "LW 125",
-  default_lending_duration: 14,
-  staffed: true,
-  staffed_at: Time.current,
-  hidden: false,
-  genus: "neuter",
-  created_at: Time.current,
-  updated_at: Time.current
-)
-user = User.create!(
-  email: "admin@example.com", 
-  password: "platypus-umbrella-cactus", 
-  password_confirmation: "platypus-umbrella-cactus",
-  current_department: department, 
-  firstname: "Ad", 
-  lastname: "Min", 
-  admin: true,
-  confirmed_at: Time.current,
-  department_memberships_attributes: [
-    { role: "leader", department: department }
-  ]
-)
+department = Department.find_or_create_by!(name: "Test Department") do |d|
+  d.room = "LW 125"
+  d.default_lending_duration = 14
+  d.staffed = true
+  d.staffed_at = Time.current
+  d.hidden = false
+  d.genus = "neuter"
+end
+user = User.find_or_create_by!(email: "admin@example.com") do |u|
+  u.password = "platypus-umbrella-cactus"
+  u.password_confirmation = "platypus-umbrella-cactus"
+  u.current_department = department
+  u.firstname = "Ad"
+  u.lastname = "Min"
+  u.admin = true
+  u.confirmed_at = Time.current
+  u.department_memberships_attributes = [{ role: "leader", department: department }]
+end
 User.current_user = user
 
 role_user_data = [
   { email: "leader@example.com", firstname: "Lea", lastname: "Leader", role: "leader" },
   { email: "member@example.com", firstname: "Max", lastname: "Member", role: "member" },
-  { email: "guest@example.com",  firstname: "Gabi", lastname: "Guest",  role: "guest"  },
+  { email: "guest@example.com",  firstname: "Gabi", lastname: "Guest",  role: "guest"   },
   { email: "hidden@example.com", firstname: "Hanna", lastname: "Hidden", role: "hidden" },
 ]
 
 role_user_data.each do |data|
-  User.create!(
-    email: data[:email],
-    password: "platypus-umbrella-cactus",
-    password_confirmation: "platypus-umbrella-cactus",
-    current_department: department,
-    firstname: data[:firstname],
-    lastname: data[:lastname],
-    admin: false,
-    confirmed_at: Time.current,
-    department_memberships_attributes: [
-      { role: data[:role], department: department }
-    ]
-  )
+  User.find_or_create_by!(email: data[:email]) do |u|
+    u.password = "platypus-umbrella-cactus"
+    u.password_confirmation = "platypus-umbrella-cactus"
+    u.current_department = department
+    u.firstname = data[:firstname]
+    u.lastname = data[:lastname]
+    u.admin = false
+    u.confirmed_at = Time.current
+    u.department_memberships_attributes = [{ role: data[:role], department: department }]
+  end
 end
 
 # --- Unique item (single) ---
+
+if ParentItem.count > 0
+  puts "Items already seeded, skipping."
+else
 
 arduino = ParentItem.create!(
   name: "Arduino Board", description: "Microcontroller-Board für Prototyping", department: department, price: "25", tag_list: "elektronik, prototyping"
@@ -162,11 +157,11 @@ line_item = LineItem.create!(
   item: arduino_item, lending: lending, quantity: 1, returned_at: Time.current
 )
 
-LegalText.create!([
-  {content: "Die aktuellen Ausleihbedingungen", kind: "tos", user: user},
-  {content: "Die aktuellen Datenschutzbestimmungen", kind: "privacy", user: user},
-  {content: "Das aktuelle Impressum", kind: "imprint", user: user}
-])
+LegalText.find_or_create_by!(kind: "tos") { |t| t.content = "Die aktuellen Ausleihbedingungen"; t.user = user }
+LegalText.find_or_create_by!(kind: "privacy") { |t| t.content = "Die aktuellen Datenschutzbestimmungen"; t.user = user }
+LegalText.find_or_create_by!(kind: "imprint") { |t| t.content = "Das aktuelle Impressum"; t.user = user }
+
+end # if ParentItem.count > 0
 
 Searchkick.enable_callbacks
 
