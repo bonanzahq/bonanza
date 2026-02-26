@@ -1,4 +1,4 @@
-<%# ABOUTME: Devise email notification sent to the old address when email is being changed. %>
+<%# ABOUTME: Devise confirmation email for email address changes (reconfirmation). %>
 <%# ABOUTME: Styled to match the invitation email template (Cerberus-based layout). %>
 <!DOCTYPE html>
 <html lang="de" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
@@ -75,6 +75,11 @@
     </style>
 
     <style>
+      .button-td, .button-a { transition: all 100ms ease-in; }
+      .button-td-primary:hover, .button-a-primary:hover {
+          background: #9e300f !important;
+          border-color: #952e0e !important;
+      }
       @media screen and (max-width: 600px) {
           .email-container p { font-size: 17px !important; }
       }
@@ -89,7 +94,11 @@
     <![endif]-->
 
         <div style="max-height:0; overflow:hidden; mso-hide:all;" aria-hidden="true">
-            Deine E-Mail-Adresse bei Bonanza wurde geändert.
+            <% if @resource.unconfirmed_email.present? %>
+                Bitte bestätige Deine neue E-Mail-Adresse <%= @resource.unconfirmed_email %> für Bonanza.
+            <% else %>
+                Bitte bestätige Dein Konto bei Bonanza.
+            <% end %>
         </div>
 
         <div style="display: none; font-size: 1px; line-height: 1px; max-height: 0px; max-width: 0px; opacity: 0; overflow: hidden; mso-hide: all; font-family: sans-serif;">
@@ -115,15 +124,27 @@
                         <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%">
                             <tr>
                                 <td style="padding: 40px; font-family: sans-serif; font-size: 16px; line-height: 24px; color: #272727;">
-                                    <h1 style="margin: 0 0 20px 0; font-family: sans-serif; font-size: 24px; line-height: 32px; color: #272727;">E-Mail-Adresse geändert</h1>
-                                    <h2 style="margin: 0 0 10px 0; font-family: sans-serif; font-size: 16px; line-height: 24px; color: #272727;">Hallo <%= @email %>,</h2>
-                                    <% if @resource.try(:unconfirmed_email?) %>
-                                        <p style="margin: 0 0 10px 0;">Wir informieren Dich, dass für Dein Bonanza-Konto eine neue E-Mail-Adresse angegeben wurde: <strong><%= @resource.unconfirmed_email %></strong>.</p>
-                                        <p style="margin: 0 0 10px 0;">Die Änderung wird erst wirksam, nachdem die neue Adresse bestätigt wurde. Falls Du diese Änderung nicht angefordert hast, wende Dich bitte an die Administration.</p>
+                                    <% if @resource.unconfirmed_email.present? %>
+                                        <h1 style="margin: 0 0 20px 0; font-family: sans-serif; font-size: 24px; line-height: 32px; color: #272727;">E-Mail-Adresse bestätigen</h1>
+                                        <h2 style="margin: 0 0 10px 0; font-family: sans-serif; font-size: 16px; line-height: 24px; color: #272727;">Hallo,</h2>
+                                        <p style="margin: 0 0 10px 0;">Für Dein Bonanza-Konto wurde eine neue E-Mail-Adresse angegeben: <strong><%= @resource.unconfirmed_email %></strong>. Bitte bestätige die Änderung, indem Du auf den untenstehenden Link klickst.</p>
+                                        <p style="margin: 0 0 20px 0;">Falls Du diese Änderung nicht angefordert hast, kannst Du diese E-Mail ignorieren. Deine bisherige E-Mail-Adresse bleibt weiterhin aktiv.</p>
                                     <% else %>
-                                        <p style="margin: 0 0 10px 0;">Wir informieren Dich, dass Deine E-Mail-Adresse bei Bonanza zu <strong><%= @resource.email %></strong> geändert wurde.</p>
-                                        <p style="margin: 0 0 10px 0;">Falls Du diese Änderung nicht angefordert hast, wende Dich bitte an die Administration.</p>
+                                        <h1 style="margin: 0 0 20px 0; font-family: sans-serif; font-size: 24px; line-height: 32px; color: #272727;">Konto bestätigen</h1>
+                                        <h2 style="margin: 0 0 10px 0; font-family: sans-serif; font-size: 16px; line-height: 24px; color: #272727;">Hallo,</h2>
+                                        <p style="margin: 0 0 20px 0;">Bitte bestätige Dein Bonanza-Konto, indem Du auf den untenstehenden Link klickst.</p>
                                     <% end %>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0 20px 40px 20px;">
+                                    <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: auto;">
+                                        <tr>
+                                            <td class="button-td button-td-primary" style="border-radius: 4px; background: #BA3912;">
+                                              <%= link_to(@resource.unconfirmed_email.present? ? "E-Mail-Adresse bestätigen" : "Konto bestätigen", confirmation_url(@resource, confirmation_token: @token), style: "background: #BA3912; border: 1px solid #BA3912; font-family: sans-serif; font-size: 15px; line-height: 15px; text-decoration: none; padding: 13px 16px 11px 16px; color: #ffffff; display: block; border-radius: 4px;") %>
+                                            </td>
+                                        </tr>
+                                    </table>
                                 </td>
                             </tr>
                         </table>
