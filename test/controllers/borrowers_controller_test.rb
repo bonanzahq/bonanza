@@ -70,8 +70,7 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
           lastname: "Person",
           email: "new-borrower@example.com",
           phone: "0331 1234567",
-          borrower_type: "employee",
-          insurance_checked: true
+          borrower_type: "employee"
         }
       }
     end
@@ -91,8 +90,7 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
           lastname: "Test",
           email: "email-test-borrower@example.com",
           phone: "0331 9999999",
-          borrower_type: "employee",
-          insurance_checked: true
+          borrower_type: "employee"
         }
       }
     end
@@ -209,7 +207,7 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
         borrower: {
           firstname: "Test", lastname: "Person",
           email: "guest-test@example.com", phone: "123",
-          borrower_type: "employee", insurance_checked: true
+          borrower_type: "employee"
         }
       }
     end
