@@ -1,0 +1,80 @@
+<%# ABOUTME: Management view for departments index. %>
+<%# ABOUTME: Shown to admins and leaders; lists all departments with edit/show links. %>
+
+<header class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7 bnz-tab-navigation d-flex align-items-stretch pt-3">
+        <h4>Werkstätten</h4>
+    </div>
+    <div class="col-3 d-flex align-items-center">
+        <%= render 'shared/user_menu' %>
+    </div>
+</header>
+
+<div class="row">
+    <div class="col-2 pt-3 d-flex justify-content-end align-items-start">
+        <%= link_to "Verwaltung", borrowers_path, class: "link-back link-dark" %>
+    </div>
+    <div class="col-7">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h4 class="mb-0">Werkstätten <span class="fw-normal"><%= @departments.count %></span></h4>
+            <% if can? :create, Department %>
+                <%= link_to "Werkstatt anlegen", new_department_path, class: 'icon-before add-new fs-6' %>
+            <% end %>
+        </div>
+
+        <% @departments.each do |department| %>
+            <div class="bnz-card">
+                <div class="header">
+                    <h4>
+                        <%= link_to department.name, department_path(department), class: "link-dark text-decoration-none" %>
+                        <% if department.hidden %>
+                            <span class="text-muted">(versteckt)</span>
+                        <% end %>
+                    </h4>
+                    <div class="right">
+                        <% unless department.room.blank? %>
+                            <span class="icon-before location"><%= department.room %></span>
+                        <% end %>
+                    </div>
+                </div>
+                <div class="body">
+                    <% unless department.time.blank? %>
+                        <div class="line">
+                            <strong class="label">Öffnungszeiten</strong> <%= department.time %>
+                        </div>
+                    <% end %>
+
+                    <div class="line">
+                        <strong class="label">Standardausleihdauer</strong> <%= department.default_lending_duration %> Tage
+                    </div>
+
+                    <div class="line">
+                        <% if department.staffed %>
+                            <span class="text-success">Geöffnet</span>
+                        <% else %>
+                            <span class="text-danger">Geschlossen</span>
+                        <% end %>
+                    </div>
+
+                    <% staff = department.department_memberships.includes(:user).where.not(role: [0, 3, 99]).where(user: { invitation_created_at: nil }).or(department.department_memberships.includes(:user).where.not(role: [0, 3, 99]).where.not(user: { invitation_created_at: nil }).where.not(user: { invitation_accepted_at: nil })) %>
+                    <% if staff.any? %>
+                        <div class="line">
+                            <strong class="label"><%= t('lending person', count: staff.count) %></strong>
+                            <%= staff.map { |m| m.user.fullname }.to_sentence(two_words_connector: ' und ') %>
+                        </div>
+                    <% end %>
+
+                    <% if can? :edit, department %>
+                        <div class="line">
+                            <%= link_to 'Editieren', edit_department_path(department) %>
+                        </div>
+                    <% end %>
+                </div>
+            </div>
+        <% end %>
+    </div>
+    <div class="col-3">
+    </div>
+</div>
