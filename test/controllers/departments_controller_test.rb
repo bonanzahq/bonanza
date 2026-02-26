@@ -133,6 +133,15 @@ class DepartmentsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{new_department_path}']"
   end
 
+  test "admin can render new department page" do
+    admin = create(:user, :admin, department: @department)
+    sign_in admin
+
+    get new_department_path
+    assert_response :success
+    assert_select "a[href='#{departments_path}']", text: "Abbrechen"
+  end
+
   test "leader does not see new department link in management index" do
     leader = create(:user, :leader, department: @department)
     sign_in leader
