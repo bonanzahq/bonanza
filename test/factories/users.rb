@@ -8,6 +8,7 @@ FactoryBot.define do
     password_confirmation { "platypus-umbrella-cactus" }
     firstname { Faker::Name.first_name }
     lastname { Faker::Name.last_name }
+    confirmed_at { Time.current }
 
     transient do
       role { :member }

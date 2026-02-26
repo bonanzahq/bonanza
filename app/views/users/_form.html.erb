@@ -23,6 +23,11 @@
     <div class="mb-4" data-field-container>
       <%= f.label :email, "E-Mail-Adresse", class: "form-label" %>
       <%= f.email_field :email, autocomplete: "off", class: "form-control", :required => true %>
+      <% if user.pending_reconfirmation? %>
+        <small class="form-text text-warning">
+          Warte auf Bestätigung von <%= user.unconfirmed_email %>.
+        </small>
+      <% end %>
     </div>
 
     <% if current_user.admin? %>

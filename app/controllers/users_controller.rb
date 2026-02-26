@@ -53,7 +53,13 @@ class UsersController < ApplicationController
           bypass_sign_in @user
         end
 
-        format.html { redirect_to verwaltung_verleihende_path, notice: "Verleihende Person wurde erfolgreich aktualisiert." }
+        notice = if @user.pending_reconfirmation?
+                   "Daten aktualisiert. Bitte bestätige die neue E-Mail-Adresse über den Link in der Bestätigungs-E-Mail."
+                 else
+                   "Verleihende Person wurde erfolgreich aktualisiert."
+                 end
+
+        format.html { redirect_to verwaltung_verleihende_path, notice: notice }
       else
         format.html { render :edit, status: :unprocessable_entity }
       end
