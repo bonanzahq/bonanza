@@ -24,9 +24,7 @@
 
             <div class="results borrowers">
             <% if @lending.borrower %>
-                <div class="<%= "mb-4" if params[:b].present? %>">
                     <%= render partial: "result_borrower", locals: {borrower: @lending.borrower, lending: @lending } %>
-                </div>
             <% end %>
                 <% @borrowers.each do |borrower| %>
 
