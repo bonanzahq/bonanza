@@ -108,6 +108,27 @@ class CheckoutControllerTest < ActionDispatch::IntegrationTest
 
   # -- update --
 
+  test "borrower state shows Weiter button when borrower is assigned" do
+    lending_id = populate_cart
+    lending = Lending.find(lending_id)
+    borrower = create(:borrower, :with_tos)
+    lending.update_columns(state: Lending.states[:borrower], borrower_id: borrower.id)
+
+    get checkout_state_path("borrower")
+    assert_response :success
+    assert_select "form[action='#{update_checkout_path("borrower")}'] button", text: "Weiter"
+  end
+
+  test "borrower state does not show Weiter button when no borrower is assigned" do
+    lending_id = populate_cart
+    lending = Lending.find(lending_id)
+    lending.update_column(:state, Lending.states[:borrower])
+
+    get checkout_state_path("borrower")
+    assert_response :success
+    assert_select "form[action='#{update_checkout_path("borrower")}'] button", text: "Weiter", count: 0
+  end
+
   test "update without params redirects with alert" do
     lending_id = populate_cart
     lending = Lending.find(lending_id)

@@ -43,6 +43,16 @@
             </div>
 
         </div>
+
+        <% if @lending.borrower %>
+            <%= form_with url: update_checkout_path("borrower"), method: :patch, data: { turbo: false } do |form| %>
+                <%= hidden_field_tag "lending[borrower_id]", @lending.borrower.id %>
+                <div class="actions">
+                    <%= button_tag "Weiter", class: "btn btn-primary" %>
+                </div>
+            <% end %>
+        <% end %>
+
     </div>
     <div class="col-3">
         <%= render 'lending/sidebar_cart' %>
