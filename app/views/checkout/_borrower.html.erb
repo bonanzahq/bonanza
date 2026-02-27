@@ -22,13 +22,12 @@
             </div>
             <% end %>
 
+            <div class="results borrowers">
             <% if @lending.borrower %>
                 <div class="<%= "mb-4" if params[:b].present? %>">
                     <%= render partial: "result_borrower", locals: {borrower: @lending.borrower, lending: @lending } %>
                 </div>
             <% end %>
-
-            <div class="results borrowers">
                 <% @borrowers.each do |borrower| %>
 
                     <% unless @lending.borrower && @lending.borrower.id == borrower.id %>
