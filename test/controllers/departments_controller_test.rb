@@ -110,8 +110,8 @@ class DepartmentsControllerTest < ActionDispatch::IntegrationTest
 
     get departments_path
     assert_response :success
-    assert_select ".bnz-card .header h4 a", @department.name
-    assert_select ".bnz-card .header h4 a", hidden_dept.name
+    assert_select ".bg-light h3 a", @department.name
+    assert_select ".bg-light h3 a", hidden_dept.name
   end
 
   test "management index shows department details" do
@@ -120,7 +120,7 @@ class DepartmentsControllerTest < ActionDispatch::IntegrationTest
 
     get departments_path
     assert_response :success
-    assert_select ".bnz-card", text: /#{@department.name}/
+    assert_select ".bg-light h3 a", text: /#{@department.name}/
     assert_select ".bnz-card", text: /#{@department.room}/
   end
 
