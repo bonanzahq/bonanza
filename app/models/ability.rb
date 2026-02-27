@@ -58,6 +58,7 @@ class Ability
       can :manage, Lending, :department_id => user.current_department.id
       can [:edit, :update], :checkout
       can :take_back, LineItem, :item => { :parent_item => { :department => user.current_department } }
+      can :read, :statistics
       can :read, :all
     elsif user.member? || user.hidden?
       can :unstaff, Department, :id => user.current_department.id
@@ -69,6 +70,7 @@ class Ability
       can :manage, Lending, :department_id => user.current_department.id
       can [:edit, :update], :checkout
       can :take_back, LineItem, :item => { :parent_item => { :department => user.current_department } }
+      can :read, :statistics
       can :read, :all
     elsif user.guest?
       can :read, Department

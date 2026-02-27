@@ -465,6 +465,34 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:update, @department)
   end
 
+  test "member can read statistics" do
+    user = create(:user, department: @department)
+    ability = Ability.new(user)
+
+    assert ability.can?(:read, :statistics)
+  end
+
+  test "leader can read statistics" do
+    user = create(:user, :leader, department: @department)
+    ability = Ability.new(user)
+
+    assert ability.can?(:read, :statistics)
+  end
+
+  test "guest cannot read statistics" do
+    user = create(:user, :guest, department: @department)
+    ability = Ability.new(user)
+
+    assert ability.cannot?(:read, :statistics)
+  end
+
+  test "hidden user can read statistics" do
+    user = create(:user, :hidden, department: @department)
+    ability = Ability.new(user)
+
+    assert ability.can?(:read, :statistics)
+  end
+
   # -- Deleted --
 
   test "deleted user gets no permissions beyond reading departments" do
