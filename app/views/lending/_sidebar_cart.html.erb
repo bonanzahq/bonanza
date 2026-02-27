@@ -29,5 +29,11 @@
 
   <% end %>
 
+  <% if controller_name == 'checkout' && @lending.state == "borrower" && @lending.borrower %>
+  <div class="checkout-actions">
+    <%= button_to "Weiter", update_checkout_path("borrower"), class: "btn btn-sm btn-primary", method: :patch, params: { lending: { borrower_id: @lending.borrower.id } }, data: { turbo: false } %>
+  </div>
+  <% end %>
+
 </div>
 <% end %>

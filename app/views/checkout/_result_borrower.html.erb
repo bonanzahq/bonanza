@@ -1,5 +1,5 @@
 <div id="<%= dom_id borrower %>" class="bnz-card <%= "warning" if borrower.has_bans_here? or not borrower.tos_accepted %>" data-controller="show-details">
-    <%= form_with model: lending, url: update_checkout_path("borrower") do |f| %>
+    <%= form_with model: lending, url: select_checkout_borrower_path, method: :patch do |f| %>
         <div class="header <% if lending.borrower && lending.borrower.id == borrower.id %> in-cart<% end %>">
             <div class="left">
                 <%= link_to checkout_borrower_path(borrower), class: "name" do %>
