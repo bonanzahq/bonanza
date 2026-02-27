@@ -317,11 +317,11 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:take_back, line_item)
   end
 
-  test "member can update own department but not other department" do
+  test "member cannot update department" do
     user = create(:user, department: @department)
     ability = Ability.new(user)
 
-    assert ability.can?(:update, @department)
+    assert ability.cannot?(:update, @department)
     assert ability.cannot?(:update, @other_department)
   end
 
@@ -462,6 +462,7 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.can?(:unstaff, @department)
     assert ability.cannot?(:create, User)
     assert ability.cannot?(:destroy, User)
+    assert ability.cannot?(:update, @department)
   end
 
   # -- Deleted --

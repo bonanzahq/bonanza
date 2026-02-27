@@ -208,4 +208,22 @@ class DepartmentsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".bnz-card", text: /Mo-Fr 10-16/
     assert_select ".bnz-card", text: /7/
   end
+
+  test "member cannot update department" do
+    sign_in @member
+
+    patch department_path(@department), params: { department: { name: "Hacked" } }
+
+    assert_redirected_to root_path
+    assert_not_equal "Hacked", @department.reload.name
+  end
+
+  test "guest cannot update department" do
+    sign_in @guest
+
+    patch department_path(@department), params: { department: { name: "Hacked" } }
+
+    assert_redirected_to public_home_page_path
+    assert_not_equal "Hacked", @department.reload.name
+  end
 end
