@@ -33,4 +33,10 @@ class AutocompleteControllerTest < ActionDispatch::IntegrationTest
     get autocomplete_borrowers_path
     assert_response :success
   end
+
+  test "guest can access borrowers autocomplete" do
+    sign_in @guest
+    get autocomplete_borrowers_path
+    assert_response :success
+  end
 end

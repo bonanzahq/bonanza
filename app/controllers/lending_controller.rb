@@ -129,7 +129,7 @@ class LendingController < ApplicationController
     @lending = @department.lendings.find(params[:id])
     authorize! :destroy, @lending
 
-    if @lending.user.current_department == @current_user.current_department && @lending.eradicate
+    if @lending.user.current_department == current_user.current_department && @lending.eradicate
      flash[:notice] = "Ausleihe wurde erfolgreich gelöscht. Status und Anzahl aller Artikel wurde zurückgesetzt."
     else
       flash[:alert] = "Ausleihe konnte nicht gelöscht werden."
