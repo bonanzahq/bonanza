@@ -8,7 +8,8 @@ Branch: `link-department-management`
 
 `_form.html.erb` used `department_path(department)` for the cancel button, which
 crashed with `ActionController::UrlGenerationError` when creating a new department
-(unsaved record, no id). Fixed with `department.persisted? ? department_path(department) : departments_path`.
+(unsaved record, no id). Fixed with
+`department.persisted? ? department_path(department) : departments_path`.
 
 ### Management index layout iterations
 
@@ -40,11 +41,38 @@ and `management_show`. Extracted into two shared partials:
 Both views now render the same partials, ensuring visual consistency. The index
 went from ~100 lines of inline card markup to 2 render calls.
 
+### Copilot review feedback
+
+Addressed all 4 comments from Copilot's PR review:
+
+1. **N+1 query**: Changed `includes(:users)` to `includes(department_memberships: :user)`
+   to match what the staff card partial actually queries.
+2. **Scaffold show for members/guests**: Non-admin/leader users now get redirected
+   from department show to the public departments index instead of seeing the
+   raw scaffold view.
+3. **Staff query duplication**: Acknowledged as valid, tracked in git-bug `3cb14c2`
+   for separate extraction to a model scope.
+4. **Missing test coverage**: Added tests for member and guest access to
+   department show (assert redirect).
+
+### E2E browser testing
+
+Verified all flows end-to-end:
+- Admin: verwaltung link, management index (cards, edit icons, sidebar), show,
+  new department form, edit flow
+- Member: sees "Werkstattinfos bearbeiten", redirected from show, public index
+- Unauthenticated: public departments view, no management UI
+
 ### Verwaltung scope separation issue
 
-Created git-bug issue for separating the `/verwaltung` page links into global
+Created git-bug `af4fbdb` for separating `/verwaltung` links into global
 (cross-department) and current-department sections. Currently "Werkstätten
-verwalten" is mixed in with department-scoped links.
+verwalten" is mixed with department-scoped links.
+
+### Partial extraction audit issue
+
+Created git-bug `3cb14c2` to audit other views (borrowers, lendings, users,
+parent items) for similar shared partial extraction opportunities.
 
 ## Commits
 
@@ -54,23 +82,30 @@ verwalten" is mixed in with department-scoped links.
 - `9bbcfdb` feat(departments): match management index layout to show view card structure
 - `d7835da` fix(departments): remove double-nested padding wrapper on management index
 - `b0893a0` refactor(departments): extract details and staff cards into shared partials
+- `ab82fb1` fix(departments): address Copilot review feedback
 
 ## Files changed
 
-- `app/views/departments/management_index.html.erb` — multiple layout iterations
+- `app/controllers/departments_controller.rb` — N+1 fix, member/guest redirect on show
+- `app/views/departments/management_index.html.erb` — multiple layout iterations, now uses partials
 - `app/views/departments/management_show.html.erb` — replaced inline cards with partials
 - `app/views/departments/_details_card.html.erb` — new shared partial
 - `app/views/departments/_staff_card.html.erb` — new shared partial
 - `app/views/departments/_form.html.erb` — cancel link fix for new records
-- `test/controllers/departments_controller_test.rb` — updated selectors, added new test
+- `test/controllers/departments_controller_test.rb` — updated selectors, added member/guest tests
 
 ## Issues created
 
 - `af4fbdb` — Separate Verwaltung links into global and department-scoped sections
+- `3cb14c2` — Audit views for shared partial extraction opportunities
+
+## PR
+
+https://github.com/bonanzahq/bonanza/pull/172 — CI green, Copilot review addressed
 
 ## Things to watch
 
 - `_management_menu.html.erb` is still dead code
 - The staff query in `_staff_card.html.erb` is complex (filters by role and
-  invitation status) — could be extracted to a model scope
-- Other views (lenders, borrowers) may benefit from similar partial extraction
+  invitation status) — should be extracted to a model scope (tracked in `3cb14c2`)
+- Other views (lenders, borrowers) have similar duplication worth extracting
