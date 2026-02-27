@@ -1,5 +1,6 @@
 class AutocompleteController < ApplicationController
   before_action :authenticate_user!
+  skip_authorization_check
 
   def items
     if params[:dept_id].present?      
