@@ -25,68 +25,8 @@
                 <% end %>
             </div>
 
-            <div class="bnz-card">
-                <div class="header pb-0">
-                    <h4>Details</h4>
-                </div>
-                <div class="body">
-                    <div class="line">
-                        <strong class="label">Raum</strong> <%= @department.room %>
-                    </div>
-
-                    <% unless @department.time.blank? %>
-                        <div class="line">
-                            <strong class="label">Öffnungszeiten</strong> <%= @department.time %>
-                        </div>
-                    <% end %>
-
-                    <% unless @department.note.blank? %>
-                        <div class="line desc" data-controller="readmore">
-                            <strong class="label">Beschreibung</strong>
-                            <%= render_markdown(@department.note) %>
-                        </div>
-                    <% end %>
-
-                    <div class="line">
-                        <strong class="label">Standardausleihdauer</strong> <%= @department.default_lending_duration %> Tage
-                    </div>
-
-                    <div class="line">
-                        <strong class="label">Status</strong>
-                        <% if @department.staffed %>
-                            <span class="text-success">Geöffnet</span>
-                            <% if @department.staffed_at %>
-                                <span class="text-muted small">(seit <%= l(@department.staffed_at.to_date, format: "%d.%m.%Y") %>)</span>
-                            <% end %>
-                        <% else %>
-                            <span class="text-danger">Geschlossen</span>
-                        <% end %>
-                    </div>
-
-                    <% if @department.hidden %>
-                        <div class="line">
-                            <span class="text-muted">Versteckt</span>
-                        </div>
-                    <% end %>
-                </div>
-            </div>
-
-            <% staff = @department.department_memberships.includes(:user).where.not(role: [0, 3, 99]).where(user: { invitation_created_at: nil }).or(@department.department_memberships.includes(:user).where.not(role: [0, 3, 99]).where.not(user: { invitation_created_at: nil }).where.not(user: { invitation_accepted_at: nil })) %>
-            <% if staff.any? %>
-                <div class="bnz-card mt-3">
-                    <div class="header pb-0">
-                        <h4>Verleihende</h4>
-                    </div>
-                    <div class="body">
-                        <% staff.each do |membership| %>
-                            <div class="line">
-                                <%= membership.user.fullname %>
-                                <span class="text-muted small">(<%= membership.role %>)</span>
-                            </div>
-                        <% end %>
-                    </div>
-                </div>
-            <% end %>
+            <%= render "departments/details_card", department: @department %>
+            <%= render "departments/staff_card", department: @department %>
 
             <div class="mt-3 d-flex gap-2">
                 <% if can? :staff, @department %>
