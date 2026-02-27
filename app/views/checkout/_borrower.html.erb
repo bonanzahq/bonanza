@@ -45,8 +45,8 @@
         </div>
 
         <% if @lending.borrower %>
-            <%= form_with url: update_checkout_path("borrower"), method: :patch, data: { turbo: false } do |form| %>
-                <%= hidden_field_tag "lending[borrower_id]", @lending.borrower.id %>
+            <%= form_with model: @lending, url: update_checkout_path("borrower"), method: :patch, data: { turbo: false } do |form| %>
+                <%= form.hidden_field :borrower_id, value: @lending.borrower.id %>
                 <div class="actions">
                     <%= button_tag "Weiter", class: "btn btn-primary" %>
                 </div>
