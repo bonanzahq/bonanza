@@ -187,6 +187,41 @@ class LendingControllerTest < ActionDispatch::IntegrationTest
     assert_response :not_found
   end
 
+  # -- authorization --
+
+  test "guest can view lending index" do
+    guest = create(:user, :guest, department: @department)
+    sign_in guest
+    get lending_path
+    assert_response :success
+  end
+
+  test "guest cannot populate cart" do
+    guest = create(:user, :guest, department: @department)
+    sign_in guest
+    post lending_populate_path, params: { item_id: @item.id, quantity: 1 }
+    assert_redirected_to public_home_page_path
+  end
+
+  test "guest cannot destroy lending" do
+    guest = create(:user, :guest, department: @department)
+    sign_in guest
+    lending = create(:lending, :completed, user: @user, department: @department)
+    delete lending_destroy_path(lending)
+    assert_redirected_to public_home_page_path
+    assert Lending.exists?(lending.id)
+  end
+
+  test "guest cannot change duration" do
+    guest = create(:user, :guest, department: @department)
+    sign_in guest
+    lending = create(:lending, :completed, user: @user, department: @department)
+    lending.update_columns(lent_at: 1.day.ago, duration: 14)
+    patch change_lending_duration_path(lending), params: { lending: { duration: 30 } }
+    assert_redirected_to public_home_page_path
+    assert_equal 14, lending.reload.duration
+  end
+
   # -- change_duration --
 
   test "change_duration updates duration and resets notification_counter" do

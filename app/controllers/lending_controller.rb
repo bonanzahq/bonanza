@@ -2,9 +2,8 @@ class LendingController < ApplicationController
   before_action :authenticate_user!, except: [:show]
   before_action :set_department, except: [:show]
 
-  skip_authorize_resource only: [:show]
-
   def index
+    authorize! :read, Lending
     page_num = params[:page].nil? ? 1 : params[:page]
 
     @dept_id = params[:dept].nil? ? current_user.current_department.id : params[:dept]
@@ -41,6 +40,7 @@ class LendingController < ApplicationController
 
   def populate
     @lending = current_lending
+    authorize! :manage, @lending
 
     @line_item = @lending.populate(params[:item_id], params[:quantity])
 
@@ -57,6 +57,7 @@ class LendingController < ApplicationController
 
   def show_printable_agreement
     @lending = Lending.find(params[:id])
+    authorize! :read, @lending
     @borrower = @lending.borrower
 
     if @lending.token != params[:token]
@@ -68,6 +69,7 @@ class LendingController < ApplicationController
 
   def remove_line_item
     @lending = current_lending
+    authorize! :update, @lending
 
     @line_item = @lending.line_items.find(params[:line_item_id]).destroy
 
@@ -94,6 +96,7 @@ class LendingController < ApplicationController
 
   def update
     @lending = current_lending
+    authorize! :update, @lending
 
     previous_items = @lending.items.clone.to_a
 
@@ -114,6 +117,7 @@ class LendingController < ApplicationController
 
   def empty
     @lending = current_lending
+    authorize! :manage, @lending
     session[:lending_id] = nil
     
     @lending.destroy unless @lending.completed?
@@ -123,6 +127,7 @@ class LendingController < ApplicationController
 
   def destroy
     @lending = @department.lendings.find(params[:id])
+    authorize! :destroy, @lending
 
     if @lending.user.current_department == @current_user.current_department && @lending.eradicate
      flash[:notice] = "Ausleihe wurde erfolgreich gelöscht. Status und Anzahl aller Artikel wurde zurückgesetzt."
