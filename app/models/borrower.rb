@@ -6,7 +6,7 @@ class Borrower < ApplicationRecord
   has_many :conducts, :dependent => :destroy
 
 	validates :firstname, :lastname, :email, :phone, presence: true
-  validates :insurance_checked, inclusion: { in: [true], message: "Haftpflichtversicherung muss überprüft werden!" }, on: [:create, :update]
+  validates :insurance_checked, inclusion: { in: [true], message: "Haftpflichtversicherung muss überprüft werden!" }, on: [:create, :update], if: Proc.new{|u| u.student? }
   validates :id_checked, inclusion: { in: [true], message: "Studierenden-/Mitarbeitendenausweis muss überprüft werden!" }, on: [:create, :update], if: Proc.new{|u| u.student? }
   #validates :email, :email => {:ban_disposable_email => true, :mx_with_fallback => true, :message => "ist ungültig."}, if: Proc.new{ Rails.env.production? } 
   validates :student_id, presence: true, if: Proc.new{|u| u.student? }

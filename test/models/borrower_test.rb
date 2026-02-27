@@ -40,7 +40,7 @@ class BorrowerTest < ActiveSupport::TestCase
 
   # -- Insurance --
 
-  test "insurance_checked must be true" do
+  test "student requires insurance_checked" do
     @borrower.insurance_checked = false
     assert_not @borrower.valid?
   end
@@ -95,6 +95,13 @@ class BorrowerTest < ActiveSupport::TestCase
     borrower = build(:borrower, :employee)
 
     assert_nil borrower.student_id
+    assert borrower.valid?
+  end
+
+  test "employee does not require insurance_checked" do
+    borrower = build(:borrower, :employee)
+    borrower.insurance_checked = false
+
     assert borrower.valid?
   end
 

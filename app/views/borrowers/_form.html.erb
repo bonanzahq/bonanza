@@ -42,7 +42,7 @@
     <%= form.label :id_checked, "Studierenden-/Mitarbeitendenausweis überprüft?", class: "form-check-label" %>
   </div>
 
-  <div class="mb-2 form-check">
+  <div class="mb-2 form-check insurance-check <% if borrower.borrower_type == "employee" %>d-none<% end %>">
     <%= form.check_box :insurance_checked, :autocomplete => 'off', class: "form-check-input" %>
     <%= form.label :insurance_checked, "Haftpflichtversicherung überprüft?", class: "form-check-label" %>
   </div>

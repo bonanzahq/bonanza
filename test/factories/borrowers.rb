@@ -16,6 +16,7 @@ FactoryBot.define do
     trait :employee do
       borrower_type { :employee }
       id_checked { false }
+      insurance_checked { false }
       student_id { nil }
     end
 
