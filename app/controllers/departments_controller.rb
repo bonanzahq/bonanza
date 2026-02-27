@@ -6,7 +6,7 @@ class DepartmentsController < ApplicationController
 
   # GET /departments or /departments.json
   def index
-    @departments = Department.all.order(:name).includes(:users)
+    @departments = Department.all.order(:name).includes(department_memberships: :user)
 
     if user_signed_in? && (current_user.admin? || current_user.leader?)
       render :management_index
@@ -17,6 +17,8 @@ class DepartmentsController < ApplicationController
   def show
     if user_signed_in? && (current_user.admin? || current_user.leader?)
       render :management_show
+    else
+      redirect_to departments_path
     end
   end
 

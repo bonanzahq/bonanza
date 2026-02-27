@@ -181,6 +181,22 @@ class DepartmentsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{edit_department_path(@department)}']"
   end
 
+  test "member is redirected from department show to index" do
+    member = create(:user, department: @department)
+    sign_in member
+
+    get department_path(@department)
+    assert_redirected_to departments_path
+  end
+
+  test "guest is redirected from department show to index" do
+    guest = create(:user, :guest, department: @department)
+    sign_in guest
+
+    get department_path(@department)
+    assert_redirected_to departments_path
+  end
+
   test "department show displays all details" do
     admin = create(:user, :admin, department: @department)
     @department.update!(time: "Mo-Fr 10-16", note: "Testwerkstatt", default_lending_duration: 7)
