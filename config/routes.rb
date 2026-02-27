@@ -58,6 +58,7 @@ Rails.application.routes.draw do
   get 'checkout', :to => 'checkout#index' , :as => :checkout
   match 'checkout/:state', to: 'checkout#index', via: [:get, :post], :as => :checkout_state
   patch 'checkout/update/:state', :to => 'checkout#update', :as => :update_checkout
+  patch 'checkout/select_borrower', :to => 'checkout#select_borrower', :as => :select_checkout_borrower
 
   get '/checkout/update/confirmation', to: redirect('/checkout/confirmation')
 

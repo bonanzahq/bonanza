@@ -9,9 +9,9 @@ class CheckoutController < ApplicationController
   before_action :ensure_line_items
   before_action :ensure_department_is_staffed
   before_action :ensure_lending_not_completed
-  before_action :ensure_checkout_flow_started
-  before_action :ensure_valid_state
-  before_action :ensure_state_access_allowed
+  before_action :ensure_checkout_flow_started, except: [:select_borrower]
+  before_action :ensure_valid_state, except: [:select_borrower]
+  before_action :ensure_state_access_allowed, except: [:select_borrower]
 
   def index
     redirect_to lending_path unless @lending.has_line_items?
@@ -19,6 +19,17 @@ class CheckoutController < ApplicationController
     if params[:state] == "borrower"
       @borrowers = Borrower.search_people(params[:b], nil, nil, true, 1)
     end
+  end
+
+  def select_borrower
+    unless @lending.state == "borrower"
+      redirect_to checkout_state_path(@lending.state) and return
+    end
+
+    if params[:lending] && params[:lending][:borrower_id]
+      @lending.update(borrower_id: params[:lending][:borrower_id])
+    end
+    redirect_to checkout_state_path("borrower")
   end
 
   def update
