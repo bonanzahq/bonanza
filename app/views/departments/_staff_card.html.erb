@@ -1,0 +1,19 @@
+<%# ABOUTME: Department staff list card showing active lenders with their roles. %>
+<%# ABOUTME: Shared between management index and show views. %>
+
+<% staff = department.department_memberships.includes(:user).where.not(role: [0, 3, 99]).where(user: { invitation_created_at: nil }).or(department.department_memberships.includes(:user).where.not(role: [0, 3, 99]).where.not(user: { invitation_created_at: nil }).where.not(user: { invitation_accepted_at: nil })) %>
+<% if staff.any? %>
+    <div class="bnz-card mt-3">
+        <div class="header pb-0">
+            <h4><%= t('lending person', count: staff.count) %></h4>
+        </div>
+        <div class="body">
+            <% staff.each do |membership| %>
+                <div class="line">
+                    <%= membership.user.fullname %>
+                    <span class="text-muted small">(<%= membership.role %>)</span>
+                </div>
+            <% end %>
+        </div>
+    </div>
+<% end %>

@@ -1,5 +1,5 @@
-# ABOUTME: Tests for DepartmentsController staff/unstaff actions.
-# ABOUTME: Verifies PATCH routes, authorization, and staffed state changes.
+# ABOUTME: Tests for DepartmentsController actions including staff/unstaff,
+# ABOUTME: dual-purpose index (management vs public), and show views.
 require "test_helper"
 
 class DepartmentsControllerTest < ActionDispatch::IntegrationTest
@@ -65,5 +65,147 @@ class DepartmentsControllerTest < ActionDispatch::IntegrationTest
     assert_changes -> { @department.reload.staffed }, from: false, to: true do
       patch staff_department_path(@department)
     end
+  end
+
+  # --- Management index tests ---
+
+  test "admin sees management departments index" do
+    admin = create(:user, :admin, department: @department)
+    sign_in admin
+
+    get departments_path
+    assert_response :success
+    assert_select "header .bnz-tab-navigation h4", "Werkstätten"
+    assert_select "a.link-back", text: "Verwaltung"
+  end
+
+  test "leader sees management departments index" do
+    leader = create(:user, :leader, department: @department)
+    sign_in leader
+
+    get departments_path
+    assert_response :success
+    assert_select "header .bnz-tab-navigation h4", "Werkstätten"
+    assert_select "a.link-back", text: "Verwaltung"
+  end
+
+  test "member sees public departments index" do
+    sign_in @member
+
+    get departments_path
+    assert_response :success
+    assert_select ".justify-content-center h3", "Werkstätten"
+  end
+
+  test "unauthenticated user sees public departments index" do
+    get departments_path
+    assert_response :success
+    assert_select ".justify-content-center h3", "Werkstätten"
+  end
+
+  test "management index lists all departments including hidden for admin" do
+    admin = create(:user, :admin, department: @department)
+    hidden_dept = create(:department, hidden: true)
+    sign_in admin
+
+    get departments_path
+    assert_response :success
+    assert_select ".bg-light h3 a", @department.name
+    assert_select ".bg-light h3 a", hidden_dept.name
+  end
+
+  test "management index shows department details" do
+    admin = create(:user, :admin, department: @department)
+    sign_in admin
+
+    get departments_path
+    assert_response :success
+    assert_select ".bg-light h3 a", text: /#{@department.name}/
+    assert_select ".bnz-card", text: /#{@department.room}/
+  end
+
+  test "admin sees new department link in management index" do
+    admin = create(:user, :admin, department: @department)
+    sign_in admin
+
+    get departments_path
+    assert_response :success
+    assert_select "a[href='#{new_department_path}']"
+  end
+
+  test "admin can render new department page" do
+    admin = create(:user, :admin, department: @department)
+    sign_in admin
+
+    get new_department_path
+    assert_response :success
+    assert_select "a[href='#{departments_path}']", text: "Abbrechen"
+  end
+
+  test "leader does not see new department link in management index" do
+    leader = create(:user, :leader, department: @department)
+    sign_in leader
+
+    get departments_path
+    assert_response :success
+    assert_select "a[href='#{new_department_path}']", false
+  end
+
+  # --- Show view tests ---
+
+  test "admin sees management department show" do
+    admin = create(:user, :admin, department: @department)
+    sign_in admin
+
+    get department_path(@department)
+    assert_response :success
+    assert_select "header .bnz-tab-navigation h4", "Werkstatt"
+    assert_select "h3", @department.name
+  end
+
+  test "leader sees management department show" do
+    leader = create(:user, :leader, department: @department)
+    sign_in leader
+
+    get department_path(@department)
+    assert_response :success
+    assert_select "header .bnz-tab-navigation h4", "Werkstatt"
+  end
+
+  test "admin sees edit link on department show" do
+    admin = create(:user, :admin, department: @department)
+    sign_in admin
+
+    get department_path(@department)
+    assert_response :success
+    assert_select "a[href='#{edit_department_path(@department)}']"
+  end
+
+  test "member is redirected from department show to index" do
+    member = create(:user, department: @department)
+    sign_in member
+
+    get department_path(@department)
+    assert_redirected_to departments_path
+  end
+
+  test "guest is redirected from department show to index" do
+    guest = create(:user, :guest, department: @department)
+    sign_in guest
+
+    get department_path(@department)
+    assert_redirected_to departments_path
+  end
+
+  test "department show displays all details" do
+    admin = create(:user, :admin, department: @department)
+    @department.update!(time: "Mo-Fr 10-16", note: "Testwerkstatt", default_lending_duration: 7)
+    sign_in admin
+
+    get department_path(@department)
+    assert_response :success
+    assert_select ".bnz-card", text: /#{@department.room}/
+    assert_select ".bnz-card", text: /Mo-Fr 10-16/
+    assert_select ".bnz-card", text: /7/
   end
 end

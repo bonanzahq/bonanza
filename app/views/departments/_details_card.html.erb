@@ -1,0 +1,48 @@
+<%# ABOUTME: Department details card showing room, hours, description, duration, and status. %>
+<%# ABOUTME: Shared between management index and show views. %>
+
+<div class="bnz-card">
+    <div class="header pb-0">
+        <h4>Details</h4>
+    </div>
+    <div class="body">
+        <div class="line">
+            <strong class="label">Raum</strong> <%= department.room %>
+        </div>
+
+        <% unless department.time.blank? %>
+            <div class="line">
+                <strong class="label">Öffnungszeiten</strong> <%= department.time %>
+            </div>
+        <% end %>
+
+        <% unless department.note.blank? %>
+            <div class="line desc" data-controller="readmore">
+                <strong class="label">Beschreibung</strong>
+                <%= render_markdown(department.note) %>
+            </div>
+        <% end %>
+
+        <div class="line">
+            <strong class="label">Standardausleihdauer</strong> <%= department.default_lending_duration %> Tage
+        </div>
+
+        <div class="line">
+            <strong class="label">Status</strong>
+            <% if department.staffed %>
+                <span class="text-success">Geöffnet</span>
+                <% if department.staffed_at %>
+                    <span class="text-muted small">(seit <%= l(department.staffed_at.to_date, format: "%d.%m.%Y") %>)</span>
+                <% end %>
+            <% else %>
+                <span class="text-danger">Geschlossen</span>
+            <% end %>
+        </div>
+
+        <% if department.hidden %>
+            <div class="line">
+                <span class="text-muted">Versteckt</span>
+            </div>
+        <% end %>
+    </div>
+</div>

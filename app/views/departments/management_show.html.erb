@@ -1,0 +1,44 @@
+<%# ABOUTME: Management view for a single department. %>
+<%# ABOUTME: Shown to admins and leaders; displays department details with edit actions. %>
+
+<header class="row">
+    <div class="col-2">
+    </div>
+    <div class="col-7 bnz-tab-navigation d-flex align-items-stretch pt-3">
+        <h4>Werkstatt</h4>
+    </div>
+    <div class="col-3 d-flex align-items-center">
+        <%= render 'shared/user_menu' %>
+    </div>
+</header>
+
+<div class="row">
+    <div class="col-2 pt-3 d-flex justify-content-end align-items-start">
+        <%= link_to "Werkstätten", departments_path, class: "link-back link-dark" %>
+    </div>
+    <div class="col-7">
+        <div class="p-3 bg-light rounded mb-3 w-100">
+            <div class="d-flex justify-content-between align-items-start">
+                <h3><%= @department.name %></h3>
+                <% if can? :edit, @department %>
+                    <%= link_to 'bearbeiten', edit_department_path(@department), class: 'icon edit' %>
+                <% end %>
+            </div>
+
+            <%= render "departments/details_card", department: @department %>
+            <%= render "departments/staff_card", department: @department %>
+
+            <div class="mt-3 d-flex gap-2">
+                <% if can? :staff, @department %>
+                    <% if @department.staffed %>
+                        <%= link_to "Werkstatt vorübergehend schließen", unstaff_department_path(@department), class: 'btn btn-outline-secondary btn-sm', data: { turbo_method: :patch } %>
+                    <% else %>
+                        <%= link_to "Werkstatt wieder öffnen", staff_department_path(@department), class: 'btn btn-outline-secondary btn-sm', data: { turbo_method: :patch } %>
+                    <% end %>
+                <% end %>
+            </div>
+        </div>
+    </div>
+    <div class="col-3">
+    </div>
+</div>

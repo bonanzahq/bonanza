@@ -6,11 +6,20 @@ class DepartmentsController < ApplicationController
 
   # GET /departments or /departments.json
   def index
-    @departments = Department.all.order(:name).includes(:users)
+    @departments = Department.all.order(:name).includes(department_memberships: :user)
+
+    if user_signed_in? && (current_user.admin? || current_user.leader?)
+      render :management_index
+    end
   end
 
   # GET /departments/1 or /departments/1.json
   def show
+    if user_signed_in? && (current_user.admin? || current_user.leader?)
+      render :management_show
+    else
+      redirect_to departments_path
+    end
   end
 
   # GET /departments/new
@@ -39,7 +48,7 @@ class DepartmentsController < ApplicationController
   def update
     respond_to do |format|
       if @department.update(department_params)
-        format.html { redirect_to borrowers_path, notice: "#{@department.name} was successfully updated." }
+        format.html { redirect_to department_path(@department), notice: "#{@department.name} was successfully updated." }
       else
         format.html { render :edit, status: :unprocessable_entity }
       end
