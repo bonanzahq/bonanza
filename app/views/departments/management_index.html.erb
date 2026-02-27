@@ -28,30 +28,32 @@
                                     <span class="text-muted">(versteckt)</span>
                                 <% end %>
                             </h4>
-                            <% unless department.room.blank? %>
-                                <span class="small"><%= department.room %></span>
-                            <% end %>
-                            <% unless department.time.blank? %>
-                                <span class="small">Öffnungszeiten: <%= department.time %></span>
-                            <% end %>
-                            <span class="small">Standardausleihdauer: <%= department.default_lending_duration %> Tage</span>
-                            <span class="small">
-                                <% if department.staffed %>
-                                    <span class="text-success">Geöffnet</span>
-                                <% else %>
-                                    <span class="text-danger">Geschlossen</span>
-                                <% end %>
-                            </span>
-                            <% staff = department.department_memberships.includes(:user).where.not(role: [0, 3, 99]).where(user: { invitation_created_at: nil }).or(department.department_memberships.includes(:user).where.not(role: [0, 3, 99]).where.not(user: { invitation_created_at: nil }).where.not(user: { invitation_accepted_at: nil })) %>
-                            <% if staff.any? %>
-                                <span class="small"><%= t('lending person', count: staff.count) %>: <%= staff.map { |m| m.user.fullname }.to_sentence(two_words_connector: ' und ') %></span>
-                            <% end %>
                         </div>
                         <div class="right">
                             <% if can? :edit, department %>
                                 <%= link_to 'bearbeiten', edit_department_path(department), class: "icon edit" %>
                             <% end %>
                         </div>
+                    </div>
+                    <div class="px-3 pb-3" style="display: flex; flex-wrap: wrap; gap: 4px 16px; align-items: start;">
+                        <% unless department.room.blank? %>
+                            <span class="small"><%= department.room %></span>
+                        <% end %>
+                        <% unless department.time.blank? %>
+                            <span class="small">Öffnungszeiten: <%= department.time %></span>
+                        <% end %>
+                        <span class="small">Standardausleihdauer: <%= department.default_lending_duration %> Tage</span>
+                        <span class="small">
+                            <% if department.staffed %>
+                                <span class="text-success">Geöffnet</span>
+                            <% else %>
+                                <span class="text-danger">Geschlossen</span>
+                            <% end %>
+                        </span>
+                        <% staff = department.department_memberships.includes(:user).where.not(role: [0, 3, 99]).where(user: { invitation_created_at: nil }).or(department.department_memberships.includes(:user).where.not(role: [0, 3, 99]).where.not(user: { invitation_created_at: nil }).where.not(user: { invitation_accepted_at: nil })) %>
+                        <% if staff.any? %>
+                            <span class="small"><%= t('lending person', count: staff.count) %>: <%= staff.map { |m| m.user.fullname }.to_sentence(two_words_connector: ' und ') %></span>
+                        <% end %>
                     </div>
                 </div>
             <% end %>
