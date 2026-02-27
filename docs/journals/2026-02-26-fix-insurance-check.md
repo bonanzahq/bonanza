@@ -34,6 +34,38 @@ Make `insurance_checked` validation conditional on `borrower_type`: required for
 
 502 runs, 937 assertions, 0 failures, 0 errors, 0 skips.
 
+### Seeds Alignment
+
+The seeds duplicate fix was also done in a separate branch/PR. Reverted our
+standalone hidden user block and restored the array entry to match origin/main,
+avoiding merge conflicts.
+
+### E2E Testing
+
+Ran the full Docker stack and verified all flows in a real browser:
+
+| # | Test | Result |
+|---|------|--------|
+| 1 | Employee detail view hides insurance info | PASS |
+| 2 | Student detail view shows "Haftpflicht geprüft" | PASS |
+| 3 | Employee edit form hides insurance checkbox | PASS |
+| 4 | Student edit form shows insurance checkbox | PASS |
+| 5 | Create employee without insurance succeeds | PASS |
+| 6 | Create student without insurance fails validation | PASS |
+| 7 | Create student with insurance succeeds | PASS |
+| 8 | Switching borrower type toggles insurance visibility | PASS |
+| 9 | Checkout view: employees hide insurance, students show it | PASS |
+
+## PR
+
+- PR #169: https://github.com/bonanzahq/bonanza/pull/169
+- CI: build + test passed
+- Copilot review: no comments
+
 ## Notes
 
-- The branch merged main cleanly. The seeds fix (removing duplicate from `role_user_data` loop) merged cleanly because main had already fixed seeds differently (added `confirmed_at` to seed users).
+- The `if: student?` condition means any future borrower type that isn't
+  a student would also skip insurance validation. If the intent changes to
+  "only employees are exempt," flip to `unless: employee?`.
+- The `id_checked` checkbox is still shown for employees even though validation
+  is also student-only. Out of scope but worth a follow-up.
