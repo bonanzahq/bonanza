@@ -3,7 +3,7 @@ class LendingController < ApplicationController
   before_action :set_department, except: [:show]
 
   def index
-    authorize! :read, Lending
+    authorize! :read, ParentItem
     page_num = params[:page].nil? ? 1 : params[:page]
 
     @dept_id = params[:dept].nil? ? current_user.current_department.id : params[:dept]

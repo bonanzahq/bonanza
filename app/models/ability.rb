@@ -75,8 +75,6 @@ class Ability
     elsif user.guest?
       can :read, Department
       can :update, User, :id => user.id
-      can :read, Borrower
-      can :read, Lending
       can :read, ParentItem
     end
   end

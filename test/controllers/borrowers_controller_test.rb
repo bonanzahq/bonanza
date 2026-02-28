@@ -33,6 +33,13 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to public_home_page_path
   end
 
+  test "guest is redirected from borrower show" do
+    guest = create(:user, :guest, department: @department)
+    sign_in guest
+    get borrower_path(@borrower)
+    assert_redirected_to public_home_page_path
+  end
+
   test "borrower search result links have turbo-frame _top" do
     sign_in @user
     

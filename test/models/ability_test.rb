@@ -373,13 +373,13 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:create, Lending)
   end
 
-  test "guest can read borrowers and lendings" do
+  test "guest can read items but not borrowers or lendings" do
     user = create(:user, :guest, department: @department)
     ability = Ability.new(user)
 
-    assert ability.can?(:read, Borrower)
-    assert ability.can?(:read, Lending)
     assert ability.can?(:read, ParentItem)
+    assert ability.cannot?(:read, Borrower)
+    assert ability.cannot?(:read, Lending)
   end
 
   test "guest cannot update other users" do
