@@ -26,6 +26,13 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "guest is redirected from index" do
+    guest = create(:user, :guest, department: @department)
+    sign_in guest
+    get borrowers_path
+    assert_redirected_to public_home_page_path
+  end
+
   test "borrower search result links have turbo-frame _top" do
     sign_in @user
     

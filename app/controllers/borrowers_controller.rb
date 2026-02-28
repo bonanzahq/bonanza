@@ -7,6 +7,7 @@ class BorrowersController < ApplicationController
   # GET /borrowers or /borrowers.json
   def index
     authorize! :read, Borrower
+    return redirect_to public_home_page_path, alert: "Zugang verweigert. Dein Benutzer-Konto muss erst noch freigeschaltet werden." if current_user.guest?
     @borrowers = Borrower.order(:firstname, :lastname).limit(10)
 
     page_num = params[:page].nil? ? 1 : params[:page]
