@@ -16,11 +16,7 @@
     <div class="col-7 mgmt-links">
         <%= link_to "Artikel anlegen", new_parent_item_path, class: 'icon-before add-new' %>
         <%= link_to "Verleihende verwalten", verwaltung_verleihende_path, class: 'icon-before users' %>
-        <% if current_user.admin? || current_user.leader? %>
-            <%= link_to "Werkstätten verwalten", departments_path, class: 'icon-before edit' %>
-        <% else %>
-            <%= link_to "Werkstattinfos bearbeiten", edit_department_path(current_user.current_department), class: 'icon-before edit' %>
-        <% end %>
+            <%= link_to "Werkstätten", departments_path, class: 'icon-before edit' %>
 
         <% if current_user.current_department.staffed %>
             <%= link_to "Werkstatt vorübergehend schließen", unstaff_department_path(current_user.current_department), class: 'icon-before umbrella', data: { turbo_method: :patch } %>

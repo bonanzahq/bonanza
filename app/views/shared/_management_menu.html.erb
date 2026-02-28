@@ -13,7 +13,9 @@
             <hr class="dropdown-divider">
         </li>
         <li>
-            <%= link_to "Werkstattinfos bearbeiten", edit_department_path(current_user.current_department), class: 'icon-before edit' %>
+            <% if can? :update, current_user.current_department %>
+                <%= link_to "Werkstattinfos bearbeiten", edit_department_path(current_user.current_department), class: 'icon-before edit' %>
+            <% end %>
         </li>
         <li>
             <%= link_to "Werkstatt vorübergehend schließen", verwaltung_verleihende_path, class: 'icon-before umbrella' %>

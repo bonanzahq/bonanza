@@ -45,31 +45,30 @@ class NavigationTest < ActionDispatch::IntegrationTest
       "Guest should not see Verwaltung link"
   end
 
-  test "admin sees Werkstätten verwalten link on verwaltung page" do
+  test "admin sees Werkstätten link on verwaltung page" do
     admin = create(:user, :admin, department: @department)
     sign_in admin
 
     get borrowers_path
     assert_response :success
-    assert_select "a[href='#{departments_path}']", text: "Werkstätten verwalten"
+    assert_select "a[href='#{departments_path}']", text: "Werkstätten"
   end
 
-  test "leader sees Werkstätten verwalten link on verwaltung page" do
+  test "leader sees Werkstätten link on verwaltung page" do
     leader = create(:user, :leader, department: @department)
     sign_in leader
 
     get borrowers_path
     assert_response :success
-    assert_select "a[href='#{departments_path}']", text: "Werkstätten verwalten"
+    assert_select "a[href='#{departments_path}']", text: "Werkstätten"
   end
 
-  test "member does not see Werkstätten verwalten link on verwaltung page" do
+  test "member sees Werkstätten link on verwaltung page" do
     member = create(:user, department: @department)
     sign_in member
 
     get borrowers_path
     assert_response :success
-    assert_select "a[href='#{departments_path}']", false,
-      "Member should not see Werkstätten verwalten link"
+    assert_select "a[href='#{departments_path}']", text: "Werkstätten"
   end
 end
