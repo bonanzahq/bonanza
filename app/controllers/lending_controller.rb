@@ -39,8 +39,8 @@ class LendingController < ApplicationController
   end
 
   def populate
+    authorize! :manage, Lending
     @lending = current_lending
-    authorize! :manage, @lending
 
     @line_item = @lending.populate(params[:item_id], params[:quantity])
 
@@ -68,8 +68,8 @@ class LendingController < ApplicationController
   end
 
   def remove_line_item
+    authorize! :update, Lending
     @lending = current_lending
-    authorize! :update, @lending
 
     @line_item = @lending.line_items.find(params[:line_item_id]).destroy
 
@@ -95,8 +95,8 @@ class LendingController < ApplicationController
   end
 
   def update
+    authorize! :update, Lending
     @lending = current_lending
-    authorize! :update, @lending
 
     previous_items = @lending.items.clone.to_a
 
@@ -116,8 +116,8 @@ class LendingController < ApplicationController
   end
 
   def empty
+    authorize! :manage, Lending
     @lending = current_lending
-    authorize! :manage, @lending
     session[:lending_id] = nil
     
     @lending.destroy unless @lending.completed?

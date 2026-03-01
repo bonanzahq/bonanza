@@ -1,8 +1,8 @@
 class AutocompleteController < ApplicationController
   before_action :authenticate_user!
-  skip_authorization_check
 
   def items
+    authorize! :read, ParentItem
     if params[:dept_id].present?      
 
       render json: ParentItem.where(department: params[:dept_id]).pluck(:name)
@@ -13,6 +13,7 @@ class AutocompleteController < ApplicationController
   end
 
   def borrowers
+    authorize! :read, Borrower
     render json: Borrower.where("borrower_type <> ?", Borrower.borrower_types[:deleted]).map(&:fullname)
   end
 end

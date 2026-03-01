@@ -1,5 +1,5 @@
 # ABOUTME: Tests authorization for autocomplete endpoints.
-# ABOUTME: Verifies all authenticated users can access autocomplete data.
+# ABOUTME: Verifies role-based access to autocomplete data.
 
 require "test_helper"
 
@@ -34,9 +34,9 @@ class AutocompleteControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "guest can access borrowers autocomplete" do
+  test "guest cannot access borrowers autocomplete" do
     sign_in @guest
     get autocomplete_borrowers_path
-    assert_response :success
+    assert_redirected_to public_home_page_path
   end
 end
