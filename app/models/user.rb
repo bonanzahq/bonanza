@@ -44,6 +44,13 @@ class User < ApplicationRecord
     membership.save! if membership.persisted?
   end
 
+  def switchable_departments
+    Department.joins(:department_memberships)
+              .where(department_memberships: { user: self })
+              .where.not(department_memberships: { role: :deleted })
+              .where.not(id: current_department_id)
+  end
+
   def is_guest_everywhere?
     department_memberships.where.not(role: ["guest", "deleted"]).empty?
   end
