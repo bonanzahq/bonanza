@@ -57,13 +57,16 @@ class DeviseLocaleTest < ActionDispatch::IntegrationTest
     user.department_memberships.build(department: department, role: :member)
     user.save!
 
-    user.send_reset_password_instructions
+    assert_difference "ActionMailer::Base.deliveries.size", 1 do
+      user.send_reset_password_instructions
+    end
 
     mail = ActionMailer::Base.deliveries.last
     assert_not_nil mail, "Expected a reset password email to be sent"
+    assert_equal ["locale-test@example.com"], mail.to
     body = mail.body.encoded
     assert_includes body, "Passwort zurücksetzen"
-    assert_includes body, "Passwort zu ändern"
+    assert_includes body, "Zurücksetzen Deines Passworts"
     assert_no_match(/Hello/, body)
     assert_no_match(/Change my password/, body)
   end
