@@ -17,12 +17,12 @@
       </div>
     <% end %>
 
-    <% if user_signed_in? && current_user.current_department.staffed == false %>
-      <%= render "layouts/unstaffed_message" %>
-    <% end %>
-
     <% if session[:weak_password] %>
       <%= render "shared/weak_password_warning" %>
+    <% end %>
+
+    <% if user_signed_in? && current_user.current_department.staffed == false %>
+      <%= render "layouts/unstaffed_message" %>
     <% end %>
 
     <% unless request.path == root_path %>
