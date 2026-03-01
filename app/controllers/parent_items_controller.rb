@@ -124,7 +124,7 @@ class ParentItemsController < ApplicationController
         @parent_item.reindex
       rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED, Elastic::Transport::Transport::Error
       end
-      redirect_to edit_parent_item_path(@parent_item), notice: "Artikel wurde erfolgreich verschoben."
+      redirect_to borrowers_path, notice: "Artikel wurde erfolgreich verschoben."
     else
       redirect_back fallback_location: edit_parent_item_path(@parent_item), alert: "Artikel konnte nicht verschoben werden."
     end
