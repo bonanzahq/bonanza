@@ -49,6 +49,8 @@ class User < ApplicationRecord
               .where(department_memberships: { user: self })
               .where.not(department_memberships: { role: :deleted })
               .where.not(id: current_department_id)
+              .distinct
+              .order(:name)
   end
 
   def is_guest_everywhere?
