@@ -9,7 +9,7 @@ execution sequence.
 - Redux will deploy to the **same host** as v1 (parallel migration on different ports)
 - Aggressive upgrade path: Ruby 3.4+ and Rails 8.0 directly
 - FHP provides SMTP relay for email
-- v1 role=2 maps to "leader" in Redux; admin flag granted manually post-migration
+- v1 roles: guest=0, standard=1, leader=2, admin=3, deleted=99. Admin (role=3) gets leader role + User.admin=true.
 
 ## Dependency Graph
 
@@ -221,7 +221,7 @@ to Phase D/backlog.
 
 - **Plan:** `d1_data-migration.md`
 - **Key decisions already made:**
-  - v1 role=2 → Redux "leader" (admins designated manually)
+  - v1 role=3 (admin) → Redux leader role + User.admin=true
   - Same host: parallel migration on different ports
   - FHP SMTP for email
 - **Still to verify on v1 server:**

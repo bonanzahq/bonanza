@@ -9,7 +9,7 @@ Migrate all data from Bonanza v1 (MySQL + Elasticsearch on bare metal) to Bonanz
 ### Bonanza v1 (Source)
 - **Database**: MySQL (bare metal)
 - **Search**: Elasticsearch (bare metal, version TBD)
-- **Hosting**: Bare metal server
+- **Hosting**: Bare metal server (no Docker — the Docker files in the v1 repo were never deployed to staging or production)
 - **Schema Version**: ActiveRecord 20151110175705
 
 ### Bonanza Redux (Target)
@@ -55,13 +55,16 @@ Since both systems will run on the **same host**, we can use a **zero-downtime p
 |-------|---------|-------------------|
 | `legal_texts` | TOS and privacy policy versions | Create default entries after migration |
 | `department_memberships` | User roles per department | Transform from v1 user.role + user.department_id |
+| `active_storage_*` (3 tables) | File attachment framework | Empty, no v1 data |
+| `gdpr_audit_logs` | GDPR audit trail | Empty, no v1 data |
+| `solid_queue_*` (11 tables) | Background job queue | Empty, no v1 data |
 
 ### Removed Tables from v1
 
 | Table | Reason | Migration Strategy |
 |-------|--------|-------------------|
 | `assets` | Replaced by ActiveStorage | Migrate files to ActiveStorage, convert Paperclip metadata |
-| `links` | No longer used | Document in migration, optionally preserve data for reference |
+| `links` | URLs for parent items (manuals, manufacturer pages) | Add Link model to Redux before migration (git-bug 7f45b40), then migrate data |
 
 ### Fields Added in Redux
 
@@ -80,8 +83,8 @@ Since both systems will run on the **same host**, we can use a **zero-downtime p
 | users | `role` | Moved to department_memberships |
 | users | `department_id` | Renamed to `current_department_id` |
 | users | `provider`, `uid`, `refresh_token`, `expires_at`, `access_token` | OAuth removed |
-| users | `avatar_data` | Paperclip removed, use ActiveStorage |
-| borrowers | `avatar_data` | Paperclip removed, could migrate to ActiveStorage |
+| users | `avatar_data` | Auto-generated identicon (RubyIdenticon), safe to drop |
+| borrowers | `avatar_data` | Auto-generated identicon (RubyIdenticon), safe to drop |
 | parent_items | `bundle_id` | Bundles feature removed |
 | parent_items | `storage_location` | Moved to items table |
 
@@ -112,7 +115,7 @@ created_at → created_at
 updated_at → updated_at
 
 # Fields to drop:
-- avatar_data (Paperclip, could migrate to ActiveStorage if needed)
+- avatar_data (auto-generated identicon, safe to drop)
 
 # Constraint: student_id unique index
 # v2 has a partial unique index on student_id (WHERE student_id IS NOT NULL).
@@ -144,12 +147,14 @@ created_at → created_at
 updated_at → updated_at
 
 # admin field: NEW
-# Check if user.role == 2 (admin in v1) → set admin: true
+# v1 enum: guest=0, standard=1, leader=2, admin=3, deleted=99
+# Check if user.role == 3 (admin in v1) → set admin: true
+# v1 'standard' maps to Redux 'member'
 
 # Fields to drop:
 - role (migrated to department_memberships)
 - provider, uid, refresh_token, expires_at, access_token (OAuth removed)
-- avatar_data (Paperclip)
+- avatar_data (auto-generated identicon, safe to drop)
 
 # Post-migration: Create department_memberships
 # For each user:
@@ -211,7 +216,7 @@ updated_at → updated_at
 lender_id → borrower_id (FK references borrowers table now)
 ```
 
-### 8. conducts (lender_id → borrower_id)
+### 8. conducts (lender_id → borrower_id, new fields)
 ```ruby
 # Field mapping:
 kind → kind
@@ -224,6 +229,10 @@ duration → duration
 permanent → permanent
 created_at → created_at
 updated_at → updated_at
+
+# New Redux fields (no v1 equivalent):
+# lifted_by_id: NULL (no lift history in v1)
+# lifted_at: NULL (no lift history in v1)
 ```
 
 ### 9. line_items (no changes)
@@ -259,6 +268,65 @@ pgloader automatically handles:
 
 ## Migration Phases
 
+### Phase 0: Server Access & Exploration
+
+v1 runs bare metal (NOT Docker). Fabian has root SSH access.
+
+```bash
+# Set these after discovering credentials in steps 0.1-0.2
+MYSQL_USER="..."          # MySQL username from database.yml / process env
+MYSQL_DB="..."            # Production database name
+```
+
+#### 0.1 Find the v1 app directory
+```bash
+ssh root@SERVER
+find / -name "database.yml" -path "*/bonanza/*" 2>/dev/null
+ps aux | grep -i puma
+```
+
+#### 0.2 Find MySQL credentials
+```bash
+# From the running process environment
+cat /proc/$(pgrep -f puma | head -1)/environ | tr '\0' '\n' | grep -iE 'bonanza|mysql|database'
+
+# From the app config
+cat /path/to/bonanza/config/database.yml
+cat /path/to/bonanza/.env 2>/dev/null
+
+# From systemd (if managed)
+systemctl list-units | grep -i bonanza
+systemctl cat bonanza
+```
+
+#### 0.3 Explore the database
+```bash
+mysql -u "$MYSQL_USER" -p "$MYSQL_DB"
+
+# Record counts
+SELECT table_name, table_rows
+FROM information_schema.tables
+WHERE table_schema = '$MYSQL_DB'
+ORDER BY table_rows DESC;
+
+# User role distribution (verify enum values)
+SELECT role, COUNT(*) FROM users GROUP BY role;
+
+# Assets count
+SELECT COUNT(*) FROM assets;
+```
+
+#### 0.4 Find and size Paperclip files
+```bash
+du -sh /path/to/bonanza/public/files/
+find /path/to/bonanza/public/files -type f | wc -l
+```
+
+#### 0.5 Get the Paperclip hash secret
+```bash
+cat /proc/$(pgrep -f puma | head -1)/environ | tr '\0' '\n' | grep PAPERCLIP
+```
+
 ### Phase 1: Preparation (Week 1)
 
 #### 1.1 Setup Migration Environment
@@ -268,24 +336,25 @@ brew install pgloader  # macOS
 # OR
 apt-get install pgloader  # Ubuntu
 
-# Verify VPN access to v1 production
-ssh user@v1-server
-mysql -u bonanza -p bonanza
+# Verify SSH access to v1 production (root access available)
+ssh root@v1-server
+# Connect to MySQL (credentials found in Phase 0)
+mysql -u "$MYSQL_USER" -p "$MYSQL_DB"
 # Test read access
 ```
 
 #### 1.2 Document v1 Database
 ```bash
 # Export v1 schema
-mysqldump --no-data -u bonanza -p bonanza > docs/migration/v1_schema.sql
+mysqldump --no-data -u "$MYSQL_USER" -p "$MYSQL_DB" > docs/migration/v1_schema.sql
 
 # Export sample data for testing
-mysqldump -u bonanza -p bonanza \
+mysqldump -u "$MYSQL_USER" -p --single-transaction \
   --where="1 LIMIT 100" \
-  departments users lenders > docs/migration/v1_sample.sql
+  "$MYSQL_DB" departments users lenders > docs/migration/v1_sample.sql
 
 # Document record counts
-mysql -u bonanza -p bonanza -e "
+mysql -u "$MYSQL_USER" -p "$MYSQL_DB" -e "
   SELECT 'departments' as table_name, COUNT(*) as count FROM departments
   UNION SELECT 'users', COUNT(*) FROM users
   UNION SELECT 'lenders', COUNT(*) FROM lenders
@@ -432,8 +501,8 @@ LOAD TABLE departments, parent_items, line_items,
      accessories, accessories_line_items,
      tags, taggings
 
--- Skip assets and links tables
-EXCLUDING TABLE NAMES MATCHING 'assets', 'links'
+-- Skip assets table (links table now migrated to Redux)
+EXCLUDING TABLE NAMES MATCHING 'assets'
 
 -- Re-enable triggers and fix sequences
 AFTER LOAD DO
@@ -446,7 +515,7 @@ $$
   ALTER TABLE items ENABLE TRIGGER ALL;
   ALTER TABLE item_histories ENABLE TRIGGER ALL;
 
-  -- Set admin flag for users with role=2
+  -- Set admin flag for users with role=3
   -- (This will be done in Rails migration script)
 
   -- Fix sequences to continue from max ID
@@ -514,8 +583,10 @@ namespace :migrate do
 
     # In v1, role enum was:
     # 0 = guest
-    # 1 = member
-    # 2 = leader/admin
+    # 1 = standard (maps to Redux 'member')
+    # 2 = leader
+    # 3 = admin
+    # 99 = deleted
 
     # We need to check v1 database directly or use a mapping file
     # For now, we'll ask user to provide a list of admin user IDs
@@ -685,12 +756,12 @@ Since pgloader can't include the `role` field in the user query, we need to hand
 
 ```bash
 # On v1 server, export user roles
-mysql -u bonanza -p bonanza -e "
+mysql -u "$MYSQL_USER" -p "$MYSQL_DB" -e "
   SELECT id, role FROM users;
 " > /tmp/v1_user_roles.csv
 
 # Copy to migration host
-scp user@v1-server:/tmp/v1_user_roles.csv docs/migration/
+scp root@v1-server:/tmp/v1_user_roles.csv docs/migration/
 ```
 
 #### 3.2 Import User Roles and Create Memberships
@@ -705,18 +776,24 @@ namespace :migrate do
 
     # v1 role enum:
     # 0 = guest
-    # 1 = member
-    # 2 = leader/admin (maps to leader in Redux; admin granted manually)
+    # 1 = standard (maps to Redux 'member')
+    # 2 = leader
+    # 3 = admin (gets leader role + User.admin = true)
+    # 99 = deleted
 
-    # Redux role enum:
+    # Redux DepartmentMembership role enum:
     # 0 = guest
     # 1 = member
     # 2 = leader
+    # 3 = hidden
+    # 99 = deleted
 
     role_mapping = {
       0 => :guest,
       1 => :member,
-      2 => :leader
+      2 => :leader,
+      3 => :leader,  # admin gets leader role; admin flag set separately
+      99 => :deleted
     }
 
     CSV.foreach('docs/migration/v1_user_roles.csv', headers: false) do |row|
@@ -739,7 +816,13 @@ namespace :migrate do
         role: role_mapping[v1_role]
       )
 
-      puts "User #{user.email}: #{role_mapping[v1_role]}"
+      # Set admin flag for users who had role=3 in v1
+      if v1_role == 3
+        user.update_column(:admin, true)
+        puts "User #{user.email}: leader + ADMIN"
+      else
+        puts "User #{user.email}: #{role_mapping[v1_role]}"
+      end
     end
   end
 end
@@ -750,15 +833,44 @@ docker-compose -f docker-compose.prod.yml exec app \
   bundle exec rails migrate:import_v1_roles RAILS_ENV=production
 ```
 
-#### 3.3 Set Admin Users
-```bash
-# Identify admin users from v1 (role=2 OR specific users)
-# Then set admin flag in Redux
+#### 3.3 Verify Admin Users
 
+Admin users (v1 role=3) are now set automatically in the import_v1_roles task
+above. Verify the result:
+
+```bash
 docker-compose -f docker-compose.prod.yml exec app \
   bundle exec rails runner "
-    # Set specific users as admin
-    User.where(email: ['admin@admin.com', 'leader@leader.com']).update_all(admin: true)
+    User.where(admin: true).each { |u| puts \"#{u.id}: #{u.email}\" }
+  " RAILS_ENV=production
+```
+
+#### 3.4 Anonymize Deleted Records
+
+v1 records with `role=99` (deleted users) or `type=2` (deleted borrowers) are
+migrated but then anonymized using Redux's existing GDPR anonymization pattern.
+This preserves referential integrity while removing personal data.
+
+```bash
+docker-compose -f docker-compose.prod.yml exec app \
+  bundle exec rails runner "
+    # Anonymize deleted borrowers
+    Borrower.where(borrower_type: :deleted).find_each do |b|
+      next if b.anonymized?
+      b.anonymize!
+      print '.'
+    end
+    puts
+
+    # Anonymize deleted users (role=99 already mapped to deleted membership)
+    User.joins(:department_memberships)
+      .where(department_memberships: { role: :deleted })
+      .distinct.find_each do |u|
+      next if u.anonymized?
+      u.anonymize!
+      print '.'
+    end
+    puts
   " RAILS_ENV=production
 ```
 
@@ -846,11 +958,11 @@ docker-compose -f docker-compose.prod.yml exec app \
 2. **T+10: Final v1 Backup** (15 min)
    ```bash
    # Full MySQL backup
-   mysqldump -u bonanza -p bonanza | gzip > bonanza_final_$(date +%Y%m%d_%H%M%S).sql.gz
+   mysqldump -u "$MYSQL_USER" -p --single-transaction "$MYSQL_DB" | gzip > bonanza_final_$(date +%Y%m%d_%H%M%S).sql.gz
 
    # Backup Elasticsearch (if snapshot configured)
-   # Backup ActiveStorage files
-   tar czf storage_$(date +%Y%m%d_%H%M%S).tar.gz /path/to/v1/storage/
+   # Backup Paperclip files
+   tar czf files_$(date +%Y%m%d_%H%M%S).tar.gz /path/to/bonanza/public/files/
    ```
 
 3. **T+25: Run Production Migration** (30-60 min)
@@ -953,27 +1065,63 @@ docker-compose -f docker-compose.prod.yml down
 - Prefer fixing forward
 - If rollback necessary, any new Redux data must be manually migrated back to v1
 
-## Assets Migration (Optional)
+## File Migration
 
-If v1 used Paperclip for file attachments:
+### Paperclip Files (Asset Model)
 
-### Migrate Paperclip Files to ActiveStorage
+v1 uses Paperclip ~> 4.2.0 for file attachments on the `Asset` model:
 
-**File**: `lib/tasks/migrate_assets.rake`
+- `Asset` belongs_to `:parent_item` (not polymorphic)
+- `ParentItem` has_many `:assets, dependent: :destroy`
+- Path: `:rails_root/public/files/:hash/:filename`
+- URL: `http://bonanza.fh-potsdam.de/files/:hash/:filename`
+- Hash computed using `PAPERCLIP_HASH_SECRET` from environment
+- Styles commented out — only original files stored
+- No file type validation (`do_not_validate_attachment_file_type :file`)
+
+**Migration steps:**
+
+1. Query the `assets` table to understand scope:
+   ```sql
+   SELECT COUNT(*) FROM assets;
+   SELECT file_file_name, file_content_type, file_file_size, parent_item_id FROM assets LIMIT 20;
+   ```
+
+2. Copy files from the server:
+   ```bash
+   rsync -avz root@SERVER:/path/to/bonanza/public/files/ ./v1_files/
+   du -sh ./v1_files/
+   ```
+
+3. Get the Paperclip hash secret (needed to map Asset records to file paths):
+   ```bash
+   cat /proc/$(pgrep -f puma | head -1)/environ | tr '\0' '\n' | grep PAPERCLIP
+   ```
+
+4. File attachment strategy TBD (decision needed from Fabian):
+   - **Option A**: Migrate to ActiveStorage (Redux has the tables, but no models use it yet)
+   - **Option B**: Serve from old path via nginx/Caddy redirect
+   - **Option C**: Skip if files aren't critical
+
+### Avatar Data (Users + Borrowers)
+
+The `avatar_data` field on both `users` and `lenders` in v1 is NOT a file upload.
+It's an auto-generated Base64-encoded identicon from the RubyIdenticon gem:
 
 ```ruby
-namespace :migrate do
-  desc "Migrate Paperclip assets to ActiveStorage"
-  task migrate_assets: :environment do
-    # This is optional and depends on whether v1 used file uploads
+# User
+self.avatar_data = Base64.strict_encode64(
+  RubyIdenticon.create("#{first_name}#{last_name}#{department_id}", ...)
+)
 
-    puts "⚠️  Assets migration not implemented"
-    puts "If v1 had file uploads, manually migrate:"
-    puts "1. Copy files from v1 Paperclip directory"
-    puts "2. Attach to ActiveStorage using Rails console"
-  end
-end
+# Lender
+self.avatar_data = Base64.strict_encode64(
+  RubyIdenticon.create("#{first_name}#{last_name}#{email}", ...)
+)
 ```
+
+These are tiny (~200 byte) generated PNGs, not user uploads. Safe to drop entirely.
+Redux has no avatar feature. Can regenerate on-the-fly if ever needed.
 
 ## Data Validation Checklist
 
@@ -1011,8 +1159,8 @@ end
 
 ### Data Not Migrated
 1. **OAuth tokens** - Removed in Redux, users may need to reconnect services
-2. **Paperclip avatars** - Need manual migration if used
-3. **Links table** - No equivalent in Redux
+2. **Avatar identicons** (`avatar_data`) - Auto-generated in v1, safe to drop. Redux will generate its own identicons.
+3. **Links table** - Will be added to Redux before migration (git-bug 7f45b40)
 4. **Bundles** - Feature removed
 
 ### Manual Post-Migration Tasks
@@ -1043,9 +1191,9 @@ end
 ## Resolved Questions
 
 1. **v1 Access**: Fabian should have full access (SSH + MySQL). FHP IT can provide credentials if needed.
-2. **Admin Users**: v1 role=2 maps to Redux "leader" role. Admin flag will be granted manually to specific users post-migration.
+2. **Admin Users**: v1 role enum: guest=0, standard=1, leader=2, admin=3, deleted=99. Admin (role=3) gets leader role + User.admin=true. Standard (role=1) maps to member.
 3. **Email Settings**: FHP provides SMTP relay for production email sending.
-4. **File Uploads**: Unknown whether v1 uses Paperclip. **Action: verify on v1 server during Phase 1 preparation.**
+4. **File Uploads**: v1 uses Paperclip ~> 4.2.0 for the Asset model. Files stored at `public/files/:hash/:filename`. Avatar data is auto-generated identicons (safe to drop).
 5. **Hosting**: Redux will run on the **same host** as v1, enabling parallel migration on different ports.
 6. **v1 Status**: Running with low usage. Gives flexibility on cutover timing.
 
