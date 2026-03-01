@@ -33,4 +33,17 @@ class ParentItemsControllerTest < ActionDispatch::IntegrationTest
     get parent_item_path(@parent_item)
     assert_response :success
   end
+
+  test "guest does not see borrower name in item history" do
+    borrower = create(:borrower, :with_tos)
+    lending = create(:lending, :completed, user: @user, department: @department, borrower: borrower)
+    line_item = create(:line_item, lending: lending, item: @item)
+    ItemHistory.create!(item: @item, user: @user, status: :lent, line_item: line_item)
+
+    guest = create(:user, :guest, department: @department)
+    sign_in guest
+    get parent_item_path(@parent_item)
+    assert_response :success
+    assert_no_match borrower.fullname, response.body
+  end
 end

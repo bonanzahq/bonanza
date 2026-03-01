@@ -6,7 +6,7 @@
     <% end %>
 
     <% if item_history.status == 'lent' %>
-      <div class="left"><span class="icon-before arrow-right fw-bold">Ausgeliehen</span> <%= link_to "von #{item_history.line_item.lending.borrower.fullname}", borrower_path(item_history.line_item.lending.borrower)%></div>
+      <div class="left"><span class="icon-before arrow-right fw-bold">Ausgeliehen</span><% if can? :read, Lending %> <%= link_to "von #{item_history.line_item.lending.borrower.fullname}", borrower_path(item_history.line_item.lending.borrower)%><% end %></div>
       <div class="right"><div class="user"><%= item_history.user&.fullname %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
     <% end %>
 

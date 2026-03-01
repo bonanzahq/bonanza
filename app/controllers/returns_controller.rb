@@ -3,7 +3,7 @@ class ReturnsController < ApplicationController
   before_action :set_department
 
   def index
-    authorize! :read, ParentItem
+    authorize! :read, Lending
 
     # @todays_returns = Lending.where(returned_at: nil).where.not(lent_at: nil).where(department: @department).where("DATE(lent_at + duration * interval '1 day') = CURRENT_DATE").order("DATE(lent_at + duration * interval '1 day') ASC")
 

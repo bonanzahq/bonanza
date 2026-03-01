@@ -28,7 +28,9 @@
             </div>
             <div class="right">
                 <div class="note">
-                    von <%= link_to item.line_items.last.lending.borrower.fullname, borrower_path(item.line_items.last.lending.borrower), data: {turbo: false} %><br>
+                    <% if can? :read, Lending %>
+                        von <%= link_to item.line_items.last.lending.borrower.fullname, borrower_path(item.line_items.last.lending.borrower), data: {turbo: false} %><br>
+                    <% end %>
                     bis <%= l(item.line_items.last.lending.lent_at.to_date + item.line_items.last.lending.duration, :format => "%a. %d.%m.%y") %> ausgeliehen
                 </div>
             </div>

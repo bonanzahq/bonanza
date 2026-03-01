@@ -111,6 +111,7 @@
                 <% end %>
             </div>
         </div>
+        <% if can? :read, Lending %>
         <div class="recent-lendings">
             <h6>Letzte Ausleihen</h6>
             <div class="lending">
@@ -126,6 +127,7 @@
                 <% end %>
             </div>
         </div>
+        <% end %>
     </div>
     <div class="col-3">
         <%= render partial: 'sidebar_cart' %>

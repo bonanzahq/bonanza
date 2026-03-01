@@ -189,11 +189,14 @@ class LendingControllerTest < ActionDispatch::IntegrationTest
 
   # -- authorization --
 
-  test "guest can view lending index" do
+  test "guest can view lending index without borrower names" do
+    borrower = create(:borrower, :with_tos)
+    lending = create(:lending, :completed, user: @user, department: @department, borrower: borrower)
     guest = create(:user, :guest, department: @department)
     sign_in guest
     get lending_path
     assert_response :success
+    assert_no_match borrower.fullname, response.body
   end
 
   test "guest cannot populate cart" do
