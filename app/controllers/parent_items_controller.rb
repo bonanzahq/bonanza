@@ -42,11 +42,13 @@ class ParentItemsController < ApplicationController
     @parent_item = ParentItem.new
     @parent_item.items.build
     @parent_item.accessories.build
+    @parent_item.links.build
   end
 
   # GET /parent_items/1/edit
   def edit
     @parent_item.accessories.build if @parent_item.accessories.size == 0
+    @parent_item.links.build if @parent_item.links.empty?
   end
 
   # POST /parent_items or /parent_items.json
