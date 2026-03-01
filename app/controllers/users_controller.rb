@@ -1,6 +1,7 @@
 class UsersController < ApplicationController
   load_and_authorize_resource
   skip_load_resource :only => :index
+  skip_load_and_authorize_resource :only => :switch_department
 
   before_action :authenticate_user!
 
@@ -77,6 +78,18 @@ class UsersController < ApplicationController
         format.html { redirect_to users_url, alert: @user.errors.full_messages.to_sentence }
       end
     end
+  end
+
+  def switch_department
+    department_id = params[:department_id].to_i
+    unless current_user.switchable_departments.pluck(:id).include?(department_id)
+      redirect_back fallback_location: root_path, alert: "Ungültige Werkstatt."
+      return
+    end
+
+    current_user.update!(current_department_id: department_id)
+    current_lending.destroy
+    redirect_to root_path, notice: "Werkstatt gewechselt."
   end
 
   def send_password_reset
