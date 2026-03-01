@@ -5,6 +5,7 @@ class Link < ApplicationRecord
   belongs_to :parent_item
 
   validates :url, presence: true
+  validate :url_must_be_valid, if: -> { url.present? }
 
   before_validation :prepend_scheme
 
@@ -15,5 +16,12 @@ class Link < ApplicationRecord
     return if url.start_with?("http://", "https://")
 
     self.url = "http://#{url}"
+  end
+
+  def url_must_be_valid
+    uri = URI.parse(url)
+    errors.add(:url, :invalid) unless uri.is_a?(URI::HTTP) && uri.host&.include?(".")
+  rescue URI::InvalidURIError
+    errors.add(:url, :invalid)
   end
 end

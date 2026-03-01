@@ -122,7 +122,7 @@
       <% end %>
 
         <%= l_fields.text_field :title, placeholder: "Titel", class: "form-control" %>
-        <%= l_fields.text_field :url, placeholder: "URL", class: "form-control", required: true, "data-value-missing": "Bitte gib eine URL an." %>
+        <%= l_fields.url_field :url, placeholder: "https://example.com", class: "form-control", required: true, "data-value-missing": "Bitte gib eine URL an." %>
         <%= l_fields.hidden_field :_destroy, class: "bnz-input-text" %>
         <%= l_fields.hidden_field :id %>
         <a href="#" class="icon trash" data-action="links-input#removeLink">entfernen</a>
