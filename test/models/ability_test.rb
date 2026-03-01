@@ -537,6 +537,50 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:edit, LegalText)
   end
 
+  # -- :move ParentItem --
+
+  test "admin can move parent item in any department" do
+    user = create(:user, :admin, department: @department)
+    ability = Ability.new(user)
+    own_item = create(:parent_item, department: @department)
+    other_item = create(:parent_item, department: @other_department)
+
+    assert ability.can?(:move, own_item)
+    assert ability.can?(:move, other_item)
+  end
+
+  test "leader can move parent item in own department" do
+    user = create(:user, :leader, department: @department)
+    ability = Ability.new(user)
+    parent_item = create(:parent_item, department: @department)
+
+    assert ability.can?(:move, parent_item)
+  end
+
+  test "leader cannot move parent item in other department" do
+    user = create(:user, :leader, department: @department)
+    ability = Ability.new(user)
+    other_item = create(:parent_item, department: @other_department)
+
+    assert ability.cannot?(:move, other_item)
+  end
+
+  test "member can move parent item in own department" do
+    user = create(:user, department: @department)
+    ability = Ability.new(user)
+    parent_item = create(:parent_item, department: @department)
+
+    assert ability.can?(:move, parent_item)
+  end
+
+  test "guest cannot move parent item in own department" do
+    user = create(:user, :guest, department: @department)
+    ability = Ability.new(user)
+    parent_item = create(:parent_item, department: @department)
+
+    assert ability.cannot?(:move, parent_item)
+  end
+
   # -- Edge cases --
 
   test "user with no current_department gets no permissions beyond reading departments" do

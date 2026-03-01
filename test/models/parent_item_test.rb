@@ -106,4 +106,22 @@ class ParentItemTest < ActiveSupport::TestCase
 
     assert @parent_item.valid?
   end
+
+  # -- move between departments --
+
+  test "parent item can be moved to another department when no items are lent" do
+    other_dept = create(:department)
+    create(:item, parent_item: @parent_item, status: :available)
+
+    @parent_item.update!(department: other_dept)
+
+    assert_equal other_dept, @parent_item.reload.department
+  end
+
+  test "has_lent_items? signals that a move must be blocked when an item is lent" do
+    create(:item, parent_item: @parent_item, status: :lent)
+
+    assert @parent_item.has_lent_items?,
+      "has_lent_items? must return true so the controller can block the move"
+  end
 end

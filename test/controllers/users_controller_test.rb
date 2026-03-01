@@ -78,4 +78,61 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     post send_password_reset_user_path(@leader)
     assert_redirected_to root_path
   end
+
+  # -- switch_department --
+
+  test "authenticated multi-department user can switch to another department" do
+    # Department before_create callback auto-adds all existing users to the new dept
+    other_dept = create(:department)
+    original_dept_id = @member.current_department_id
+
+    sign_in @member
+    patch switch_department_path, params: { department_id: other_dept.id }
+
+    assert_redirected_to root_path
+    assert_not_equal original_dept_id, @member.reload.current_department_id
+    assert_equal other_dept.id, @member.current_department_id
+  end
+
+  test "current_department_id is persisted in DB after department switch" do
+    other_dept = create(:department)
+
+    sign_in @member
+    patch switch_department_path, params: { department_id: other_dept.id }
+
+    assert_equal other_dept.id, @member.reload.current_department_id
+  end
+
+  test "cannot switch to department user does not belong to" do
+    other_dept = create(:department)
+    # @member was auto-added by before_create; destroy that membership
+    @member.department_memberships.find_by(department: other_dept).destroy
+    original_dept_id = @member.current_department_id
+
+    sign_in @member
+    patch switch_department_path, params: { department_id: other_dept.id }
+
+    assert_response :redirect
+    assert_equal original_dept_id, @member.reload.current_department_id
+  end
+
+  test "cannot switch to department where membership is deleted" do
+    other_dept = create(:department)
+    @member.department_memberships.find_by(department: other_dept).update!(role: :deleted)
+    original_dept_id = @member.current_department_id
+
+    sign_in @member
+    patch switch_department_path, params: { department_id: other_dept.id }
+
+    assert_response :redirect
+    assert_equal original_dept_id, @member.reload.current_department_id
+  end
+
+  test "unauthenticated user is redirected to login when switching department" do
+    other_dept = create(:department)
+
+    patch switch_department_path, params: { department_id: other_dept.id }
+
+    assert_redirected_to new_user_session_path
+  end
 end
