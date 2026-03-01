@@ -1,15 +1,5 @@
 <%= form_with(model: user, data: {turbo: false, controller: 'form-validation'}) do |f| %>
-    <% if user.errors.any? %>
-      <div id="error_explanation">
-        <h2>Wegen <%= pluralize(user.errors.count, "Fehler") %> konnte die verleihende Person nicht gespeichert werden:</h2>
-
-        <ul>
-        <% user.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-        </ul>
-      </div>
-    <% end %>
+    <%= render "shared/form_errors", model: user %>
 
     <div class="mb-2" data-field-container>
         <%= f.label :firstname, "Vorname", class: "form-label" %><br>
