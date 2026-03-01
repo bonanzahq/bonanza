@@ -115,7 +115,7 @@ created_at → created_at
 updated_at → updated_at
 
 # Fields to drop:
-- avatar_data (Paperclip, could migrate to ActiveStorage if needed)
+- avatar_data (auto-generated identicon, safe to drop)
 
 # Constraint: student_id unique index
 # v2 has a partial unique index on student_id (WHERE student_id IS NOT NULL).
@@ -154,7 +154,7 @@ updated_at → updated_at
 # Fields to drop:
 - role (migrated to department_memberships)
 - provider, uid, refresh_token, expires_at, access_token (OAuth removed)
-- avatar_data (Paperclip)
+- avatar_data (auto-generated identicon, safe to drop)
 
 # Post-migration: Create department_memberships
 # For each user:
@@ -509,7 +509,7 @@ $$
   ALTER TABLE items ENABLE TRIGGER ALL;
   ALTER TABLE item_histories ENABLE TRIGGER ALL;
 
-  -- Set admin flag for users with role=2
+  -- Set admin flag for users with role=3
   -- (This will be done in Rails migration script)
 
   -- Fix sequences to continue from max ID
@@ -918,11 +918,11 @@ docker-compose -f docker-compose.prod.yml exec app \
 2. **T+10: Final v1 Backup** (15 min)
    ```bash
    # Full MySQL backup
-   mysqldump -u bonanza -p bonanza | gzip > bonanza_final_$(date +%Y%m%d_%H%M%S).sql.gz
+   mysqldump -u bonanzasql1 -p --single-transaction bonanza_production | gzip > bonanza_final_$(date +%Y%m%d_%H%M%S).sql.gz
 
    # Backup Elasticsearch (if snapshot configured)
-   # Backup ActiveStorage files
-   tar czf storage_$(date +%Y%m%d_%H%M%S).tar.gz /path/to/v1/storage/
+   # Backup Paperclip files
+   tar czf files_$(date +%Y%m%d_%H%M%S).tar.gz /path/to/bonanza/public/files/
    ```
 
 3. **T+25: Run Production Migration** (30-60 min)
@@ -1151,7 +1151,7 @@ Redux has no avatar feature. Can regenerate on-the-fly if ever needed.
 ## Resolved Questions
 
 1. **v1 Access**: Fabian should have full access (SSH + MySQL). FHP IT can provide credentials if needed.
-2. **Admin Users**: v1 role=2 maps to Redux "leader" role. Admin flag will be granted manually to specific users post-migration.
+2. **Admin Users**: v1 role enum: guest=0, standard=1, leader=2, admin=3, deleted=99. Admin (role=3) gets leader role + User.admin=true. Standard (role=1) maps to member.
 3. **Email Settings**: FHP provides SMTP relay for production email sending.
 4. **File Uploads**: v1 uses Paperclip ~> 4.2.0 for the Asset model. Files stored at `public/files/:hash/:filename`. Avatar data is auto-generated identicons (safe to drop).
 5. **Hosting**: Redux will run on the **same host** as v1, enabling parallel migration on different ports.
