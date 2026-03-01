@@ -20,28 +20,5 @@
         </div>
     </div>
     <div class="col-3">
-      <% if can?(:move, @parent_item) %>
-        <% movable_departments = current_user.department_memberships
-                                   .where.not(role: :deleted)
-                                   .joins(:department)
-                                   .map(&:department)
-                                   .reject { |d| d.id == @parent_item.department_id } %>
-        <% if movable_departments.any? %>
-          <div class="p-3 bg-light rounded mb-3">
-            <h6>Artikel verschieben</h6>
-            <% if @parent_item.has_lent_items? %>
-              <p class="text-muted small">Artikel mit aktiven Ausleihen können nicht verschoben werden.</p>
-            <% else %>
-              <%= form_with url: move_parent_item_path(@parent_item), method: :patch do |f| %>
-                <%= f.select :target_department_id,
-                      movable_departments.map { |d| [d.name, d.id] },
-                      {},
-                      class: "form-select form-select-sm mb-2" %>
-                <%= f.submit "Verschieben", class: "btn btn-sm btn-secondary" %>
-              <% end %>
-            <% end %>
-          </div>
-        <% end %>
-      <% end %>
     </div>
 </div>

@@ -47,17 +47,17 @@ class ParentItemsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match borrower.fullname, response.body
   end
 
-  # -- move --
+  # -- move (via update) --
 
   test "member can move parent item to another department they belong to" do
     # Department before_create callback auto-adds @user to the new dept
     target_dept = create(:department)
 
     sign_in @user
-    patch move_parent_item_path(@parent_item), params: { target_department_id: target_dept.id }
+    patch parent_item_path(@parent_item), params: { parent_item: { department_id: target_dept.id, name: @parent_item.name } }
 
-    assert_redirected_to borrowers_path
-    assert_equal "Artikel wurde erfolgreich verschoben.", flash[:notice]
+    assert_redirected_to parent_items_path
+    assert_equal "Artikel wurde aktualisiert und verschoben.", flash[:notice]
     assert_equal target_dept, @parent_item.reload.department
   end
 
@@ -66,7 +66,7 @@ class ParentItemsControllerTest < ActionDispatch::IntegrationTest
     create(:item, parent_item: @parent_item, status: :lent)
 
     sign_in @user
-    patch move_parent_item_path(@parent_item), params: { target_department_id: target_dept.id }
+    patch parent_item_path(@parent_item), params: { parent_item: { department_id: target_dept.id, name: @parent_item.name } }
 
     assert_response :redirect
     assert_equal @department, @parent_item.reload.department
@@ -78,7 +78,7 @@ class ParentItemsControllerTest < ActionDispatch::IntegrationTest
     @user.department_memberships.find_by(department: target_dept).destroy
 
     sign_in @user
-    patch move_parent_item_path(@parent_item), params: { target_department_id: target_dept.id }
+    patch parent_item_path(@parent_item), params: { parent_item: { department_id: target_dept.id, name: @parent_item.name } }
 
     assert_response :redirect
     assert_equal @department, @parent_item.reload.department
@@ -89,7 +89,7 @@ class ParentItemsControllerTest < ActionDispatch::IntegrationTest
     guest = create(:user, :guest, department: @department)
 
     sign_in guest
-    patch move_parent_item_path(@parent_item), params: { target_department_id: target_dept.id }
+    patch parent_item_path(@parent_item), params: { parent_item: { department_id: target_dept.id, name: @parent_item.name } }
 
     assert_response :redirect
     assert_equal @department, @parent_item.reload.department
@@ -98,8 +98,33 @@ class ParentItemsControllerTest < ActionDispatch::IntegrationTest
   test "unauthenticated user is redirected to login when moving parent item" do
     target_dept = create(:department)
 
-    patch move_parent_item_path(@parent_item), params: { target_department_id: target_dept.id }
+    patch parent_item_path(@parent_item), params: { parent_item: { department_id: target_dept.id, name: @parent_item.name } }
 
     assert_redirected_to new_user_session_path
+  end
+
+  test "update with department change and other field changes saves both" do
+    target_dept = create(:department)
+    new_name = "Updated Name"
+
+    sign_in @user
+    patch parent_item_path(@parent_item), params: { parent_item: { department_id: target_dept.id, name: new_name } }
+
+    assert_redirected_to parent_items_path
+    @parent_item.reload
+    assert_equal target_dept, @parent_item.department
+    assert_equal new_name, @parent_item.name
+  end
+
+  test "update without department_id param works normally" do
+    new_name = "Normal Update"
+
+    sign_in @user
+    patch parent_item_path(@parent_item), params: { parent_item: { name: new_name } }
+
+    assert_redirected_to parent_item_path(@parent_item)
+    assert_equal "Parent item was successfully updated.", flash[:notice]
+    assert_equal new_name, @parent_item.reload.name
+    assert_equal @department, @parent_item.reload.department
   end
 end
