@@ -53,6 +53,7 @@ class UsersController < ApplicationController
 
         if @user == current_user
           bypass_sign_in @user
+          session.delete(:weak_password)
         end
 
         notice = if @user.pending_reconfirmation?

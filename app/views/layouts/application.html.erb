@@ -21,6 +21,10 @@
       <%= render "layouts/unstaffed_message" %>
     <% end %>
 
+    <% if session[:weak_password] %>
+      <%= render "shared/weak_password_warning" %>
+    <% end %>
+
     <% unless request.path == root_path %>
         <h1 id="logo">
           <%= link_to "Bonanza", root_path, class: "link-dark text-decoration-none" %>

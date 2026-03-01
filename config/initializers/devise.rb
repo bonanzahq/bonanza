@@ -360,3 +360,12 @@ Devise.setup do |config|
   # changed. Defaults to true, so a user is signed in automatically after changing a password.
   # config.sign_in_after_change_password = true
 end
+
+Warden::Manager.after_authentication do |user, warden, _options|
+  password = warden.request.params.dig(:user, :password)
+  if password.present? && PasswordStrengthValidator.weak?(password, user)
+    warden.request.session[:weak_password] = true
+  else
+    warden.request.session.delete(:weak_password)
+  end
+end
