@@ -110,7 +110,11 @@ class ParentItem < ApplicationRecord
 
     def reject_link(attributes)
       attributes[:url]&.strip!
-      attributes[:url].blank? && !attributes[:id].present?
+
+      exists = attributes[:id].present?
+      empty = attributes[:url].blank?
+      attributes.merge!({:_destroy => 1}) if exists and empty
+      return (!exists and empty)
     end
 
     def reject_item(attributes)

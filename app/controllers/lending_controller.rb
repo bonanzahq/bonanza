@@ -25,7 +25,7 @@ class LendingController < ApplicationController
   end
 
   def show
-    @lending = Lending.find(params[:id])
+    @lending = Lending.includes(line_items: { item: { parent_item: [:accessories, :links] } }).find(params[:id])
 
     if @lending.token != params[:token]
       redirect_to lending_path, alert: "Diese Ausleihe existiert nicht." and return # TODO: redirect to generic 404 Page!

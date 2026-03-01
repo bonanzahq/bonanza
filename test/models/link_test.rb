@@ -21,7 +21,7 @@ class LinkTest < ActiveSupport::TestCase
   test "invalid without url" do
     link = build(:link, parent_item: @parent_item, url: nil)
     assert_not link.valid?
-    assert_includes link.errors[:url], "muss ausgefüllt werden"
+    assert link.errors.added?(:url, :blank)
   end
 
   test "invalid without parent_item" do
