@@ -23,11 +23,9 @@
 
     <% unless request.path == root_path %>
         <h1 id="logo">
-          <%= link_to root_path, class: "link-dark text-decoration-none" do %>
-            Bonanza<br>
-            <% if user_signed_in? %>
-              <span><%= current_user.current_department.name %></span>
-            <% end %>
+          <%= link_to "Bonanza", root_path, class: "link-dark text-decoration-none" %>
+          <% if user_signed_in? %>
+            <%= render 'shared/department_switcher' %>
           <% end %>
         </h1>
     <% end %>
