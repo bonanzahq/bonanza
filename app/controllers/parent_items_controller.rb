@@ -74,11 +74,10 @@ class ParentItemsController < ApplicationController
       authorize! :move, @parent_item
 
       target_id = requested_department_id.to_i
-      target_department = current_user.department_memberships
-                            .where.not(role: :deleted)
-                            .joins(:department)
-                            .map(&:department)
-                            .find { |d| d.id == target_id }
+      target_department = Department.joins(:department_memberships)
+                            .where(department_memberships: { user: current_user })
+                            .where.not(department_memberships: { role: :deleted })
+                            .find_by(id: target_id)
 
       unless target_department
         return redirect_back fallback_location: edit_parent_item_path(@parent_item), alert: "Ziel-Werkstatt ist ungültig."
@@ -94,7 +93,8 @@ class ParentItemsController < ApplicationController
 
     respond_to do |format|
       if @parent_item.update(parent_item_params)
-        @department.tag(@parent_item, :with => params[:parent_item][:all_tags_list], :on => :tags)
+        tagging_department = department_changed ? @parent_item.department : @department
+        tagging_department.tag(@parent_item, :with => params[:parent_item][:all_tags_list], :on => :tags)
 
         @parent_item.attach_files
 
@@ -124,8 +124,6 @@ class ParentItemsController < ApplicationController
       format.turbo_stream { render turbo_stream: turbo_stream.remove(@file) }
     end
   end
-
-
 
   # DELETE /parent_items/1 or /parent_items/1.json
   def destroy
