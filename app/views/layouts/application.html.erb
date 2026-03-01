@@ -17,7 +17,7 @@
       </div>
     <% end %>
 
-    <% if session[:weak_password] %>
+    <% if user_signed_in? && session[:weak_password] %>
       <%= render "shared/weak_password_warning" %>
     <% end %>
 

@@ -64,6 +64,22 @@ class WeakPasswordWarningTest < ActionDispatch::IntegrationTest
     assert_select ".alert-warning", false
   end
 
+  test "banner cleared after re-login with strong password" do
+    user = create_user_with_weak_password
+
+    post user_session_path, params: { user: { email: user.email, password: @weak_password } }
+    follow_redirect!
+    assert_select ".alert-warning"
+
+    delete destroy_user_session_path
+
+    user.update_columns(encrypted_password: BCrypt::Password.create(@strong_password))
+    post user_session_path, params: { user: { email: user.email, password: @strong_password } }
+    follow_redirect!
+
+    assert_select ".alert-warning", false
+  end
+
   private
 
   def create_user_with_weak_password
