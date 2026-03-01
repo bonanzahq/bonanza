@@ -31,6 +31,9 @@ application.register("hello", HelloController)
 import InlineTabsController from "./inline_tabs_controller"
 application.register("inline-tabs", InlineTabsController)
 
+import LinksInputController from "./links_input_controller"
+application.register("links-input", LinksInputController)
+
 import ModalController from "./modal_controller"
 application.register("modal", ModalController)
 

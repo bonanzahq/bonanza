@@ -40,6 +40,9 @@ de:
         price: "Preis"
         department: "Abteilung"
         department_id: "Abteilung"
+      link:
+        title: "Titel"
+        url: "URL"
       item:
         uid: "UID"
         quantity: "Anzahl"

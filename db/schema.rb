@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_02_25_090730) do
+ActiveRecord::Schema[8.1].define(version: 2026_03_01_160852) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -193,6 +193,15 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_25_090730) do
     t.integer "quantity"
     t.datetime "returned_at"
     t.datetime "updated_at", null: false
+  end
+
+  create_table "links", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.bigint "parent_item_id", null: false
+    t.string "title"
+    t.datetime "updated_at", null: false
+    t.string "url", null: false
+    t.index ["parent_item_id"], name: "index_links_on_parent_item_id"
   end
 
   create_table "parent_items", force: :cascade do |t|
@@ -398,6 +407,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_02_25_090730) do
   add_foreign_key "item_histories", "line_items"
   add_foreign_key "item_histories", "users"
   add_foreign_key "legal_texts", "users"
+  add_foreign_key "links", "parent_items"
   add_foreign_key "parent_items", "departments"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_claimed_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade

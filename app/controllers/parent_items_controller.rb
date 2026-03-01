@@ -42,11 +42,13 @@ class ParentItemsController < ApplicationController
     @parent_item = ParentItem.new
     @parent_item.items.build
     @parent_item.accessories.build
+    @parent_item.links.build
   end
 
   # GET /parent_items/1/edit
   def edit
     @parent_item.accessories.build if @parent_item.accessories.size == 0
+    @parent_item.links.build if @parent_item.links.empty?
   end
 
   # POST /parent_items or /parent_items.json
@@ -173,6 +175,6 @@ class ParentItemsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def parent_item_params
-      params.require(:parent_item).permit(:name, :description, :note, :price, new_files: [], items_attributes: [:id, :uid, :quantity, :condition, :storage_location, :note, :_destroy], :accessories_attributes => [:id, :name, :_destroy])
+      params.require(:parent_item).permit(:name, :description, :note, :price, new_files: [], items_attributes: [:id, :uid, :quantity, :condition, :storage_location, :note, :_destroy], :accessories_attributes => [:id, :name, :_destroy], links_attributes: [:id, :url, :title, :_destroy])
     end
 end

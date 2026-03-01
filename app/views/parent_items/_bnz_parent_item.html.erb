@@ -36,6 +36,21 @@
   </div>
   <% end %>
 
+  <% unless parent_item.links.empty? %>
+  <div class="mb-2">
+    <div class="form-label">Links</div>
+    <ul class="list-unstyled mb-0">
+      <% parent_item.links.each do |link| %>
+        <li>
+          <a href="<%= link.url %>" target="_blank" rel="noopener noreferrer">
+            <%= link.title.present? ? link.title : link.url %>
+          </a>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+  <% end %>
+
   <% if parent_item.files.attached? %>
   <div class="mb-2">
     <div class="form-label">Dateien</div>

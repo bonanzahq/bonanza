@@ -58,6 +58,10 @@ arduino_item = Item.create!(
   uid: "ARD-001", quantity: 1, status: "available", note: "", storage_location: "Schrank A1", parent_item: arduino, lending_counter: 0, condition: "flawless"
 )
 Accessory.create!(name: "USB-Kabel", parent_item: arduino)
+Link.create!([
+  { title: "Arduino Dokumentation", url: "https://docs.arduino.cc", parent_item: arduino },
+  { title: "Getting Started", url: "https://www.arduino.cc/en/Guide", parent_item: arduino }
+])
 
 # --- Group items (multiple unique items per parent) ---
 
@@ -67,6 +71,10 @@ camera = ParentItem.create!(
 Item.create!(uid: "CAM-001", quantity: 1, status: "available", note: "", storage_location: "Tresor 1", parent_item: camera, lending_counter: 0, condition: "flawless")
 Item.create!(uid: "CAM-002", quantity: 1, status: "available", note: "", storage_location: "Tresor 1", parent_item: camera, lending_counter: 0, condition: "flawless")
 Item.create!(uid: "CAM-003", quantity: 1, status: "available", note: "Leichter Kratzer am Display", storage_location: "Tresor 1", parent_item: camera, lending_counter: 0, condition: "flawed")
+Link.create!([
+  { title: "Bedienungsanleitung", url: "https://www.sony.com/en/articles/ilce-7m3-ilce-7m3k", parent_item: camera },
+  { title: "Produktseite", url: "https://www.sony.de/interchangeable-lens-cameras/products/ilce-7m3", parent_item: camera }
+])
 Accessory.create!([
   {name: "Objektivdeckel", parent_item: camera},
   {name: "Akku NP-FZ100", parent_item: camera},

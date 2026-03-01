@@ -118,6 +118,14 @@ class ParentItemTest < ActiveSupport::TestCase
     assert_equal other_dept, @parent_item.reload.department
   end
 
+  test "destroying parent_item destroys associated links" do
+    create(:link, parent_item: @parent_item)
+
+    assert_difference "Link.count", -1 do
+      @parent_item.destroy
+    end
+  end
+
   test "has_lent_items? signals that a move must be blocked when an item is lent" do
     create(:item, parent_item: @parent_item, status: :lent)
 
