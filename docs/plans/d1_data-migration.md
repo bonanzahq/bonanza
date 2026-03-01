@@ -8,7 +8,7 @@ Migrate all data from Bonanza v1 (MySQL + Elasticsearch on bare metal) to Bonanz
 
 ### Bonanza v1 (Source)
 - **Database**: MySQL (bare metal)
-- **Search**: Elasticsearch (bare metal, version TBD)
+- **Search**: Elasticsearch (bare metal, version to be checked during Phase 0)
 - **Hosting**: Bare metal server (no Docker — the Docker files in the v1 repo were never deployed to staging or production)
 - **Schema Version**: ActiveRecord 20151110175705
 
@@ -120,8 +120,8 @@ updated_at → updated_at
 # Constraint: student_id unique index
 # v2 has a partial unique index on student_id (WHERE student_id IS NOT NULL).
 # The data migration must detect and resolve duplicate student_ids in v1 data
-# before inserting into v2. Strategy TBD -- options include merging duplicates,
-# suffixing, or flagging for manual review.
+# before inserting into v2. Strategy: flag duplicates for manual review.
+# Query v1 for duplicates before migration, export list, resolve manually.
 ```
 
 ### 3. users (Major changes: roles → department_memberships)
@@ -588,13 +588,13 @@ namespace :migrate do
     # 3 = admin
     # 99 = deleted
 
-    # We need to check v1 database directly or use a mapping file
-    # For now, we'll ask user to provide a list of admin user IDs
-
-    # TODO: Get admin user IDs from v1
-    # For now, mark no users as admin
-    puts "   ⚠️  Admin users need to be manually set"
-    puts "   Run: User.find(ID).update(admin: true)"
+    # v1 role=3 means admin. These users get admin=true in Redux.
+    # The role integer 3 maps to 'hidden' in Redux's enum, so we must
+    # set admin=true AND assign a real department role (leader).
+    # This is handled by import_v1_roles which reads the v1 role dump.
+    User.where("id IN (SELECT id FROM v1_user_roles WHERE role = 3)")
+        .update_all(admin: true)
+    puts "   Set admin=true for v1 admin users (role=3)"
   end
 
   def create_department_memberships
@@ -1098,10 +1098,10 @@ v1 uses Paperclip ~> 4.2.0 for file attachments on the `Asset` model:
    cat /proc/$(pgrep -f puma | head -1)/environ | tr '\0' '\n' | grep PAPERCLIP
    ```
 
-4. File attachment strategy TBD (decision needed from Fabian):
-   - **Option A**: Migrate to ActiveStorage (Redux has the tables, but no models use it yet)
-   - **Option B**: Serve from old path via nginx/Caddy redirect
-   - **Option C**: Skip if files aren't critical
+4. File attachment strategy: **rsync files during migration, wire up ActiveStorage later.**
+   Copy v1 Paperclip files (`public/files/`) to the Redux server during cutover.
+   ActiveStorage integration is a separate post-migration task. Files remain
+   accessible at their original paths via Caddy/nginx until ActiveStorage is set up.
 
 ### Avatar Data (Users + Borrowers)
 
@@ -1206,11 +1206,10 @@ This migration plan assumes the current schema.rb. If a2 (Ruby 3.4 + Rails 8 upg
 - Re-test the migration script against a fresh Rails 8 database
 - Update any schema version references
 
-**Blocking dependency:** d1 execution requires a2 to be complete and schema finalized.
+**Dependency a2:** Complete. Ruby 4.0.1 and Rails 8.1.2 are running. Schema is finalized.
 
 ## Still Open
 
-- v1 Elasticsearch version (check during Phase 1)
+- v1 Elasticsearch version (check during Phase 0)
 - Preferred cutover weekend
 - Who should be on-call during migration
-- Whether to test with real users on beta before full cutover
