@@ -64,7 +64,7 @@ Since both systems will run on the **same host**, we can use a **zero-downtime p
 | Table | Reason | Migration Strategy |
 |-------|--------|-------------------|
 | `assets` | Replaced by ActiveStorage | Migrate files to ActiveStorage, convert Paperclip metadata |
-| `links` | No longer used | Document in migration, optionally preserve data for reference |
+| `links` | URLs for parent items (manuals, manufacturer pages) | Add Link model to Redux before migration (git-bug 7f45b40), then migrate data |
 
 ### Fields Added in Redux
 
@@ -496,7 +496,7 @@ LOAD TABLE departments, parent_items, line_items,
      tags, taggings
 
 -- Skip assets and links tables
-EXCLUDING TABLE NAMES MATCHING 'assets', 'links'
+EXCLUDING TABLE NAMES MATCHING 'assets'
 
 -- Re-enable triggers and fix sequences
 AFTER LOAD DO
@@ -834,6 +834,35 @@ docker-compose -f docker-compose.prod.yml exec app \
   " RAILS_ENV=production
 ```
 
+#### 3.4 Anonymize Deleted Records
+
+v1 records with `role=99` (deleted users) or `type=2` (deleted borrowers) are
+migrated but then anonymized using Redux's existing GDPR anonymization pattern.
+This preserves referential integrity while removing personal data.
+
+```bash
+docker-compose -f docker-compose.prod.yml exec app \
+  bundle exec rails runner "
+    # Anonymize deleted borrowers
+    Borrower.where(borrower_type: :deleted).find_each do |b|
+      next if b.anonymized?
+      b.anonymize!
+      print '.'
+    end
+    puts
+
+    # Anonymize deleted users (role=99 already mapped to deleted membership)
+    User.joins(:department_memberships)
+      .where(department_memberships: { role: :deleted })
+      .distinct.find_each do |u|
+      next if u.anonymized?
+      u.anonymize!
+      print '.'
+    end
+    puts
+  " RAILS_ENV=production
+```
+
 ### Phase 4: Elasticsearch Reindex (Week 2)
 
 ```bash
@@ -1120,7 +1149,7 @@ Redux has no avatar feature. Can regenerate on-the-fly if ever needed.
 ### Data Not Migrated
 1. **OAuth tokens** - Removed in Redux, users may need to reconnect services
 2. **Paperclip avatars** - Need manual migration if used
-3. **Links table** - No equivalent in Redux
+3. **Links table** - Will be added to Redux before migration (git-bug 7f45b40)
 4. **Bundles** - Feature removed
 
 ### Manual Post-Migration Tasks
