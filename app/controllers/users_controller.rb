@@ -46,8 +46,9 @@ class UsersController < ApplicationController
     respond_to do |format|
       if @user.update(user_params)
         
-        if @user.current_department_previously_changed?
-          current_lending.destroy
+        if @user.current_department_previously_changed? && session[:lending_id]
+          Lending.find_by(id: session[:lending_id])&.destroy
+          session.delete(:lending_id)
         end
 
         if @user == current_user
@@ -82,13 +83,16 @@ class UsersController < ApplicationController
 
   def switch_department
     department_id = params[:department_id].to_i
-    unless current_user.switchable_departments.pluck(:id).include?(department_id)
+    unless current_user.switchable_departments.exists?(id: department_id)
       redirect_back fallback_location: root_path, alert: "Ungültige Werkstatt."
       return
     end
 
     current_user.update!(current_department_id: department_id)
-    current_lending.destroy
+    if session[:lending_id]
+      Lending.find_by(id: session[:lending_id])&.destroy
+      session.delete(:lending_id)
+    end
     redirect_to root_path, notice: "Werkstatt gewechselt."
   end
 
