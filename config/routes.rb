@@ -79,6 +79,8 @@ Rails.application.routes.draw do
   get 'autocomplete/items/depts/:dept_id', to: 'autocomplete#items'
   get 'autocomplete/borrowers', to: 'autocomplete#borrowers'
 
+  patch 'switch_department', to: 'users#switch_department', as: :switch_department
+
   resources :users do
     member do
       post :send_password_reset

@@ -6,6 +6,31 @@
     <%= form.text_field :name, class: "form-control", required: true %>
   </div>
 
+  <% unless parent_item.new_record? %>
+    <% if can?(:move, parent_item) && current_user.switchable_departments.any? %>
+      <% all_user_departments = Department.joins(:department_memberships)
+                                  .where(department_memberships: { user: current_user })
+                                  .where.not(department_memberships: { role: :deleted })
+                                  .distinct
+                                  .order(:name) %>
+      <div class="mb-2">
+        <%= form.label :department_id, "Werkstatt", class: "form-label" %>
+        <% if parent_item.has_lent_items? %>
+          <%= form.select :department_id,
+                all_user_departments.map { |d| [d.name, d.id] },
+                { selected: parent_item.department_id },
+                class: "form-select", disabled: true %>
+          <small class="text-muted">Artikel mit aktiven Ausleihen können nicht verschoben werden.</small>
+        <% else %>
+          <%= form.select :department_id,
+                all_user_departments.map { |d| [d.name, d.id] },
+                { selected: parent_item.department_id },
+                class: "form-select" %>
+        <% end %>
+      </div>
+    <% end %>
+  <% end %>
+
   <div class="mb-2">
     <%= form.label :description, class: "form-label" do %>
       Beschreibung <em>optional</em>
