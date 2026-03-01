@@ -56,7 +56,7 @@ class ParentItemsControllerTest < ActionDispatch::IntegrationTest
     sign_in @user
     patch parent_item_path(@parent_item), params: { parent_item: { department_id: target_dept.id, name: @parent_item.name } }
 
-    assert_redirected_to parent_items_path
+    assert_redirected_to borrowers_path
     assert_equal "Artikel wurde aktualisiert und verschoben.", flash[:notice]
     assert_equal target_dept, @parent_item.reload.department
   end
@@ -110,7 +110,7 @@ class ParentItemsControllerTest < ActionDispatch::IntegrationTest
     sign_in @user
     patch parent_item_path(@parent_item), params: { parent_item: { department_id: target_dept.id, name: new_name } }
 
-    assert_redirected_to parent_items_path
+    assert_redirected_to borrowers_path
     @parent_item.reload
     assert_equal target_dept, @parent_item.department
     assert_equal new_name, @parent_item.name

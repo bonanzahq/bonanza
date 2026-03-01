@@ -106,7 +106,7 @@ class ParentItemsController < ApplicationController
         end
 
         if department_changed
-          format.html { redirect_to parent_items_path, notice: "Artikel wurde aktualisiert und verschoben." }
+          format.html { redirect_to borrowers_path, notice: "Artikel wurde aktualisiert und verschoben." }
         else
           format.html { redirect_to parent_item_path, notice: "Parent item was successfully updated." }
         end
@@ -132,7 +132,7 @@ class ParentItemsController < ApplicationController
     @parent_item.destroy
 
     respond_to do |format|
-      format.html { redirect_to verwaltung_path , notice: "Parent item was successfully destroyed." }
+      format.html { redirect_to borrowers_path, notice: "Parent item was successfully destroyed." }
     end
   end
 
