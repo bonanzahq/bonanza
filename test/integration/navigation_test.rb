@@ -71,4 +71,34 @@ class NavigationTest < ActionDispatch::IntegrationTest
     assert_response :success
     assert_select "a[href='#{departments_path}']", text: "Werkstätten"
   end
+
+  # -- department switcher --
+
+  test "multi-department user sees department switcher dropdown in logo" do
+    # Create a new dept and user — dept2 will be created AFTER user to trigger auto-add
+    dept1 = create(:department)
+    user = create(:user, department: dept1)
+    create(:department) # before_create callback auto-adds user to this dept
+
+    sign_in user
+    get verwaltung_verleihende_path
+    assert_response :success
+
+    assert_select "h1#logo .dropdown button.dropdown-toggle"
+    assert_select "h1#logo ul.dropdown-menu"
+  end
+
+  test "single-department user sees plain department name without switcher in logo" do
+    dept1 = create(:department)
+    user = create(:user, department: dept1)
+    # No additional departments created after user, so user stays single-dept
+
+    sign_in user
+    get verwaltung_verleihende_path
+    assert_response :success
+
+    assert_select "h1#logo span", text: dept1.name
+    assert_select "h1#logo .dropdown", false,
+      "Single-department user should not see department switcher dropdown"
+  end
 end

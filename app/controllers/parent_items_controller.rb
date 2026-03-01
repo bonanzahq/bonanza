@@ -67,24 +67,49 @@ class ParentItemsController < ApplicationController
 
   # PATCH/PUT /parent_items/1 or /parent_items/1.json
   def update
+    department_changed = false
+    requested_department_id = params.dig(:parent_item, :department_id).presence
+
+    if requested_department_id && requested_department_id.to_i != @parent_item.department_id
+      authorize! :move, @parent_item
+
+      target_id = requested_department_id.to_i
+      target_department = Department.joins(:department_memberships)
+                            .where(department_memberships: { user: current_user })
+                            .where.not(department_memberships: { role: :deleted })
+                            .find_by(id: target_id)
+
+      unless target_department
+        return redirect_back fallback_location: edit_parent_item_path(@parent_item), alert: "Ziel-Werkstatt ist ungültig."
+      end
+
+      if @parent_item.has_lent_items?
+        return redirect_back fallback_location: edit_parent_item_path(@parent_item), alert: "Artikel mit aktiven Ausleihen können nicht verschoben werden."
+      end
+
+      @parent_item.department = target_department
+      department_changed = true
+    end
+
     respond_to do |format|
       if @parent_item.update(parent_item_params)
-        @department.tag(@parent_item, :with => params[:parent_item][:all_tags_list], :on => :tags)
-        
+        tagging_department = department_changed ? @parent_item.department : @department
+        tagging_department.tag(@parent_item, :with => params[:parent_item][:all_tags_list], :on => :tags)
+
         @parent_item.attach_files
-        
+
         @parent_item.reload
 
         begin
           @parent_item.reindex
-        rescue Faraday::ConnectionFailed # elasticsearch couldn't be reached
+        rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED, Elastic::Transport::Transport::Error
         end
 
-        # if request.url.include?("verwaltung")
-        #   format.html { redirect_to management_parent_item_path, notice: "Parent item was successfully updated." }
-        # else
+        if department_changed
+          format.html { redirect_to borrowers_path, notice: "Artikel wurde aktualisiert und verschoben." }
+        else
           format.html { redirect_to parent_item_path, notice: "Parent item was successfully updated." }
-        # end
+        end
       else
         format.html { render :edit, status: :unprocessable_entity }
       end
@@ -105,7 +130,7 @@ class ParentItemsController < ApplicationController
     @parent_item.destroy
 
     respond_to do |format|
-      format.html { redirect_to verwaltung_path , notice: "Parent item was successfully destroyed." }
+      format.html { redirect_to borrowers_path, notice: "Parent item was successfully destroyed." }
     end
   end
 

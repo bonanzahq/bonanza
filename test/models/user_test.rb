@@ -214,4 +214,34 @@ class UserTest < ActiveSupport::TestCase
     User.current_user = nil
     assert_nil User.current_user
   end
+
+  # -- switchable_departments --
+
+  test "switchable_departments returns empty for single-department user" do
+    assert_empty @user.switchable_departments
+  end
+
+  test "switchable_departments returns other departments for multi-department user" do
+    # Department before_create callback auto-adds @user to the new dept
+    other_dept = create(:department)
+
+    result = @user.switchable_departments
+
+    assert_includes result, other_dept
+    assert_not_includes result, @department
+  end
+
+  test "switchable_departments excludes current department" do
+    create(:department)
+
+    assert_not_includes @user.switchable_departments, @user.current_department
+  end
+
+  test "switchable_departments excludes departments with deleted membership" do
+    other_dept = create(:department)
+    # Auto-created membership exists; update it to deleted
+    @user.department_memberships.find_by(department: other_dept).update!(role: :deleted)
+
+    assert_not_includes @user.switchable_departments, other_dept
+  end
 end
