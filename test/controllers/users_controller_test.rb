@@ -27,14 +27,47 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
   # -- Bug 2: Password change restricted to self-edit --
 
-  test "user can change their own password" do
+  test "user can change their own password with correct current password" do
     sign_in @member
+    new_password = "new-platypus-umbrella-cactus"
+    patch user_path(@member), params: {
+      user: { current_password: "platypus-umbrella-cactus", password: new_password, password_confirmation: new_password }
+    }
+    assert_redirected_to verwaltung_verleihende_path
+    assert @member.reload.valid_password?(new_password), "Password should have been updated"
+  end
+
+  test "user cannot change own password without providing current password" do
+    sign_in @member
+    original_password = @member.encrypted_password
     new_password = "new-platypus-umbrella-cactus"
     patch user_path(@member), params: {
       user: { password: new_password, password_confirmation: new_password }
     }
+    assert_response :unprocessable_entity
+    assert_equal original_password, @member.reload.encrypted_password,
+      "Password should not change without current_password"
+  end
+
+  test "user cannot change own password with wrong current password" do
+    sign_in @member
+    original_password = @member.encrypted_password
+    new_password = "new-platypus-umbrella-cactus"
+    patch user_path(@member), params: {
+      user: { current_password: "wrong-password-here", password: new_password, password_confirmation: new_password }
+    }
+    assert_response :unprocessable_entity
+    assert_equal original_password, @member.reload.encrypted_password,
+      "Password should not change with wrong current_password"
+  end
+
+  test "non-password profile updates do not require current password" do
+    sign_in @member
+    patch user_path(@member), params: {
+      user: { firstname: "Updated" }
+    }
     assert_redirected_to verwaltung_verleihende_path
-    assert @member.reload.valid_password?(new_password), "Password should have been updated"
+    assert_equal "Updated", @member.reload.firstname
   end
 
   test "admin cannot set another user's password" do
