@@ -5,9 +5,11 @@ class ParentItem < ApplicationRecord
   belongs_to :department
   has_many :items, -> {order "id ASC"}, dependent: :destroy
   has_many :accessories, :dependent => :destroy
-  
+  has_many :links, dependent: :destroy
+
   accepts_nested_attributes_for :items, :allow_destroy => true
   accepts_nested_attributes_for :accessories, :reject_if => :reject_accessory, :allow_destroy => true
+  accepts_nested_attributes_for :links, reject_if: :reject_link, allow_destroy: true
 
   validate :accessories_cannot_change_if_lent
 
@@ -104,6 +106,11 @@ class ParentItem < ApplicationRecord
       empty = attributes[:name].blank?
       attributes.merge!({:_destroy => 1}) if exists and empty
       return (!exists and empty)
+    end
+
+    def reject_link(attributes)
+      attributes[:url]&.strip!
+      attributes[:url].blank? && !attributes[:id].present?
     end
 
     def reject_item(attributes)
