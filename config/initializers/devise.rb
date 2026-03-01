@@ -362,7 +362,7 @@ Devise.setup do |config|
 end
 
 Warden::Manager.after_authentication do |user, warden, _options|
-  password = warden.request.params.dig(:user, :password)
+  password = warden.request.params.dig("user", "password")
   if password.present? && PasswordStrengthValidator.weak?(password, user)
     warden.request.session[:weak_password] = true
   else
