@@ -17,10 +17,6 @@
       </div>
     <% end %>
 
-    <% if session[:weak_password] %>
-      <%= render "shared/weak_password_warning" %>
-    <% end %>
-
     <% if user_signed_in? && current_user.current_department.staffed == false %>
       <%= render "layouts/unstaffed_message" %>
     <% end %>
@@ -32,6 +28,9 @@
             <%= render 'shared/department_switcher' %>
           <% end %>
         </h1>
+    <% end %>
+    <% if session[:weak_password] %>
+      <%= render "shared/weak_password_warning" %>
     <% end %>
     <div class="container">
         <%= yield %>
