@@ -59,7 +59,22 @@
                             <% end %>
                         </div>
                     <% end %>
-                    
+
+                    <% if line_item.item.parent_item.links.any? %>
+                        <div class="body">
+                            <div class="form-label">Links</div>
+                            <ul class="list-unstyled mb-0">
+                                <% line_item.item.parent_item.links.each do |link| %>
+                                    <li>
+                                        <a href="<%= link.url %>" target="_blank" rel="noopener noreferrer">
+                                            <%= link.title.present? ? link.title : link.url %>
+                                        </a>
+                                    </li>
+                                <% end %>
+                            </ul>
+                        </div>
+                    <% end %>
+
                 </div>
             <% end %>
 
