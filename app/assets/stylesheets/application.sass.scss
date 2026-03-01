@@ -1102,6 +1102,10 @@ header {
     border-bottom-right-radius: 4px !important;
 }
 
+.links > .input-group input[type="hidden"] {
+    display: none !important;
+}
+
 .links > .input-group .icon.trash {
     display: flex;
     align-items: center;
