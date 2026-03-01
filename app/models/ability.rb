@@ -55,6 +55,7 @@ class Ability
       can :unstaff, Department, :id => user.current_department.id
       can :staff, Department, :id => user.current_department.id
       can :manage, ParentItem, :department_id => user.current_department.id
+      can :move, ParentItem, :department_id => user.current_department.id
       can :manage, Lending, :department_id => user.current_department.id
       can [:edit, :update, :select_borrower], :checkout
       can :take_back, LineItem, :item => { :parent_item => { :department => user.current_department } }
@@ -67,6 +68,7 @@ class Ability
       can :read, User
       can :manage, Borrower
       can :manage, ParentItem, :department_id => user.current_department.id
+      can :move, ParentItem, :department_id => user.current_department.id
       can :manage, Lending, :department_id => user.current_department.id
       can [:edit, :update, :select_borrower], :checkout
       can :take_back, LineItem, :item => { :parent_item => { :department => user.current_department } }
