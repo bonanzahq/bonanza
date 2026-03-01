@@ -8,6 +8,11 @@ export default class extends Controller {
     let itemCount = this.element.querySelectorAll(".input-group").length
     let l = this.element.querySelectorAll(".input-group")[itemCount-1]
     this.initialMaxId = parseInt(l.querySelector("input").id.match(/\d+/)[0])
+
+    // Disable required on hidden rows so they don't block form submission
+    this.element.querySelectorAll(".input-group.d-none [name*='\\[url\\]']").forEach(function(field) {
+      field.required = false
+    })
   }
 
   addLink(e){
@@ -16,7 +21,9 @@ export default class extends Controller {
     if(this.element.querySelectorAll(".input-group.d-none").length == 1) {
       this.element.querySelector(".input-group").classList.remove("d-none")
       this.element.querySelector("[name*='\\[title\\]']").value = ''
-      this.element.querySelector("[name*='\\[url\\]']").value = ''
+      const urlField = this.element.querySelector("[name*='\\[url\\]']")
+      urlField.value = ''
+      urlField.required = true
       this.element.querySelector("[name*='\\[_destroy\\]']").value = false
 
       this.element.querySelector(".input-group").appendChild(this.element.querySelector("[name*='\\[id\\]']"))
@@ -67,6 +74,9 @@ export default class extends Controller {
       link.querySelector("[name*='\\[_destroy\\]']").value = true
       link.parentNode.appendChild(link.querySelector("[name*='\\[_destroy\\]']"))
     }
+
+    const urlField = link.querySelector("[name*='\\[url\\]']")
+    if (urlField) urlField.required = false
 
     link.classList.add("d-none")
 

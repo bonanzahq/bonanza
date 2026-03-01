@@ -1102,6 +1102,17 @@ header {
     border-bottom-right-radius: 4px !important;
 }
 
+.links > .input-group .icon.trash {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    border: 1px solid #dee2e6;
+    border-top-right-radius: 4px;
+    border-bottom-right-radius: 4px;
+    cursor: pointer;
+}
+
 .tags a.badge {
     text-decoration: none;
     background-color: $dark-grey;
