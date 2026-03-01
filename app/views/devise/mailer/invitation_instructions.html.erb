@@ -1,3 +1,5 @@
+<%# ABOUTME: Devise email sent when a user is invited to join a department. %>
+<%# ABOUTME: Styled with the branded Cerberus-based email layout. %>
 <!DOCTYPE html>
 <html lang="de" xmlns="http://www.w3.org/1999/xhtml" xmlns:v="urn:schemas-microsoft-com:vml" xmlns:o="urn:schemas-microsoft-com:office:office">
 <head>
@@ -164,7 +166,7 @@
 
 </head>
 <body width="100%" style="margin: 0; padding: 0 !important; mso-line-height-rule: exactly; background-color: #fff;">
-  <center role="article" aria-roledescription="email" lang="en" style="width: 100%; background-color: #fff;">
+  <center role="article" aria-roledescription="email" lang="de" style="width: 100%; background-color: #fff;">
     <!--[if mso | IE]>
     <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #fff;">
     <tr>
@@ -173,7 +175,7 @@
 
         <!-- Visually Hidden Preheader Text : BEGIN -->
         <div style="max-height:0; overflow:hidden; mso-hide:all;" aria-hidden="true">
-            Hallo, Du wurdest von <%= @resource.invited_by.fullname %> für <%= t(@resource.current_department.genderize('the')) %> <%= @resource.current_department.name %> bei Bonanza eingeladen. Rufe folgenden Link in Deinem Browser auf, um Deine Einladung anzunehmen und ein Benutzer-Konto anzulegen: <%= accept_invitation_url(@resource, :invitation_token => @token) %>
+            Hallo, Du wurdest von <%= @resource.invited_by.fullname %> für <%= t(@resource.current_department.genderize('the')) %> <%= @resource.current_department.name %> bei Bonanza eingeladen.
         </div>
         <!-- Visually Hidden Preheader Text : END -->
 
@@ -220,11 +222,11 @@
                                 <td style="padding: 40px; font-family: sans-serif; font-size: 16px; line-height: 24px; color: #272727;">
                                     <h1 style="margin: 0 0 20px 0; font-family: sans-serif; font-size: 24px; line-height: 32px; color: #272727;">Du wurdest zu Bonanza eingeladen.</h1>
                                     <h2 style="margin: 0 0 10px 0; font-family: sans-serif; font-size: 16px; line-height: 24px; color: #272727;">Hallo,</h2>
-                                    <p style="margin: 0 0 10px 0;">Du wurdest von <%= @resource.invited_by.fullname %> für <%= t(@resource.current_department.genderize('the')) %> <%= @resource.current_department.name %> bei Bonanza eingeladen. Rufe folgenden Link in Deinem Browser auf, um Deine Einladung anzunehmen und ein Benutzer-Konto anzulegen: <%= accept_invitation_url(@resource, :invitation_token => @token) %></p>
+                                    <p style="margin: 0 0 10px 0;">Du wurdest von <%= @resource.invited_by.fullname %> für <%= t(@resource.current_department.genderize('the')) %> <%= @resource.current_department.name %> bei Bonanza eingeladen.</p>
                                 </td>
                             </tr>
                             <tr>
-                                <td style="padding: 0 20px;">
+                                <td style="padding: 0 20px 20px 20px;">
                                     <!-- Button : BEGIN -->
                                     <table align="center" role="presentation" cellspacing="0" cellpadding="0" border="0" style="margin: auto;">
                                         <tr>
@@ -234,6 +236,11 @@
                                         </tr>
                                     </table>
                                     <!-- Button : END -->
+                                </td>
+                            </tr>
+                            <tr>
+                                <td style="padding: 0 40px 40px 40px; font-family: sans-serif; font-size: 13px; line-height: 18px; color: #888;">
+                                    <p style="margin: 0; word-break: break-all;">Oder kopiere diesen Link in Deinen Browser:<br><%= accept_invitation_url(@resource, invitation_token: @token) %></p>
                                 </td>
                             </tr>
                         </table>
