@@ -30,7 +30,11 @@ Rails.application.routes.draw do
   get 'verwaltung/statistik', to: 'statistics#index'
 
   get '/artikel', to: redirect('/verwaltung')
-  resources :parent_items, path: 'artikel', except: :index
+  resources :parent_items, path: 'artikel', except: :index do
+    member do
+      patch :move
+    end
+  end
 
   delete 'artikel/:id/file/:file_id', :to => 'parent_items#destroy_file', as: 'delete_parent_item_file'
 
