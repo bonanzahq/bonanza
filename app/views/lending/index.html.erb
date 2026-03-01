@@ -5,8 +5,10 @@
         <a href="" class="active lending">
             Ausleihe
         </a>
-        <%= link_to return_path, class: "returning" do %>
-            Rücknahme <span class="badge bg-light rounded-pill text-muted ms-1"><%= @lendings_count %></span>
+        <% if can? :read, Lending %>
+            <%= link_to return_path, class: "returning" do %>
+                Rücknahme <span class="badge bg-light rounded-pill text-muted ms-1"><%= @lendings_count %></span>
+            <% end %>
         <% end %>
     </div>
     <div class="col-3 d-flex align-items-center">
