@@ -1,14 +1,14 @@
 # V1 Migration Exploration
 
-## Decisions needed from Fabian
+## Decisions (resolved)
 
-1. **Server hostnames**: What are the staging and production server hostnames/IPs for SSH?
-2. **File attachments**: Paperclip files exist on the server at `public/files/:hash/:filename`. Should we migrate them to ActiveStorage, serve them from the old path via nginx redirect, or skip them? Redux has ActiveStorage tables in the schema but no model uses them yet.
-3. **Avatars**: `avatar_data` on users and lenders is auto-generated Base64 identicons (RubyIdenticon), not user uploads. Safe to drop entirely — Redux has no avatar feature. Confirm?
-4. **Admin users**: Who are the admin users? v1 role enum has admin=3 (NOT 2 as the plan said). We need to know which users should get `admin: true` in Redux.
-5. **Deleted users/borrowers**: v1 has `deleted=99` for user roles and `deleted=2` for lender types. Skip these during migration, or migrate with deleted status?
-6. **Links table**: v1 has a `links` table (title, url, parent_item_id). Redux removed it. Preserve data somewhere for reference, or drop?
-7. **Redux deployment model**: The migration plan references docker-compose commands for Redux. Will Redux run in Docker on the same bare metal server, or bare metal too?
+1. **Server hostnames**: Staging and production hostnames known. Not committed to docs for security — use placeholders in commands.
+2. **File attachments**: Copy files during migration, wire up ActiveStorage as a separate task later (Option A).
+3. **Avatars**: Drop `avatar_data` during migration. Redux will generate its own identicons (filed as git-bug `d683b13`). The current hardcoded placeholder in `_user_menu.html.erb` needs replacing.
+4. **Admin users**: Query `SELECT id, email FROM users WHERE role = 3;` on the server during Phase 0. No pre-known list.
+5. **Deleted users/borrowers**: Migrate them through Redux's existing GDPR anonymization — "Ehemaliger Mitarbeiter" / "Geloescht Person" pattern. No personal data carried over, no broken foreign keys.
+6. **Links table**: v1 `links` is a real feature (URLs for manuals, manufacturer pages, etc., shown on parent item and lending views). Add Link model to Redux before migration. Filed as git-bug `7f45b40`.
+7. **Redux deployment model**: Docker on the same bare metal server. Staging Redux already runs on bonanza2. Production Redux will run alongside v1 on different ports, then switch over.
 
 ## File Storage Findings
 
