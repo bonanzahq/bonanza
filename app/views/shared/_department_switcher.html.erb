@@ -1,11 +1,12 @@
 <%# ABOUTME: Renders a department switcher dropdown or a plain department name for the current user. %>
-<% if current_user.switchable_departments.any? %>
+<% departments = current_user.switchable_departments %>
+<% if departments.any? %>
   <div class="dropdown">
     <button class="btn btn-sm dropdown-toggle p-0 link-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
       <%= current_user.current_department.name %>
     </button>
     <ul class="dropdown-menu">
-      <% current_user.switchable_departments.each do |dept| %>
+      <% departments.each do |dept| %>
         <li>
           <%= button_to dept.name, switch_department_path(department_id: dept.id), method: :patch, class: "dropdown-item btn btn-link" %>
         </li>
