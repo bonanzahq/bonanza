@@ -112,11 +112,11 @@ class ParentItemsController < ApplicationController
                           .find { |d| d.id == target_id }
 
     unless target_department
-      return redirect_back fallback_location: parent_item_path(@parent_item), alert: "Ziel-Werkstatt ist ungültig."
+      return redirect_back fallback_location: edit_parent_item_path(@parent_item), alert: "Ziel-Werkstatt ist ungültig."
     end
 
     if @parent_item.has_lent_items?
-      return redirect_back fallback_location: parent_item_path(@parent_item), alert: "Artikel mit aktiven Ausleihen können nicht verschoben werden."
+      return redirect_back fallback_location: edit_parent_item_path(@parent_item), alert: "Artikel mit aktiven Ausleihen können nicht verschoben werden."
     end
 
     if @parent_item.update(department: target_department)
@@ -124,9 +124,9 @@ class ParentItemsController < ApplicationController
         @parent_item.reindex
       rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED, Elastic::Transport::Transport::Error
       end
-      redirect_to parent_item_path(@parent_item), notice: "Artikel wurde erfolgreich verschoben."
+      redirect_to edit_parent_item_path(@parent_item), notice: "Artikel wurde erfolgreich verschoben."
     else
-      redirect_back fallback_location: parent_item_path(@parent_item), alert: "Artikel konnte nicht verschoben werden."
+      redirect_back fallback_location: edit_parent_item_path(@parent_item), alert: "Artikel konnte nicht verschoben werden."
     end
   end
 

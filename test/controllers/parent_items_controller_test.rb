@@ -56,7 +56,7 @@ class ParentItemsControllerTest < ActionDispatch::IntegrationTest
     sign_in @user
     patch move_parent_item_path(@parent_item), params: { target_department_id: target_dept.id }
 
-    assert_redirected_to parent_item_path(@parent_item)
+    assert_redirected_to edit_parent_item_path(@parent_item)
     assert_equal target_dept, @parent_item.reload.department
   end
 
