@@ -10,11 +10,15 @@
     <%= javascript_include_tag "application", "data-turbo-track": "reload", defer: true %>
   </head>
 
-  <body class="<% if Rails.env.development? || (user_signed_in? && current_user.admin?) %> is-admin <% end %> <% if user_signed_in? && current_user.current_department.staffed == false %> unstaffed <% end %>">
+  <body class="<% if Rails.env.development? || (user_signed_in? && current_user.admin?) %> is-admin <% end %> <% if user_signed_in? && current_user.current_department.staffed == false %> unstaffed <% end %> <% if session[:weak_password] %> weak-password <% end %>">
     <% if Rails.env.development? || (user_signed_in? && current_user.admin?) %>
       <div style="padding: 10px 20px; background-color: <%= Rails.env.production? ? "#FA6400;" : "#AAEB28" %>">
         <strong><%= Rails.env.humanize %> Environment</strong> <%= user_signed_in? ? current_user.current_department.name : "Bonanza" %>
       </div>
+    <% end %>
+
+    <% if session[:weak_password] %>
+      <%= render "shared/weak_password_warning" %>
     <% end %>
 
     <% if user_signed_in? && current_user.current_department.staffed == false %>
@@ -28,9 +32,6 @@
             <%= render 'shared/department_switcher' %>
           <% end %>
         </h1>
-    <% end %>
-    <% if session[:weak_password] %>
-      <%= render "shared/weak_password_warning" %>
     <% end %>
     <div class="container">
         <%= yield %>

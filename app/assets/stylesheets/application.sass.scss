@@ -128,6 +128,22 @@ header {
         top: 114px;
     }
 
+    .weak-password & {
+        top: 56px;
+    }
+
+    .weak-password.is-admin & {
+        top: 96px;
+    }
+
+    .weak-password.unstaffed & {
+        top: 114px;
+    }
+
+    .weak-password.unstaffed.is-admin & {
+        top: 154px;
+    }
+
     span {
         font-weight: 400;
         font-size: 24px;
