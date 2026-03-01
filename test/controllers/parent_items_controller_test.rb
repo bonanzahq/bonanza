@@ -127,4 +127,69 @@ class ParentItemsControllerTest < ActionDispatch::IntegrationTest
     assert_equal new_name, @parent_item.reload.name
     assert_equal @department, @parent_item.reload.department
   end
+
+  # -- links (nested attributes) --
+
+  test "create with nested links saves links" do
+    sign_in @user
+    assert_difference "Link.count", 1 do
+      post parent_items_path, params: {
+        parent_item: {
+          name: "Camera With Links",
+          links_attributes: { "0" => { url: "https://example.com", title: "Manual" } }
+        }
+      }
+    end
+    link = Link.last
+    assert_equal "https://example.com", link.url
+    assert_equal "Manual", link.title
+  end
+
+  test "update adds a link via nested attributes" do
+    sign_in @user
+    assert_difference "Link.count", 1 do
+      patch parent_item_path(@parent_item), params: {
+        parent_item: {
+          name: @parent_item.name,
+          links_attributes: { "0" => { url: "https://wiki.example.com", title: "Wiki" } }
+        }
+      }
+    end
+    assert_equal "https://wiki.example.com", @parent_item.links.last.url
+  end
+
+  test "update removes a link via _destroy" do
+    link = create(:link, parent_item: @parent_item)
+    sign_in @user
+    assert_difference "Link.count", -1 do
+      patch parent_item_path(@parent_item), params: {
+        parent_item: {
+          name: @parent_item.name,
+          links_attributes: { "0" => { id: link.id, _destroy: "1" } }
+        }
+      }
+    end
+    assert_not Link.exists?(link.id)
+  end
+
+  test "show displays links for a parent item" do
+    create(:link, parent_item: @parent_item, url: "https://docs.example.com", title: "Docs")
+    sign_in @user
+    get parent_item_path(@parent_item)
+    assert_response :success
+    assert_match "https://docs.example.com", response.body
+    assert_match "Docs", response.body
+  end
+
+  test "link url is auto-prepended with http:// when scheme is missing" do
+    sign_in @user
+    post parent_items_path, params: {
+      parent_item: {
+        name: "Bare URL Item",
+        links_attributes: { "0" => { url: "example.com/manual", title: "" } }
+      }
+    }
+    link = Link.last
+    assert_equal "http://example.com/manual", link.url
+  end
 end
