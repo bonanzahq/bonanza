@@ -8,10 +8,11 @@
 
   <% unless parent_item.new_record? %>
     <% if can?(:move, parent_item) && current_user.switchable_departments.any? %>
-      <% all_user_departments = current_user.department_memberships
-                                  .where.not(role: :deleted)
-                                  .joins(:department)
-                                  .map(&:department) %>
+      <% all_user_departments = Department.joins(:department_memberships)
+                                  .where(department_memberships: { user: current_user })
+                                  .where.not(department_memberships: { role: :deleted })
+                                  .distinct
+                                  .order(:name) %>
       <div class="mb-2">
         <%= form.label :department_id, "Werkstatt", class: "form-label" %>
         <% if parent_item.has_lent_items? %>
