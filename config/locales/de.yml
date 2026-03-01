@@ -1,5 +1,7 @@
 ---
 de:
+  weak_password_warning: "Dein Passwort ist unsicher. Bitte ändere es."
+  weak_password_change_link: "Passwort ändern"
   activerecord:
     attributes:
       borrower:

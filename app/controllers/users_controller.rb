@@ -53,6 +53,9 @@ class UsersController < ApplicationController
 
         if @user == current_user
           bypass_sign_in @user
+          if @user.saved_change_to_encrypted_password?
+            session.delete(:weak_password)
+          end
         end
 
         notice = if @user.pending_reconfirmation?

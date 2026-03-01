@@ -57,4 +57,20 @@ class PasswordStrengthValidatorTest < ActiveSupport::TestCase
     user = build_user_with_password("purple-monkey-dishwasher-42")
     assert user.valid?
   end
+
+  test "weak? class method returns true for weak passwords" do
+    user = build(:user)
+    assert PasswordStrengthValidator.weak?("aaaaaaaaaaaa", user)
+  end
+
+  test "weak? class method returns false for strong passwords" do
+    user = build(:user)
+    assert_not PasswordStrengthValidator.weak?("platypus-umbrella-cactus", user)
+  end
+
+  test "weak? class method returns false for blank passwords" do
+    user = build(:user)
+    assert_not PasswordStrengthValidator.weak?("", user)
+    assert_not PasswordStrengthValidator.weak?(nil, user)
+  end
 end
