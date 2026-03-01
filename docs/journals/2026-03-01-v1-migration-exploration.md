@@ -128,53 +128,57 @@ cat /path/to/bonanza/config/schedule.rb
 ### Step 3: Explore the database
 
 ```bash
+# Set these from what you found in steps 1-2
+MYSQL_USER="..."    # from database.yml / process env
+MYSQL_DB="..."      # production database name
+
 # Connect to MySQL (try socket first, then TCP)
-mysql -u bonanzasql1 -p bonanza_production
+mysql -u "$MYSQL_USER" -p "$MYSQL_DB"
 # Or with socket:
-mysql -u bonanzasql1 -p --socket=/var/run/mysqld/mysqld.sock bonanza_production
+mysql -u "$MYSQL_USER" -p --socket=/var/run/mysqld/mysqld.sock "$MYSQL_DB"
 
 # Record counts
-mysql -u bonanzasql1 -p bonanza_production -e "
+mysql -u "$MYSQL_USER" -p "$MYSQL_DB" -e "
   SELECT table_name, table_rows
   FROM information_schema.tables
-  WHERE table_schema = 'bonanza_production'
+  WHERE table_schema = '$MYSQL_DB'
   ORDER BY table_rows DESC;
 "
 
 # Database and table sizes
-mysql -u bonanzasql1 -p bonanza_production -e "
+mysql -u "$MYSQL_USER" -p "$MYSQL_DB" -e "
   SELECT table_name,
          ROUND(data_length/1024/1024, 2) AS data_mb,
          ROUND(index_length/1024/1024, 2) AS index_mb
   FROM information_schema.tables
-  WHERE table_schema = 'bonanza_production'
+  WHERE table_schema = '$MYSQL_DB'
   ORDER BY data_length DESC;
 "
 
 # Check assets table specifically
-mysql -u bonanzasql1 -p bonanza_production -e "SELECT COUNT(*) FROM assets;"
-mysql -u bonanzasql1 -p bonanza_production -e "SELECT * FROM assets LIMIT 5;"
+mysql -u "$MYSQL_USER" -p "$MYSQL_DB" -e "SELECT COUNT(*) FROM assets;"
+mysql -u "$MYSQL_USER" -p "$MYSQL_DB" -e "SELECT * FROM assets LIMIT 5;"
 
 # Check user roles distribution
-mysql -u bonanzasql1 -p bonanza_production -e "SELECT role, COUNT(*) FROM users GROUP BY role;"
+mysql -u "$MYSQL_USER" -p "$MYSQL_DB" -e "SELECT role, COUNT(*) FROM users GROUP BY role;"
 
 # Check links table
-mysql -u bonanzasql1 -p bonanza_production -e "SELECT COUNT(*) FROM links;"
+mysql -u "$MYSQL_USER" -p "$MYSQL_DB" -e "SELECT COUNT(*) FROM links;"
 ```
 
 ### Step 4: Dump the database
 
 ```bash
 # Full dump (structure + data), compressed
-mysqldump -u bonanzasql1 -p --single-transaction --routines --triggers \
-  bonanza_production | gzip > bonanza_v1_dump_$(date +%Y%m%d).sql.gz
+mysqldump -u "$MYSQL_USER" -p --single-transaction --routines --triggers \
+  "$MYSQL_DB" | gzip > bonanza_v1_dump_$(date +%Y%m%d).sql.gz
 
 # Schema only (for comparison)
-mysqldump -u bonanzasql1 -p --no-data bonanza_production > bonanza_v1_schema.sql
+mysqldump -u "$MYSQL_USER" -p --no-data "$MYSQL_DB" > bonanza_v1_schema.sql
 
 # Sample dump (100 rows per table)
-mysqldump -u bonanzasql1 -p --single-transaction --where="1 LIMIT 100" \
-  bonanza_production > bonanza_v1_sample.sql
+mysqldump -u "$MYSQL_USER" -p --single-transaction --where="1 LIMIT 100" \
+  "$MYSQL_DB" > bonanza_v1_sample.sql
 ```
 
 ### Step 5: Find and size Paperclip files

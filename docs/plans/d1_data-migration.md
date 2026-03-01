@@ -272,6 +272,12 @@ pgloader automatically handles:
 
 v1 runs bare metal (NOT Docker). Fabian has root SSH access.
 
+```bash
+# Set these after discovering credentials in steps 0.1-0.2
+MYSQL_USER="..."          # MySQL username from database.yml / process env
+MYSQL_DB="..."            # Production database name
+```
+
 #### 0.1 Find the v1 app directory
 ```bash
 ssh root@SERVER
@@ -295,12 +301,12 @@ systemctl cat bonanza
 
 #### 0.3 Explore the database
 ```bash
-mysql -u bonanzasql1 -p bonanza_production
+mysql -u "$MYSQL_USER" -p "$MYSQL_DB"
 
 # Record counts
 SELECT table_name, table_rows
 FROM information_schema.tables
-WHERE table_schema = 'bonanza_production'
+WHERE table_schema = '$MYSQL_DB'
 ORDER BY table_rows DESC;
 
 # User role distribution (verify enum values)
@@ -333,22 +339,22 @@ apt-get install pgloader  # Ubuntu
 # Verify SSH access to v1 production (root access available)
 ssh root@v1-server
 # Connect to MySQL (credentials found in Phase 0)
-mysql -u bonanzasql1 -p bonanza_production
+mysql -u "$MYSQL_USER" -p "$MYSQL_DB"
 # Test read access
 ```
 
 #### 1.2 Document v1 Database
 ```bash
 # Export v1 schema
-mysqldump --no-data -u bonanzasql1 -p bonanza_production > docs/migration/v1_schema.sql
+mysqldump --no-data -u "$MYSQL_USER" -p "$MYSQL_DB" > docs/migration/v1_schema.sql
 
 # Export sample data for testing
-mysqldump -u bonanzasql1 -p --single-transaction \
+mysqldump -u "$MYSQL_USER" -p --single-transaction \
   --where="1 LIMIT 100" \
-  bonanza_production departments users lenders > docs/migration/v1_sample.sql
+  "$MYSQL_DB" departments users lenders > docs/migration/v1_sample.sql
 
 # Document record counts
-mysql -u bonanzasql1 -p bonanza_production -e "
+mysql -u "$MYSQL_USER" -p "$MYSQL_DB" -e "
   SELECT 'departments' as table_name, COUNT(*) as count FROM departments
   UNION SELECT 'users', COUNT(*) FROM users
   UNION SELECT 'lenders', COUNT(*) FROM lenders
@@ -495,7 +501,7 @@ LOAD TABLE departments, parent_items, line_items,
      accessories, accessories_line_items,
      tags, taggings
 
--- Skip assets and links tables
+-- Skip assets table (links table now migrated to Redux)
 EXCLUDING TABLE NAMES MATCHING 'assets'
 
 -- Re-enable triggers and fix sequences
@@ -750,7 +756,7 @@ Since pgloader can't include the `role` field in the user query, we need to hand
 
 ```bash
 # On v1 server, export user roles
-mysql -u bonanzasql1 -p bonanza_production -e "
+mysql -u "$MYSQL_USER" -p "$MYSQL_DB" -e "
   SELECT id, role FROM users;
 " > /tmp/v1_user_roles.csv
 
@@ -810,7 +816,13 @@ namespace :migrate do
         role: role_mapping[v1_role]
       )
 
-      puts "User #{user.email}: #{role_mapping[v1_role]}"
+      # Set admin flag for users who had role=3 in v1
+      if v1_role == 3
+        user.update_column(:admin, true)
+        puts "User #{user.email}: leader + ADMIN"
+      else
+        puts "User #{user.email}: #{role_mapping[v1_role]}"
+      end
     end
   end
 end
@@ -821,16 +833,15 @@ docker-compose -f docker-compose.prod.yml exec app \
   bundle exec rails migrate:import_v1_roles RAILS_ENV=production
 ```
 
-#### 3.3 Set Admin Users
-```bash
-# Identify admin users from v1 (role=3)
-# Then set admin flag in Redux
+#### 3.3 Verify Admin Users
 
+Admin users (v1 role=3) are now set automatically in the import_v1_roles task
+above. Verify the result:
+
+```bash
 docker-compose -f docker-compose.prod.yml exec app \
   bundle exec rails runner "
-    # Set users who had role=3 (admin) in v1 as admin in Redux
-    # Get admin user IDs from v1: SELECT id, email FROM users WHERE role = 3;
-    User.where(email: ['TODO: fill from v1 query']).update_all(admin: true)
+    User.where(admin: true).each { |u| puts \"#{u.id}: #{u.email}\" }
   " RAILS_ENV=production
 ```
 
@@ -947,7 +958,7 @@ docker-compose -f docker-compose.prod.yml exec app \
 2. **T+10: Final v1 Backup** (15 min)
    ```bash
    # Full MySQL backup
-   mysqldump -u bonanzasql1 -p --single-transaction bonanza_production | gzip > bonanza_final_$(date +%Y%m%d_%H%M%S).sql.gz
+   mysqldump -u "$MYSQL_USER" -p --single-transaction "$MYSQL_DB" | gzip > bonanza_final_$(date +%Y%m%d_%H%M%S).sql.gz
 
    # Backup Elasticsearch (if snapshot configured)
    # Backup Paperclip files
@@ -1148,7 +1159,7 @@ Redux has no avatar feature. Can regenerate on-the-fly if ever needed.
 
 ### Data Not Migrated
 1. **OAuth tokens** - Removed in Redux, users may need to reconnect services
-2. **Paperclip avatars** - Need manual migration if used
+2. **Avatar identicons** (`avatar_data`) - Auto-generated in v1, safe to drop. Redux will generate its own identicons.
 3. **Links table** - Will be added to Redux before migration (git-bug 7f45b40)
 4. **Bundles** - Feature removed
 
