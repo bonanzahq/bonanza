@@ -1,5 +1,5 @@
 class ParentItemsController < ApplicationController
-  before_action :set_parent_item, only: %i[ show edit update destroy destroy_file ]
+  before_action :set_parent_item, only: %i[ show edit update destroy destroy_file move ]
 
   before_action :authenticate_user!
   before_action :set_department
@@ -97,6 +97,36 @@ class ParentItemsController < ApplicationController
 
     respond_to do |format|
       format.turbo_stream { render turbo_stream: turbo_stream.remove(@file) }
+    end
+  end
+
+  # PATCH /parent_items/1/move
+  def move
+    authorize! :move, @parent_item
+
+    target_id = params[:target_department_id].to_i
+    target_department = current_user.department_memberships
+                          .where.not(role: :deleted)
+                          .joins(:department)
+                          .map(&:department)
+                          .find { |d| d.id == target_id }
+
+    unless target_department
+      return redirect_back fallback_location: parent_item_path(@parent_item), alert: "Ziel-Werkstatt ist ungültig."
+    end
+
+    if @parent_item.has_lent_items?
+      return redirect_back fallback_location: parent_item_path(@parent_item), alert: "Artikel mit aktiven Ausleihen können nicht verschoben werden."
+    end
+
+    if @parent_item.update(department: target_department)
+      begin
+        @parent_item.reindex
+      rescue Faraday::ConnectionFailed, Errno::ECONNREFUSED, Elastic::Transport::Transport::Error
+      end
+      redirect_to parent_item_path(@parent_item), notice: "Artikel wurde erfolgreich verschoben."
+    else
+      redirect_back fallback_location: parent_item_path(@parent_item), alert: "Artikel konnte nicht verschoben werden."
     end
   end
 
