@@ -108,6 +108,32 @@
     <% end %>
   </div>
 
+  <div class="mb-3 links" data-controller="links-input">
+    <%= form.label :links, class: "form-label" do %>
+      Links <em>optional</em>
+    <% end %>
+    <%= form.fields_for :links, include_id: false do |l_fields| %>
+      <% if l_fields.object.new_record? %>
+        <div class="note"><i class="text-muted">Keine Links hinterlegt</i></div>
+        <div class="input-group mb-1 d-none">
+      <% else %>
+        <div class="note d-none"><i class="text-muted">Keine Links hinterlegt</i></div>
+        <div class="input-group mb-1">
+      <% end %>
+
+        <%= l_fields.text_field :title, placeholder: "Titel", class: "form-control" %>
+        <%= l_fields.text_field :url, placeholder: "URL", class: "form-control" %>
+        <%= l_fields.hidden_field :_destroy, class: "bnz-input-text" %>
+        <%= l_fields.hidden_field :id %>
+        <a href="#" class="btn btn-outline-secondary" data-action="links-input#removeLink">entfernen</a>
+      </div>
+    <% end %>
+
+    <div class="actions">
+      <a class="btn btn-link add-item icon-before add-new" data-action="links-input#addLink">Weiterer Link</a>
+    </div>
+  </div>
+
   <div data-controller="inline-tabs" data-inline-tabs-lent-value="<%= parent_item.has_lent_items? %>">
 
     <div class="bnz-tab-navigation small inline d-flex align-items-stretch mb-2">
