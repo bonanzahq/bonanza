@@ -52,11 +52,11 @@ class ReturnsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
-  test "guest can read index" do
+  test "guest cannot read index" do
     guest = create(:user, :guest, department: @department)
     sign_in guest
     get return_path
-    assert_response :success
+    assert_redirected_to public_home_page_path
   end
 
   # -- take_back --

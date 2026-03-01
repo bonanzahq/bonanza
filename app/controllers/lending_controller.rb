@@ -2,9 +2,8 @@ class LendingController < ApplicationController
   before_action :authenticate_user!, except: [:show]
   before_action :set_department, except: [:show]
 
-  skip_authorize_resource only: [:show]
-
   def index
+    authorize! :read, ParentItem
     page_num = params[:page].nil? ? 1 : params[:page]
 
     @dept_id = params[:dept].nil? ? current_user.current_department.id : params[:dept]
@@ -40,6 +39,7 @@ class LendingController < ApplicationController
   end
 
   def populate
+    authorize! :manage, Lending
     @lending = current_lending
 
     @line_item = @lending.populate(params[:item_id], params[:quantity])
@@ -57,6 +57,7 @@ class LendingController < ApplicationController
 
   def show_printable_agreement
     @lending = Lending.find(params[:id])
+    authorize! :read, @lending
     @borrower = @lending.borrower
 
     if @lending.token != params[:token]
@@ -67,6 +68,7 @@ class LendingController < ApplicationController
   end
 
   def remove_line_item
+    authorize! :update, Lending
     @lending = current_lending
 
     @line_item = @lending.line_items.find(params[:line_item_id]).destroy
@@ -93,6 +95,7 @@ class LendingController < ApplicationController
   end
 
   def update
+    authorize! :update, Lending
     @lending = current_lending
 
     previous_items = @lending.items.clone.to_a
@@ -113,6 +116,7 @@ class LendingController < ApplicationController
   end
 
   def empty
+    authorize! :manage, Lending
     @lending = current_lending
     session[:lending_id] = nil
     
@@ -123,8 +127,9 @@ class LendingController < ApplicationController
 
   def destroy
     @lending = @department.lendings.find(params[:id])
+    authorize! :destroy, @lending
 
-    if @lending.user.current_department == @current_user.current_department && @lending.eradicate
+    if @lending.user.current_department == current_user.current_department && @lending.eradicate
      flash[:notice] = "Ausleihe wurde erfolgreich gelöscht. Status und Anzahl aller Artikel wurde zurückgesetzt."
     else
       flash[:alert] = "Ausleihe konnte nicht gelöscht werden."

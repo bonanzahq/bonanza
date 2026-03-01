@@ -89,12 +89,13 @@ class DepartmentsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a.link-back", text: "Verwaltung"
   end
 
-  test "member sees public departments index" do
+  test "member sees management departments index" do
     sign_in @member
 
     get departments_path
     assert_response :success
-    assert_select ".justify-content-center h3", "Werkstätten"
+    assert_select "header .bnz-tab-navigation h4", "Werkstätten"
+    assert_select "a.link-back", text: "Verwaltung"
   end
 
   test "unauthenticated user sees public departments index" do
@@ -181,12 +182,12 @@ class DepartmentsControllerTest < ActionDispatch::IntegrationTest
     assert_select "a[href='#{edit_department_path(@department)}']"
   end
 
-  test "member is redirected from department show to index" do
-    member = create(:user, department: @department)
-    sign_in member
+  test "member sees management department show" do
+    sign_in @member
 
     get department_path(@department)
-    assert_redirected_to departments_path
+    assert_response :success
+    assert_select "h3", @department.name
   end
 
   test "guest is redirected from department show to index" do
@@ -195,6 +196,39 @@ class DepartmentsControllerTest < ActionDispatch::IntegrationTest
 
     get department_path(@department)
     assert_redirected_to departments_path
+  end
+
+  test "member does not see edit link on management index" do
+    sign_in @member
+
+    get departments_path
+    assert_response :success
+    assert_select "a[href='#{edit_department_path(@department)}']", false
+  end
+
+  test "member does not see new department link on management index" do
+    sign_in @member
+
+    get departments_path
+    assert_response :success
+    assert_select "a[href='#{new_department_path}']", false
+  end
+
+  test "member does not see edit link on department show" do
+    sign_in @member
+
+    get department_path(@department)
+    assert_response :success
+    assert_select "a[href='#{edit_department_path(@department)}']", false
+  end
+
+  test "member sees staff button on department show" do
+    sign_in @member
+    @department.update!(staffed: true)
+
+    get department_path(@department)
+    assert_response :success
+    assert_select "a[href='#{unstaff_department_path(@department)}']"
   end
 
   test "department show displays all details" do
@@ -207,5 +241,23 @@ class DepartmentsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".bnz-card", text: /#{@department.room}/
     assert_select ".bnz-card", text: /Mo-Fr 10-16/
     assert_select ".bnz-card", text: /7/
+  end
+
+  test "member cannot update department" do
+    sign_in @member
+
+    patch department_path(@department), params: { department: { name: "Hacked" } }
+
+    assert_redirected_to root_path
+    assert_not_equal "Hacked", @department.reload.name
+  end
+
+  test "guest cannot update department" do
+    sign_in @guest
+
+    patch department_path(@department), params: { department: { name: "Hacked" } }
+
+    assert_redirected_to public_home_page_path
+    assert_not_equal "Hacked", @department.reload.name
   end
 end

@@ -2,6 +2,7 @@ class StatisticsController < ApplicationController
   before_action :authenticate_user!
   
   def index
+    authorize! :read, :statistics
     start_year = current_user.current_department.created_at.year
     current_year = Date.today.year
 

@@ -317,11 +317,11 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:take_back, line_item)
   end
 
-  test "member can update own department but not other department" do
+  test "member cannot update department" do
     user = create(:user, department: @department)
     ability = Ability.new(user)
 
-    assert ability.can?(:update, @department)
+    assert ability.cannot?(:update, @department)
     assert ability.cannot?(:update, @other_department)
   end
 
@@ -373,13 +373,13 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.cannot?(:create, Lending)
   end
 
-  test "guest can read borrowers and lendings" do
+  test "guest can read items but not borrowers or lendings" do
     user = create(:user, :guest, department: @department)
     ability = Ability.new(user)
 
-    assert ability.can?(:read, Borrower)
-    assert ability.can?(:read, Lending)
     assert ability.can?(:read, ParentItem)
+    assert ability.cannot?(:read, Borrower)
+    assert ability.cannot?(:read, Lending)
   end
 
   test "guest cannot update other users" do
@@ -462,6 +462,35 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.can?(:unstaff, @department)
     assert ability.cannot?(:create, User)
     assert ability.cannot?(:destroy, User)
+    assert ability.cannot?(:update, @department)
+  end
+
+  test "member can read statistics" do
+    user = create(:user, department: @department)
+    ability = Ability.new(user)
+
+    assert ability.can?(:read, :statistics)
+  end
+
+  test "leader can read statistics" do
+    user = create(:user, :leader, department: @department)
+    ability = Ability.new(user)
+
+    assert ability.can?(:read, :statistics)
+  end
+
+  test "guest cannot read statistics" do
+    user = create(:user, :guest, department: @department)
+    ability = Ability.new(user)
+
+    assert ability.cannot?(:read, :statistics)
+  end
+
+  test "hidden user can read statistics" do
+    user = create(:user, :hidden, department: @department)
+    ability = Ability.new(user)
+
+    assert ability.can?(:read, :statistics)
   end
 
   # -- Deleted --
