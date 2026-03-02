@@ -43,6 +43,17 @@ class UsersController < ApplicationController
 
   # PATCH/PUT /users/1
   def update
+    if @user == current_user && params.dig(:user, :password).present?
+      current_password = params.dig(:user, :current_password)
+      unless @user.valid_password?(current_password.to_s)
+        @user.errors.add(:current_password, :invalid)
+        respond_to do |format|
+          format.html { render :edit, status: :unprocessable_entity }
+        end
+        return
+      end
+    end
+
     respond_to do |format|
       if @user.update(user_params)
         
@@ -120,6 +131,7 @@ class UsersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def user_params
+      params[:user]&.delete(:current_password)
       permitted = [:firstname, :lastname, :email, :current_department_id,
                    department_memberships_attributes: [:id, :role, :department_id]]
       permitted.unshift(:admin) if current_user.admin?

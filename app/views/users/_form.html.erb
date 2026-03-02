@@ -1,15 +1,5 @@
 <%= form_with(model: user, data: {turbo: false, controller: 'form-validation'}) do |f| %>
-    <% if user.errors.any? %>
-      <div id="error_explanation">
-        <h2>Wegen <%= pluralize(user.errors.count, "Fehler") %> konnte die verleihende Person nicht gespeichert werden:</h2>
-
-        <ul>
-        <% user.errors.full_messages.each do |message| %>
-          <li><%= message %></li>
-        <% end %>
-        </ul>
-      </div>
-    <% end %>
+    <%= render "shared/form_errors", model: user %>
 
     <div class="mb-2" data-field-container>
         <%= f.label :firstname, "Vorname", class: "form-label" %><br>
@@ -111,6 +101,12 @@
           <% end %>
           <div id="flush-collapseOne" class="accordion-collapse <%= "collapse" unless user.new_record? %>" aria-labelledby="flush-headingOne" data-bs-parent="#accordionFlushExample">
             <div class="accordion-body">
+                  <% unless user.new_record? %>
+                    <div class="mb-2" data-field-container>
+                      <%= f.label :current_password, "Aktuelles Passwort", class: "form-label" %>
+                      <%= f.password_field :current_password, autocomplete: 'off', class: "form-control" %>
+                    </div>
+                  <% end %>
                   <div class="mb-2" data-field-container>
                     <%= f.label :password, "Neues Passwort", class: "form-label" %>
                     <small class="form-text text-muted"><%= t("password_hint") %></small>

@@ -57,7 +57,7 @@ class WeakPasswordWarningTest < ActionDispatch::IntegrationTest
     assert_select ".alert-warning"
 
     patch user_path(user), params: {
-      user: { password: new_strong_password, password_confirmation: new_strong_password }
+      user: { current_password: @weak_password, password: new_strong_password, password_confirmation: new_strong_password }
     }
     follow_redirect!
 

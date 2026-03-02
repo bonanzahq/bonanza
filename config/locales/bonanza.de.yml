@@ -34,3 +34,10 @@ de:
     of_the_female: "der %{department}" # der Modellbauwerkstatt
     of_the_male: "des %{department}s" # des Video Club
     of_the_neuter: "des %{department}s" # des Interface Lab
+    activerecord:
+        errors:
+            models:
+                user:
+                    attributes:
+                        current_password:
+                            invalid: "ist nicht korrekt"
