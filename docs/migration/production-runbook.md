@@ -10,78 +10,80 @@
 - Paperclip hash secret (in `/var/www/bonanza/config/secrets.yml`)
 - Redux Docker image built and pushed to registry
 
-## Server Layout (from staging — validate on production)
+## Server Layout (confirmed on both staging and production)
 
-Values below were gathered from the staging server. The production server likely
-has the same layout but may differ in record counts, file counts, credentials,
-ports, or process management. Run the validation script (Step 0) on production
-before proceeding.
+| Component | Value |
+|-----------|-------|
+| v1 app directory | `/var/www/bonanza/` |
+| v1 Ruby | 2.5 |
+| v1 process | puma 4.3.12, port 9292, runs as root |
+| MySQL | localhost:3306 (also via socket `/var/run/mysqld/mysqld.sock`) |
+| MySQL database | `bonanzasql1` |
+| MySQL user | `bonanzasql1` |
+| MySQL credentials | Cleartext in `/var/www/bonanza/config/database.yml` |
+| Elasticsearch (v1) | 6.4.0 (incompatible with Redux 8.4, reindex only) |
+| Paperclip files | `/var/www/bonanza/public/files/` (23 files, 55 MB) |
+| Paperclip secret | `config/secrets.yml` under `production.paperclip_hash_secret` |
 
-| Component | Staging Value | Validate on Production |
-|-----------|---------------|----------------------|
-| v1 app directory | `/var/www/bonanza/` | Confirm path |
-| v1 Ruby | 2.5 | Confirm version |
-| v1 process | puma 4.3.12, port 9292, runs as root | Confirm port + process manager |
-| MySQL | localhost:3306 (also via socket) | Confirm access method |
-| MySQL database | `bonanzasql1` | Confirm name |
-| MySQL user | `bonanzasql1` | Confirm user |
-| Elasticsearch (v1) | 6.4.0 | Confirm version |
-| Paperclip files | `/var/www/bonanza/public/files/` | Confirm path + count |
-| Paperclip secret | `config/secrets.yml` | Confirm location |
+## v1 Data Summary (production, confirmed)
 
-## v1 Data Summary (staging — re-run on production)
+| Table | Staging | Production | Redux Table | Notes |
+|-------|---------|------------|-------------|-------|
+| departments | 10 | 11 | departments | Direct copy + defaults |
+| users | 28 | 30 | users | Role split to department_memberships |
+| lenders | 999 | 1,125 | borrowers | Rename table + fields |
+| parent_items | 674 | 700 | parent_items | Drop bundle_id, storage_location |
+| items | 871 | 1,080 | items | Rename comment→note, add storage_location |
+| lendings | 2,777 | 3,430 | lendings | Rename lender_id→borrower_id |
+| line_items | 6,727 | 6,982 | line_items | Direct copy |
+| item_histories | 18,498 | 19,156 | item_histories | Rename comment→note |
+| accessories | 1,281 | 1,293 | accessories | Direct copy |
+| accessories_line_items | 30,457 | 31,298 | accessories_line_items | Direct copy |
+| tags | 740 | 745 | tags | Direct copy |
+| taggings | 750 | 755 | taggings | Direct copy (tenant=NULL) |
+| links | 108 | 108 | links | Direct copy |
+| assets | 23 | 23 | (files only) | Paperclip metadata, rsync files |
+| conducts | 6 | 6 | conducts | Rename lender_id→borrower_id |
 
-Record counts from **staging**. Production will have different (likely higher)
-counts. Re-run the validation queries on production before cutover.
-
-| Table | Rows | Redux Table | Notes |
-|-------|------|-------------|-------|
-| departments | 10 | departments | Direct copy + defaults |
-| users | 28 | users | Role split to department_memberships |
-| lenders | 999 | borrowers | Rename table + fields |
-| parent_items | 674 | parent_items | Drop bundle_id, storage_location |
-| items | 871 | items | Rename comment→note, add storage_location |
-| lendings | 2,777 | lendings | Rename lender_id→borrower_id |
-| line_items | 6,727 | line_items | Direct copy |
-| item_histories | 18,498 | item_histories | Rename comment→note |
-| accessories | 1,281 | accessories | Direct copy |
-| accessories_line_items | 30,457 | accessories_line_items | Direct copy |
-| tags | 740 | tags | Direct copy |
-| taggings | 750 | taggings | Direct copy (tenant=NULL) |
-| links | 108 | links | Direct copy |
-| assets | 23 | (files only) | Paperclip metadata, rsync files |
-| conducts | 6 | conducts | Rename lender_id→borrower_id |
-
-### User Role Distribution (28 users)
+### User Role Distribution (production: 30 users)
 
 | v1 Role | v1 Value | Count | Redux Mapping |
 |---------|----------|-------|---------------|
-| admin | 3 | 5 | DepartmentMembership role=leader + User.admin=true |
-| leader | 2 | 12 | DepartmentMembership role=leader |
-| standard | 1 | 9 | DepartmentMembership role=member |
+| admin | 3 | 4 | DepartmentMembership role=leader + User.admin=true |
+| leader | 2 | 13 | DepartmentMembership role=leader |
+| standard | 1 | 11 | DepartmentMembership role=member |
 | guest | 0 | 2 | DepartmentMembership role=guest |
-| deleted | 99 | 0 | (none in staging) |
+| deleted | 99 | 0 | (none) |
 
-### Borrower Type Distribution (999 borrowers)
+### Borrower Type Distribution (production: 1,125 borrowers)
 
 | v1 Type | Value | Count | Redux Mapping |
 |---------|-------|-------|---------------|
-| student | 0 | 934 | borrower_type=student |
-| employee | 1 | 60 | borrower_type=employee |
-| deleted | 2 | 5 | borrower_type=deleted (anonymize after import) |
+| student | 0 | 1,049 | borrower_type=student |
+| employee | 1 | 70 | borrower_type=employee |
+| deleted | 2 | 6 | borrower_type=deleted (anonymize after import) |
 
-### Data Quality (verified clean on staging — re-validate on production)
+### Data Quality (confirmed on both staging and production)
 
-These were clean on staging. Production may have different data. Run the
-validation queries in Step 0 on production before cutover.
-
-- No duplicate student_ids
 - No NULL values in borrower required fields (email, firstname, lastname, phone)
 - No NULL parent_item_id on items
 - No NULL borrower_id or department_id on conducts
 - No NULL url or parent_item_id on links
-- 433 of 674 parent_items have storage_location data (migrate to items)
+- 467 of 700 parent_items have storage_location data (migrate to items)
 - All taggings are on ParentItem with context "tags"
+- Files: 23 files, 55 MB (identical on staging and production)
+
+### Known Data Issue: Duplicate student_id
+
+Two test borrowers on production share `student_id = '1'`:
+
+| id | name | email | student_id | type |
+|----|------|-------|------------|------|
+| 1170 | ubaTaeCJ | testing@example.com | 1 | employee |
+| 1171 | ubaTaeCJ | testing@example.com | 1 | student |
+
+**Resolution**: NULL out the student_id on both rows before migration, or delete
+the test records entirely. These are not real borrowers. Handle in Step 1.5 (below).
 
 ## Migration Steps
 
@@ -92,24 +94,17 @@ not hours. Production may be larger. The timeline below is conservative.
 
 **Estimated total time: 30-60 minutes** (most of it is verification, not data transfer).
 
-### Step 0: Validate Production Server (10 min)
+### Step 0: Re-validate Production Data (5 min)
 
-Run these queries on the production server to confirm assumptions from staging
-still hold. Compare output against the staging values above. If anything differs
-significantly (especially data quality checks), stop and assess before proceeding.
+Production was validated during planning. Re-run on cutover day to catch any
+changes since then. All queries should return the same structure as the data
+summary above (counts may have grown slightly).
 
 ```bash
 ssh root@PRODUCTION_SERVER
+export MYSQL_PWD='<from /var/www/bonanza/config/database.yml>'
 
-# Confirm app location and process
-ls /var/www/bonanza/config/database.yml
-ps aux | grep -i puma
-
-# Confirm MySQL access (set MYSQL_PWD from database.yml)
-export MYSQL_PWD='<from database.yml>'
-mysql -u bonanzasql1 bonanzasql1 -e "SELECT 1;"
-
-# Record counts
+# Record counts (compare against table above)
 mysql -u bonanzasql1 bonanzasql1 -e "
   SELECT table_name, table_rows
   FROM information_schema.tables
@@ -117,20 +112,15 @@ mysql -u bonanzasql1 bonanzasql1 -e "
   ORDER BY table_rows DESC;
 "
 
-# Role distribution
-mysql -u bonanzasql1 bonanzasql1 -e "
-  SELECT role, COUNT(*) as cnt FROM users GROUP BY role;
-  SELECT type, COUNT(*) as cnt FROM lenders GROUP BY type;
-"
-
-# Data quality: duplicate student_ids (must return 0 rows)
+# Duplicate student_ids (must return only student_id='1' from known test data,
+# or 0 rows if Step 1.5 was already done on an earlier dry run)
 mysql -u bonanzasql1 bonanzasql1 -e "
   SELECT student_id, COUNT(*) as cnt FROM lenders
   WHERE student_id IS NOT NULL AND student_id != ''
   GROUP BY student_id HAVING COUNT(*) > 1;
 "
 
-# Data quality: NULL checks on Redux NOT NULL columns (all must return 0)
+# NULL checks (all must return 0)
 mysql -u bonanzasql1 bonanzasql1 -e "
   SELECT COUNT(*) as null_email FROM lenders WHERE email IS NULL OR email = '';
   SELECT COUNT(*) as null_firstname FROM lenders WHERE first_name IS NULL OR first_name = '';
@@ -142,24 +132,13 @@ mysql -u bonanzasql1 bonanzasql1 -e "
   SELECT COUNT(*) as null_conduct_borrower FROM conducts WHERE lender_id IS NULL;
   SELECT COUNT(*) as null_conduct_dept FROM conducts WHERE department_id IS NULL;
 "
-
-# File count and size
-du -sh /var/www/bonanza/public/files/
-find /var/www/bonanza/public/files -type f | wc -l
-
-# Elasticsearch version
-curl -s localhost:9200 | grep number
-
-# Confirm Paperclip secret exists
-grep paperclip_hash_secret /var/www/bonanza/config/secrets.yml | wc -l
 ```
 
-**If any NULL check returns > 0**: The migration transformation script needs
-a strategy for those rows (default values, skip, or manual fix). Do not proceed
-until resolved.
+**If any NULL check returns > 0**: Stop. The transformation script assumes
+clean data. Fix the source rows before proceeding.
 
-**If duplicate student_ids exist**: Must deduplicate before migration. Flag
-duplicates for manual review — do not auto-resolve.
+**If new duplicate student_ids appear** (beyond the known test data): Stop.
+Flag for manual review.
 
 ### Step 1: Backup v1 (5 min)
 
@@ -179,6 +158,25 @@ tar czf /root/bonanza_v1_files_$(date +%Y%m%d_%H%M%S).tar.gz \
 
 # Verify backups
 ls -lh /root/bonanza_v1_*
+```
+
+### Step 1.5: Clean Up Test Data (1 min)
+
+Two test borrowers with duplicate `student_id = '1'` will violate Redux's
+unique index. NULL out the student_id before migration.
+
+```bash
+mysql -u bonanzasql1 bonanzasql1 -e "
+  UPDATE lenders SET student_id = NULL WHERE id IN (1170, 1171);
+"
+
+# Verify
+mysql -u bonanzasql1 bonanzasql1 -e "
+  SELECT student_id, COUNT(*) as cnt FROM lenders
+  WHERE student_id IS NOT NULL AND student_id != ''
+  GROUP BY student_id HAVING COUNT(*) > 1;
+"
+# Should return 0 rows
 ```
 
 ### Step 2: Stop v1 (1 min)

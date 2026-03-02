@@ -1,7 +1,7 @@
-# d1 Staging Server Exploration
+# d1 Server Exploration (Staging + Production)
 
-Phase 0 of the data migration: explored the staging server with Fabian via SSH
-to replace assumptions in the migration plan with verified data.
+Phase 0 of the data migration: explored both staging and production servers
+with Fabian via SSH to replace assumptions in the migration plan with verified data.
 
 ## Findings
 
@@ -55,6 +55,18 @@ to replace assumptions in the migration plan with verified data.
 - Created `docs/migration/production-runbook.md` — step-by-step execution guide with real values
 - Updated `docs/plans/d1_data-migration.md` — replaced Phase 0 with findings, corrected assumptions
 
+## Production Validation
+
+Ran the same queries on production. Findings:
+
+- Server layout identical (same paths, same puma version, same ports)
+- Slightly more data (30 users, 1125 borrowers, 1080 items, 3430 lendings)
+- ES 6.4.0, files 23/55MB — identical to staging
+- One data issue: duplicate `student_id = '1'` on two test borrowers (id 1170, 1171).
+  Both are `ubaTaeCJ` / `testing@example.com`. NULL out before migration.
+- All NULL checks passed (0 on all required fields)
+- No Redux containers on production (only v1 running)
+
 ## Still Open
 
 - How v1 puma is managed (systemd? manual?)
@@ -62,4 +74,4 @@ to replace assumptions in the migration plan with verified data.
 - SMTP relay settings
 - Preferred cutover weekend
 - pgloader vs rake-task-with-mysql2 decision for actual data transfer
-- Credential rotation after migration
+- Credential rotation after migration (MySQL pw and Paperclip secret were exposed during exploration)

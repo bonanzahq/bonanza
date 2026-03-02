@@ -308,13 +308,17 @@ Secret in `config/secrets.yml` under `production.paperclip_hash_secret`.
 | assets | 23 |
 | conducts | 6 |
 
-**Data quality (staging)**: No duplicate student_ids. No NULL values in
-Redux-required fields (borrower email/name/phone, item parent_item_id,
-conduct borrower/dept, link url/parent_item_id). Clean migration path on staging.
+**Data quality (confirmed on both staging and production)**:
+- No NULL values in Redux-required fields on either server
+- One duplicate student_id on production: two test borrowers (id 1170, 1171)
+  with `student_id = '1'`, `name = 'ubaTaeCJ'`, `email = testing@example.com`.
+  Resolution: NULL out student_id before migration (see runbook Step 1.5).
+- 467 of 700 parent_items have storage_location on production (433/674 on staging)
 
-**Production validation required**: The production server may have different
-data, record counts, and data quality. All checks above must be re-run on
-production before cutover. See `docs/migration/production-runbook.md` Step 0.
+**Production record counts** (vs staging):
+departments 11 (10), users 30 (28), borrowers 1125 (999), parent_items 700 (674),
+items 1080 (871), lendings 3430 (2777), line_items 6982 (6727),
+item_histories 19156 (18498). Files identical: 23 files, 55 MB.
 
 ### Phase 1: Preparation (Week 1)
 
@@ -1197,11 +1201,11 @@ Redux has no avatar feature. Can regenerate on-the-fly if ever needed.
 4. **File Uploads**: 23 Paperclip files (55 MB), all PDFs and images attached to parent_items. Avatar data is auto-generated identicons (safe to drop).
 5. **Hosting**: Both systems already coexist on same host. v1 on port 9292, Redux Docker on port 8080/3000.
 6. **v1 Status**: Running with low usage. Gives flexibility on cutover timing.
-7. **Elasticsearch**: v1 uses ES 6.4.0 on staging. Incompatible with Redux ES 8.4. Full reindex, no data migration.
-8. **Duplicate student_ids**: None on staging. Must re-check on production.
-9. **Data quality**: No NULL issues on staging. Must re-validate on production (see runbook Step 0).
-10. **Links**: 108 records on staging, clean data. Redux Link model already exists.
-11. **Storage locations**: 433 of 674 parent_items have data on staging. Must redistribute to items table during transformation.
+7. **Elasticsearch**: ES 6.4.0 on both servers. Incompatible with Redux ES 8.4. Full reindex, no data migration.
+8. **Duplicate student_ids**: None on staging. One on production (test data, `student_id='1'`). NULL out before migration.
+9. **Data quality**: No NULL issues on either server. Clean migration path confirmed.
+10. **Links**: 108 records on both servers, clean data. Redux Link model already exists.
+11. **Storage locations**: 467/700 parent_items on production (433/674 on staging). Must redistribute to items.
 
 ## Schema Dependency on a2 (Dependency Updates)
 
