@@ -225,6 +225,12 @@ journalctl -b --priority=err --no-pager | head -50
    Docker itself should keep running, but `apt-get upgrade` won't update it
    until the repo is re-added. Verify Docker works before re-adding the repo.
 
+### Status
+
+- [x] Disk cleanup done (13 GB free, down from 8.1 GB)
+- [ ] VM snapshot (waiting on FHP IT — Fabian has no Proxmox access)
+- [ ] Upgrade
+
 ### Estimated Timeline
 
 | Step | Duration |
