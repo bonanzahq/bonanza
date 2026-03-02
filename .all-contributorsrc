@@ -1,15 +1,32 @@
 {
-  "projectName": "bonanza",
-  "projectOwner": "bonanzahq",
+
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "philippgeuder",
+      "name": "Philipp",
+      "avatar_url": "https://avatars.githubusercontent.com/u/2470331?v=4",
+      "profile": "https://github.com/philippgeuder",
+      "contributions": [
+        "code",
+        "design",
+        "infra",
+        "ideas"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
   "repoType": "github",
   "repoHost": "https://github.com",
+  "projectName": "bonanza",
+  "projectOwner": "bonanzahq"
   "files": [
     "README.md"
   ],
   "imageSize": 128,
   "commit": true,
-  "commitConvention": "angular",
-  "contributors": [],
-  "contributorsPerLine": 7,
   "linkToUsage": true
+
 }
