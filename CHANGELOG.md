@@ -1,3 +1,15 @@
+# [2.0.0-beta.3](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.2...v2.0.0-beta.3) (2026-03-02)
+
+
+### Bug Fixes
+
+* **ci:** add workflow_dispatch trigger to release workflow ([ae3d613](https://github.com/bonanzahq/bonanza/commit/ae3d61396d7970580448bff88300bf1cb86ff130))
+
+
+### Features
+
+* add staging:anonymize rake task ([4f87c7c](https://github.com/bonanzahq/bonanza/commit/4f87c7c7ac86ca513880b025505e0e76766a8bb2))
+
 # [2.0.0-beta.2](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.1...v2.0.0-beta.2) (2026-03-02)
 
 
