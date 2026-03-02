@@ -3,69 +3,64 @@
 Phase 0 of the data migration: explored both staging and production servers
 with Fabian via SSH to replace assumptions in the migration plan with verified data.
 
-## Findings
+## What We Did
 
-### Server Layout
+1. **Explored the staging server** via SSH with Fabian
+   - Found v1 app at `/var/www/bonanza/`, puma 4.3.12 on port 9292
+   - MySQL `bonanzasql1` on localhost:3306, credentials cleartext in `database.yml`
+   - Paperclip hash secret in `config/secrets.yml`
+   - ES 6.4.0 (incompatible with Redux 8.4, reindex only)
+   - 23 Paperclip files, 55 MB
+   - Ran record counts, role distribution, borrower types
+   - Validated data quality: no duplicate student_ids, no NULLs in required fields
+   - Discovered Redux Docker containers already running on staging (stale, from earlier test)
 
-- v1 app at `/var/www/bonanza/`, puma 4.3.12 on port 9292, running as root
-- Ruby 2.5 with vendored bundles for 2.4, 2.5, 2.6, 3.0 (upgraded over time)
-- Redux Docker containers already running on same host (from a previous test deployment, stale — needs rebuild)
-- MySQL credentials stored cleartext in `database.yml` (common for that era, but should rotate after migration)
-- Paperclip hash secret in `config/secrets.yml`
+2. **Explored the production server** to validate staging assumptions
+   - Identical server layout, same MySQL setup, same ES version, same files
+   - Slightly more data (30 users, 1125 borrowers, 1080 items, 3430 lendings)
+   - Found one data issue: duplicate `student_id = '1'` on two test borrowers
+     (id 1170/1171, `ubaTaeCJ`, `testing@example.com`). Not real borrowers.
+   - All NULL checks passed
 
-### Database
+3. **Created production runbook** (`docs/migration/production-runbook.md`)
+   - 14-step guide from backup through go-live
+   - Step 0: re-validation queries for cutover day
+   - Step 1.5: cleanup of test data (duplicate student_id)
+   - Schema mapping reference, rollback procedure
+   - All values confirmed against both servers, no credentials committed
 
-- MySQL `bonanzasql1` on localhost:3306 (socket + TCP)
-- Small dataset: largest table is accessories_line_items at ~30k rows
-- 28 users, 999 borrowers, 674 parent_items, 871 items, 2777 lendings
-- User roles: 5 admin, 12 leader, 9 standard, 2 guest, 0 deleted
-- Borrower types: 934 student, 60 employee, 5 deleted
+4. **Updated migration plan** (`docs/plans/d1_data-migration.md`)
+   - Replaced Phase 0 placeholders with confirmed findings
+   - Added production record counts alongside staging
+   - Corrected wrong assumptions (storage_location IS used — 467/700 on production)
+   - Updated resolved questions (7 → 11 items)
 
-### Data Quality (all clean)
+5. **Created PR #194** against `beta`
 
-- No duplicate student_ids
-- No NULL values in Redux-required NOT NULL columns
-- No NULL urls or parent_item_ids in links
-- No NULL borrower_ids or department_ids in conducts
-- 433 of 674 parent_items have storage_location (must redistribute to items)
-- All taggings on ParentItem with context "tags", no tenant column in v1
+## Production vs Staging
 
-### Files
-
-- 23 Paperclip files, 55 MB total (PDFs + images)
-- Perfect 1:1 match between asset records and files on disk
-- Avatar data is auto-generated identicons, safe to drop
-
-### Elasticsearch
-
-- v1 runs ES 6.4.0, Redux uses ES 8.4
-- Completely incompatible — full reindex, no data migration needed
+| Item | Staging | Production |
+|------|---------|------------|
+| departments | 10 | 11 |
+| users | 28 (5 admin) | 30 (4 admin) |
+| borrowers | 999 | 1,125 |
+| parent_items | 674 | 700 |
+| items | 871 | 1,080 |
+| lendings | 2,777 | 3,430 |
+| storage_locations | 433 | 467 |
+| files | 23 / 55MB | 23 / 55MB |
+| ES version | 6.4.0 | 6.4.0 |
+| duplicate student_ids | 0 | 1 (test data) |
+| NULL issues | 0 | 0 |
 
 ## Assumptions Corrected
 
-1. **storage_location**: Plan said "skipped (not in v1 schema)" — WRONG, 433 parent_items have data. Updated plan and rake task.
-2. **Deleted users**: Plan prepared for role=99 users — staging has none. Simplified.
-3. **Links**: Plan said "will be added to Redux" — already done (git-bug 7f45b40 resolved). 108 records, clean data.
-4. **ES version**: Was "to be checked" — now confirmed 6.4.0.
-5. **Database size**: Was "5-30 minutes" for pgloader — will take seconds. Entire migration under 60 minutes.
-6. **pgloader config**: The pseudo-code in the plan uses column aliasing syntax that pgloader doesn't support. Need a real approach: either pgloader to staging tables + SQL transformation, or direct rake task with mysql2 gem.
-
-## Documents Created/Updated
-
-- Created `docs/migration/production-runbook.md` — step-by-step execution guide with real values
-- Updated `docs/plans/d1_data-migration.md` — replaced Phase 0 with findings, corrected assumptions
-
-## Production Validation
-
-Ran the same queries on production. Findings:
-
-- Server layout identical (same paths, same puma version, same ports)
-- Slightly more data (30 users, 1125 borrowers, 1080 items, 3430 lendings)
-- ES 6.4.0, files 23/55MB — identical to staging
-- One data issue: duplicate `student_id = '1'` on two test borrowers (id 1170, 1171).
-  Both are `ubaTaeCJ` / `testing@example.com`. NULL out before migration.
-- All NULL checks passed (0 on all required fields)
-- No Redux containers on production (only v1 running)
+1. **storage_location**: Plan said "skipped (not in v1 schema)" — WRONG, 467 parent_items have data on production
+2. **Deleted users**: Plan prepared for role=99 — neither server has any
+3. **Links**: Plan said "will be added to Redux" — already done, 108 records, clean
+4. **ES version**: Was "to be checked" — confirmed 6.4.0 on both
+5. **Database size**: Was "5-30 minutes" for pgloader — will take seconds
+6. **pgloader config**: The pseudo-code in the plan uses column aliasing that pgloader doesn't support. Real approach TBD.
 
 ## Still Open
 
