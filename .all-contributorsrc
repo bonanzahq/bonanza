@@ -1,5 +1,13 @@
 {
-
+  "projectName": "bonanza",
+  "projectOwner": "bonanzahq",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 128,
+  "commit": true,
   "commitType": "docs",
   "commitConvention": "angular",
   "contributors": [
@@ -14,19 +22,21 @@
         "infra",
         "ideas"
       ]
+    },
+    {
+      "login": "ff6347",
+      "name": "Fabian Morón Zirfas",
+      "avatar_url": "https://avatars.githubusercontent.com/u/315106?v=4",
+      "profile": "https://fabianmoronzirfas.me",
+      "contributions": [
+        "code",
+        "design",
+        "infra",
+        "ideas"
+      ]
     }
   ],
   "contributorsPerLine": 7,
   "skipCi": true,
-  "repoType": "github",
-  "repoHost": "https://github.com",
-  "projectName": "bonanza",
-  "projectOwner": "bonanzahq"
-  "files": [
-    "README.md"
-  ],
-  "imageSize": 128,
-  "commit": true,
   "linkToUsage": true
-
 }
