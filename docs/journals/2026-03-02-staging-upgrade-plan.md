@@ -228,8 +228,31 @@ journalctl -b --priority=err --no-pager | head -50
 ### Status
 
 - [x] Disk cleanup done (13 GB free, down from 8.1 GB)
-- [ ] VM snapshot (waiting on FHP IT — Fabian has no Proxmox access)
-- [ ] Upgrade
+- [x] VM snapshot taken via Proxmox
+- [x] Upgrade complete (Ubuntu 24.04.4 LTS, kernel 6.8.0-101-generic)
+
+### Upgrade Notes
+
+Performed the upgrade on 2026-03-02. Steps taken:
+
+1. Stopped Docker stack and v1 services
+2. `apt-get dist-upgrade` updated 22.04.4 → 22.04.5, kernel 5.15.0-171
+3. Rebooted, then ran `do-release-upgrade`
+4. Config prompts: kept nginx.conf and sshd_config, accepted new sudoers and ssh moduli
+5. Rebooted into 24.04.4 LTS, kernel 6.8.0-101
+
+**Issue encountered**: nginx failed to start because the Phusion Passenger
+module (`libnginx-mod-http-passenger`) was removed during the upgrade but its
+config files remained:
+- `/etc/nginx/modules-enabled/50-mod-http-passenger.conf` (broken symlink)
+- `/etc/nginx/conf.d/mod-http-passenger.conf` (passenger directives)
+
+Removed both files. Passenger was a leftover — v1 uses puma directly.
+
+**Post-upgrade state** (all services running):
+- v2 Docker: rails, worker, db, elasticsearch, caddy (image `2.0.0-beta.2`)
+- v1: puma 4.3.12 (Ruby 2.6.10 via rbenv), MySQL 8.0, nginx
+- Disk: 19 GB used / 11 GB free (64%)
 
 ### Estimated Timeline
 
