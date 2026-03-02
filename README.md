@@ -1,4 +1,7 @@
 # Bonanza
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 Equipment lending management system for FH Potsdam. v2
 
@@ -229,3 +232,25 @@ GdprAuditLog.for_target(Borrower.find(1))
 ```
 
 See `AGENTS.md` for project conventions and issue tracking workflow.
+
+## Contributors ✨
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/philippgeuder"><img src="https://avatars.githubusercontent.com/u/2470331?v=4?s=100" width="100px;" alt="Philipp"/><br /><sub><b>Philipp</b></sub></a><br /><a href="https://github.com/bonanzahq/bonanza/commits?author=philippgeuder" title="Code">💻</a> <a href="#design-philippgeuder" title="Design">🎨</a> <a href="#infra-philippgeuder" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#ideas-philippgeuder" title="Ideas, Planning, & Feedback">🤔</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
