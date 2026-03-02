@@ -23,12 +23,19 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          # A PAT is required so the tag push triggers the Docker Build workflow.
+          # App token is used so the tag push triggers the Docker Build workflow.
           # GITHUB_TOKEN events don't trigger downstream workflows.
-          token: ${{ secrets.RELEASE_TOKEN }}
+          token: ${{ steps.app-token.outputs.token }}
 
       - name: Install mise
         uses: jdx/mise-action@v2
@@ -38,4 +45,4 @@ jobs:
       - name: Run semantic-release
         run: pnpm exec semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.RELEASE_TOKEN }}
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
