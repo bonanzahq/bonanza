@@ -1,3 +1,10 @@
+# [2.0.0-beta.2](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.1...v2.0.0-beta.2) (2026-03-02)
+
+
+### Bug Fixes
+
+* **ci:** use release event instead of tag push for versioned Docker builds ([3b27d94](https://github.com/bonanzahq/bonanza/commit/3b27d94d9a9de9c3954326d3d222a89ada8f6979))
+
 # [2.0.0-beta.1](https://github.com/bonanzahq/bonanza/compare/v1.0.0...v2.0.0-beta.1) (2026-03-02)
 
 
