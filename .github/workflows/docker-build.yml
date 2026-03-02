@@ -5,7 +5,7 @@ name: Docker Build
 
 on:
   push:
-    branches: [main]
+    branches: [main, beta]
     tags: ['v*']
     paths-ignore:
       - 'docs/**'
@@ -13,7 +13,7 @@ on:
       - 'LICENSE'
       - '.github/renovate.json'
   pull_request:
-    branches: [main]
+    branches: [main, beta]
     paths-ignore:
       - 'docs/**'
       - '*.md'
@@ -52,6 +52,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=beta,enable=${{ startsWith(github.ref, 'refs/tags/v') && contains(github.ref, '-beta.') }}
 
       - name: Log in to Docker Hub
         if: github.event_name != 'pull_request'
