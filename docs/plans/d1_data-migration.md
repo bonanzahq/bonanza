@@ -308,9 +308,13 @@ Secret in `config/secrets.yml` under `production.paperclip_hash_secret`.
 | assets | 23 |
 | conducts | 6 |
 
-**Data quality**: No duplicate student_ids. No NULL values in Redux-required
-fields (borrower email/name/phone, item parent_item_id, conduct borrower/dept,
-link url/parent_item_id). Clean migration path confirmed.
+**Data quality (staging)**: No duplicate student_ids. No NULL values in
+Redux-required fields (borrower email/name/phone, item parent_item_id,
+conduct borrower/dept, link url/parent_item_id). Clean migration path on staging.
+
+**Production validation required**: The production server may have different
+data, record counts, and data quality. All checks above must be re-run on
+production before cutover. See `docs/migration/production-runbook.md` Step 0.
 
 ### Phase 1: Preparation (Week 1)
 
@@ -1193,11 +1197,11 @@ Redux has no avatar feature. Can regenerate on-the-fly if ever needed.
 4. **File Uploads**: 23 Paperclip files (55 MB), all PDFs and images attached to parent_items. Avatar data is auto-generated identicons (safe to drop).
 5. **Hosting**: Both systems already coexist on same host. v1 on port 9292, Redux Docker on port 8080/3000.
 6. **v1 Status**: Running with low usage. Gives flexibility on cutover timing.
-7. **Elasticsearch**: v1 uses ES 6.4.0. Incompatible with Redux ES 8.4. Full reindex, no data migration.
-8. **Duplicate student_ids**: None exist. No dedup needed.
-9. **Data quality**: No NULL values in fields that Redux requires NOT NULL. Clean migration path.
-10. **Links**: 108 records, clean data (no NULL urls/parent_item_ids). Redux Link model already exists.
-11. **Storage locations**: 433 of 674 parent_items have data. Must redistribute to items table during transformation.
+7. **Elasticsearch**: v1 uses ES 6.4.0 on staging. Incompatible with Redux ES 8.4. Full reindex, no data migration.
+8. **Duplicate student_ids**: None on staging. Must re-check on production.
+9. **Data quality**: No NULL issues on staging. Must re-validate on production (see runbook Step 0).
+10. **Links**: 108 records on staging, clean data. Redux Link model already exists.
+11. **Storage locations**: 433 of 674 parent_items have data on staging. Must redistribute to items table during transformation.
 
 ## Schema Dependency on a2 (Dependency Updates)
 

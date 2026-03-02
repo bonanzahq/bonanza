@@ -1,7 +1,7 @@
 # Production Migration Runbook
 
 # ABOUTME: Step-by-step guide for migrating Bonanza v1 (MySQL) to Redux (PostgreSQL).
-# ABOUTME: Based on staging server exploration. All values verified against real data.
+# ABOUTME: Based on staging server exploration. Production server may differ — validate before cutover.
 
 ## Prerequisites
 
@@ -10,23 +10,29 @@
 - Paperclip hash secret (in `/var/www/bonanza/config/secrets.yml`)
 - Redux Docker image built and pushed to registry
 
-## Server Layout
+## Server Layout (from staging — validate on production)
 
-| Component | Details |
-|-----------|---------|
-| v1 app directory | `/var/www/bonanza/` |
-| v1 Ruby | 2.5 (vendored bundles for 2.4, 2.5, 2.6, 3.0) |
-| v1 process | puma 4.3.12, port 9292, runs as root |
-| MySQL | localhost:3306 (also via socket `/var/run/mysqld/mysqld.sock`) |
-| MySQL database | `bonanzasql1` |
-| MySQL user | `bonanzasql1` |
-| Elasticsearch (v1) | 6.4.0 (incompatible with Redux 8.4, reindex only) |
-| Paperclip files | `/var/www/bonanza/public/files/` (23 files, 55 MB) |
-| Paperclip secret | `config/secrets.yml` under `production.paperclip_hash_secret` |
+Values below were gathered from the staging server. The production server likely
+has the same layout but may differ in record counts, file counts, credentials,
+ports, or process management. Run the validation script (Step 0) on production
+before proceeding.
 
-## v1 Data Summary
+| Component | Staging Value | Validate on Production |
+|-----------|---------------|----------------------|
+| v1 app directory | `/var/www/bonanza/` | Confirm path |
+| v1 Ruby | 2.5 | Confirm version |
+| v1 process | puma 4.3.12, port 9292, runs as root | Confirm port + process manager |
+| MySQL | localhost:3306 (also via socket) | Confirm access method |
+| MySQL database | `bonanzasql1` | Confirm name |
+| MySQL user | `bonanzasql1` | Confirm user |
+| Elasticsearch (v1) | 6.4.0 | Confirm version |
+| Paperclip files | `/var/www/bonanza/public/files/` | Confirm path + count |
+| Paperclip secret | `config/secrets.yml` | Confirm location |
 
-Verified record counts from staging (information_schema estimates, exact where noted):
+## v1 Data Summary (staging — re-run on production)
+
+Record counts from **staging**. Production will have different (likely higher)
+counts. Re-run the validation queries on production before cutover.
 
 | Table | Rows | Redux Table | Notes |
 |-------|------|-------------|-------|
@@ -64,7 +70,10 @@ Verified record counts from staging (information_schema estimates, exact where n
 | employee | 1 | 60 | borrower_type=employee |
 | deleted | 2 | 5 | borrower_type=deleted (anonymize after import) |
 
-### Data Quality (verified clean)
+### Data Quality (verified clean on staging — re-validate on production)
+
+These were clean on staging. Production may have different data. Run the
+validation queries in Step 0 on production before cutover.
 
 - No duplicate student_ids
 - No NULL values in borrower required fields (email, firstname, lastname, phone)
@@ -78,10 +87,79 @@ Verified record counts from staging (information_schema estimates, exact where n
 
 ### Overview
 
-The database is small enough that the entire migration takes minutes, not hours.
-The timeline below is conservative.
+The staging database is small enough that the entire migration takes minutes,
+not hours. Production may be larger. The timeline below is conservative.
 
 **Estimated total time: 30-60 minutes** (most of it is verification, not data transfer).
+
+### Step 0: Validate Production Server (10 min)
+
+Run these queries on the production server to confirm assumptions from staging
+still hold. Compare output against the staging values above. If anything differs
+significantly (especially data quality checks), stop and assess before proceeding.
+
+```bash
+ssh root@PRODUCTION_SERVER
+
+# Confirm app location and process
+ls /var/www/bonanza/config/database.yml
+ps aux | grep -i puma
+
+# Confirm MySQL access (set MYSQL_PWD from database.yml)
+export MYSQL_PWD='<from database.yml>'
+mysql -u bonanzasql1 bonanzasql1 -e "SELECT 1;"
+
+# Record counts
+mysql -u bonanzasql1 bonanzasql1 -e "
+  SELECT table_name, table_rows
+  FROM information_schema.tables
+  WHERE table_schema = 'bonanzasql1'
+  ORDER BY table_rows DESC;
+"
+
+# Role distribution
+mysql -u bonanzasql1 bonanzasql1 -e "
+  SELECT role, COUNT(*) as cnt FROM users GROUP BY role;
+  SELECT type, COUNT(*) as cnt FROM lenders GROUP BY type;
+"
+
+# Data quality: duplicate student_ids (must return 0 rows)
+mysql -u bonanzasql1 bonanzasql1 -e "
+  SELECT student_id, COUNT(*) as cnt FROM lenders
+  WHERE student_id IS NOT NULL AND student_id != ''
+  GROUP BY student_id HAVING COUNT(*) > 1;
+"
+
+# Data quality: NULL checks on Redux NOT NULL columns (all must return 0)
+mysql -u bonanzasql1 bonanzasql1 -e "
+  SELECT COUNT(*) as null_email FROM lenders WHERE email IS NULL OR email = '';
+  SELECT COUNT(*) as null_firstname FROM lenders WHERE first_name IS NULL OR first_name = '';
+  SELECT COUNT(*) as null_lastname FROM lenders WHERE last_name IS NULL OR last_name = '';
+  SELECT COUNT(*) as null_phone FROM lenders WHERE phone IS NULL OR phone = '';
+  SELECT COUNT(*) as null_parent_item FROM items WHERE parent_item_id IS NULL;
+  SELECT COUNT(*) as null_link_url FROM links WHERE url IS NULL OR url = '';
+  SELECT COUNT(*) as null_link_parent FROM links WHERE parent_item_id IS NULL;
+  SELECT COUNT(*) as null_conduct_borrower FROM conducts WHERE lender_id IS NULL;
+  SELECT COUNT(*) as null_conduct_dept FROM conducts WHERE department_id IS NULL;
+"
+
+# File count and size
+du -sh /var/www/bonanza/public/files/
+find /var/www/bonanza/public/files -type f | wc -l
+
+# Elasticsearch version
+curl -s localhost:9200 | grep number
+
+# Confirm Paperclip secret exists
+grep paperclip_hash_secret /var/www/bonanza/config/secrets.yml | wc -l
+```
+
+**If any NULL check returns > 0**: The migration transformation script needs
+a strategy for those rows (default values, skip, or manual fix). Do not proceed
+until resolved.
+
+**If duplicate student_ids exist**: Must deduplicate before migration. Flag
+duplicates for manual review — do not auto-resolve.
 
 ### Step 1: Backup v1 (5 min)
 
