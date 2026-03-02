@@ -1,6 +1,7 @@
 {
   "name": "app",
-  "private": "true",
+  "version": "0.0.0",
+  "private": true,
   "dependencies": {
     "@hotwired/stimulus": "3.0.1",
     "@hotwired/turbo-rails": "8.0.23",
