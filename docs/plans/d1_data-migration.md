@@ -7,9 +7,14 @@ Migrate all data from Bonanza v1 (MySQL + Elasticsearch on bare metal) to Bonanz
 ## Current State
 
 ### Bonanza v1 (Source)
-- **Database**: MySQL (bare metal)
-- **Search**: Elasticsearch (bare metal, version to be checked during Phase 0)
-- **Hosting**: Bare metal server (no Docker — the Docker files in the v1 repo were never deployed to staging or production)
+- **Database**: MySQL 8.x on localhost:3306 (also via socket `/var/run/mysqld/mysqld.sock`)
+- **Database name**: `bonanzasql1`, user `bonanzasql1`
+- **Credentials**: Cleartext in `/var/www/bonanza/config/database.yml`
+- **Search**: Elasticsearch 6.4.0 (incompatible with Redux 8.4, full reindex required)
+- **Hosting**: Bare metal at `/var/www/bonanza/`, puma 4.3.12 on port 9292, runs as root
+- **Ruby**: 2.5 (vendored bundles for 2.4, 2.5, 2.6, 3.0 also present)
+- **Files**: 23 Paperclip files (55 MB) at `/var/www/bonanza/public/files/`
+- **Paperclip secret**: In `config/secrets.yml` under `production.paperclip_hash_secret`
 - **Schema Version**: ActiveRecord 20151110175705
 
 ### Bonanza Redux (Target)
@@ -63,8 +68,8 @@ Since both systems will run on the **same host**, we can use a **zero-downtime p
 
 | Table | Reason | Migration Strategy |
 |-------|--------|-------------------|
-| `assets` | Replaced by ActiveStorage | Migrate files to ActiveStorage, convert Paperclip metadata |
-| `links` | URLs for parent items (manuals, manufacturer pages) | Add Link model to Redux before migration (git-bug 7f45b40), then migrate data |
+| `assets` | Replaced by ActiveStorage | rsync 23 files (55 MB), wire up ActiveStorage later |
+| `links` | URLs for parent items (manuals, manufacturer pages) | Link model added to Redux (git-bug 7f45b40 resolved), direct copy of 108 records |
 
 ### Fields Added in Redux
 
@@ -118,10 +123,8 @@ updated_at → updated_at
 - avatar_data (auto-generated identicon, safe to drop)
 
 # Constraint: student_id unique index
-# v2 has a partial unique index on student_id (WHERE student_id IS NOT NULL).
-# The data migration must detect and resolve duplicate student_ids in v1 data
-# before inserting into v2. Strategy: flag duplicates for manual review.
-# Query v1 for duplicates before migration, export list, resolve manually.
+# Redux has a partial unique index on student_id (WHERE student_id IS NOT NULL).
+# VERIFIED: No duplicate student_ids exist in v1 staging data. No dedup needed.
 ```
 
 ### 3. users (Major changes: roles → department_memberships)
@@ -176,6 +179,8 @@ updated_at → updated_at
 
 # Fields to drop:
 - storage_location (moved to items table in Redux)
+  VERIFIED: 433 of 674 parent_items have storage_location data.
+  Must be redistributed to all items belonging to each parent_item.
 - bundle_id (bundles feature removed)
 ```
 
@@ -268,64 +273,44 @@ pgloader automatically handles:
 
 ## Migration Phases
 
-### Phase 0: Server Access & Exploration
+### Phase 0: Server Access & Exploration (COMPLETE)
 
-v1 runs bare metal (NOT Docker). Fabian has root SSH access.
+Completed on staging server. Findings documented in `docs/migration/production-runbook.md`.
 
-```bash
-# Set these after discovering credentials in steps 0.1-0.2
-MYSQL_USER="..."          # MySQL username from database.yml / process env
-MYSQL_DB="..."            # Production database name
-```
+**Server**: v1 at `/var/www/bonanza/`, puma 4.3.12 on port 9292 (bare metal, runs as root).
+Redux Docker containers also present on same host (Caddy :8080, Rails :3000, PostgreSQL, ES 8.4).
 
-#### 0.1 Find the v1 app directory
-```bash
-ssh root@SERVER
-find / -name "database.yml" -path "*/bonanza/*" 2>/dev/null
-ps aux | grep -i puma
-```
+**MySQL**: `bonanzasql1` database, credentials in `config/database.yml` (cleartext).
+Accessible via socket (`/var/run/mysqld/mysqld.sock`) and TCP (localhost:3306).
 
-#### 0.2 Find MySQL credentials
-```bash
-# From the running process environment
-cat /proc/$(pgrep -f puma | head -1)/environ | tr '\0' '\n' | grep -iE 'bonanza|mysql|database'
+**Elasticsearch**: v1 uses ES 6.4.0. Incompatible with Redux ES 8.4. Full reindex required.
 
-# From the app config
-cat /path/to/bonanza/config/database.yml
-cat /path/to/bonanza/.env 2>/dev/null
+**Paperclip**: 23 files, 55 MB at `/var/www/bonanza/public/files/`.
+Secret in `config/secrets.yml` under `production.paperclip_hash_secret`.
 
-# From systemd (if managed)
-systemctl list-units | grep -i bonanza
-systemctl cat bonanza
-```
+**Record counts** (staging):
 
-#### 0.3 Explore the database
-```bash
-mysql -u "$MYSQL_USER" -p "$MYSQL_DB"
+| Table | Rows |
+|-------|------|
+| departments | 10 |
+| users | 28 (5 admin, 12 leader, 9 standard, 2 guest) |
+| lenders | 999 (934 student, 60 employee, 5 deleted) |
+| parent_items | 674 (433 with storage_location) |
+| items | 871 |
+| lendings | 2,777 |
+| line_items | 6,727 |
+| item_histories | 18,498 |
+| accessories | 1,281 |
+| accessories_line_items | 30,457 |
+| tags | 740 |
+| taggings | 750 (all ParentItem, context "tags") |
+| links | 108 |
+| assets | 23 |
+| conducts | 6 |
 
-# Record counts
-SELECT table_name, table_rows
-FROM information_schema.tables
-WHERE table_schema = '$MYSQL_DB'
-ORDER BY table_rows DESC;
-
-# User role distribution (verify enum values)
-SELECT role, COUNT(*) FROM users GROUP BY role;
-
-# Assets count
-SELECT COUNT(*) FROM assets;
-```
-
-#### 0.4 Find and size Paperclip files
-```bash
-du -sh /path/to/bonanza/public/files/
-find /path/to/bonanza/public/files -type f | wc -l
-```
-
-#### 0.5 Get the Paperclip hash secret
-```bash
-cat /proc/$(pgrep -f puma | head -1)/environ | tr '\0' '\n' | grep PAPERCLIP
-```
+**Data quality**: No duplicate student_ids. No NULL values in Redux-required
+fields (borrower email/name/phone, item parent_item_id, conduct borrower/dept,
+link url/parent_item_id). Clean migration path confirmed.
 
 ### Phase 1: Preparation (Week 1)
 
@@ -652,14 +637,27 @@ namespace :migrate do
   def migrate_storage_locations
     puts "\n4. Migrating storage_location from parent_items to items..."
 
-    # In v1: parent_items.storage_location
+    # In v1: parent_items.storage_location (433 of 674 have data)
     # In Redux: items.storage_location
+    # Read from TSV exported in pre-migration step (Step 4 of runbook)
 
-    # We need to query v1 database for this
-    # OR if storage_location wasn't used much, skip it
+    tsv_path = Rails.root.join('tmp/v1_storage_locations.tsv')
+    unless File.exist?(tsv_path)
+      puts "   ⚠️  #{tsv_path} not found, skipping"
+      return
+    end
 
-    puts "   ⚠️  storage_location migration skipped (not in v1 parent_items schema)"
-    puts "   If this field was used, export it from v1 and import separately"
+    count = 0
+    File.readlines(tsv_path, chomp: true).drop(1).each do |line|
+      parent_item_id, storage_location = line.split("\t")
+      next if storage_location.blank?
+
+      updated = Item.where(parent_item_id: parent_item_id)
+                    .update_all(storage_location: storage_location)
+      count += updated
+    end
+
+    puts "   Updated #{count} items with storage_location from parent_items"
   end
 
   def add_department_defaults
@@ -1158,18 +1156,17 @@ Redux has no avatar feature. Can regenerate on-the-fly if ever needed.
 ## Known Issues & Limitations
 
 ### Data Not Migrated
-1. **OAuth tokens** - Removed in Redux, users may need to reconnect services
-2. **Avatar identicons** (`avatar_data`) - Auto-generated in v1, safe to drop. Redux will generate its own identicons.
-3. **Links table** - Will be added to Redux before migration (git-bug 7f45b40)
-4. **Bundles** - Feature removed
+1. **OAuth tokens** (`provider`, `uid`, `refresh_token`, `expires_at`, `access_token`) — Removed in Redux
+2. **Avatar identicons** (`avatar_data`) — Auto-generated PNGs (~200 bytes each), not user uploads. Safe to drop.
+3. **Bundles** (`parent_items.bundle_id`) — Feature removed
+4. **Assets table metadata** — File records not imported into ActiveStorage. Files rsynced to serve from disk. ActiveStorage wiring is a separate task.
 
 ### Manual Post-Migration Tasks
-1. Set admin flag on admin users
-2. Review and update department memberships roles
-3. Update TOS and privacy policy content
-4. Test email notifications (not in v1)
-5. Configure SMTP settings
-6. Setup scheduled tasks (clockwork)
+1. Update TOS and privacy policy content in legal_texts
+2. Configure SMTP settings for email delivery
+3. Wire up ActiveStorage for the 23 Paperclip files
+4. Rotate credentials exposed during staging exploration
+5. Keep v1 MySQL backup for 30 days
 
 ## Documentation
 
@@ -1190,12 +1187,17 @@ Redux has no avatar feature. Can regenerate on-the-fly if ever needed.
 
 ## Resolved Questions
 
-1. **v1 Access**: Fabian should have full access (SSH + MySQL). FHP IT can provide credentials if needed.
-2. **Admin Users**: v1 role enum: guest=0, standard=1, leader=2, admin=3, deleted=99. Admin (role=3) gets leader role + User.admin=true. Standard (role=1) maps to member.
+1. **v1 Access**: Fabian has root SSH access. MySQL credentials in cleartext in `database.yml`.
+2. **Admin Users**: v1 role enum: guest=0, standard=1, leader=2, admin=3, deleted=99. Staging has 5 admins, 12 leaders, 9 standard, 2 guests, 0 deleted. Admin (role=3) gets leader role + User.admin=true.
 3. **Email Settings**: FHP provides SMTP relay for production email sending.
-4. **File Uploads**: v1 uses Paperclip ~> 4.2.0 for the Asset model. Files stored at `public/files/:hash/:filename`. Avatar data is auto-generated identicons (safe to drop).
-5. **Hosting**: Redux will run on the **same host** as v1, enabling parallel migration on different ports.
+4. **File Uploads**: 23 Paperclip files (55 MB), all PDFs and images attached to parent_items. Avatar data is auto-generated identicons (safe to drop).
+5. **Hosting**: Both systems already coexist on same host. v1 on port 9292, Redux Docker on port 8080/3000.
 6. **v1 Status**: Running with low usage. Gives flexibility on cutover timing.
+7. **Elasticsearch**: v1 uses ES 6.4.0. Incompatible with Redux ES 8.4. Full reindex, no data migration.
+8. **Duplicate student_ids**: None exist. No dedup needed.
+9. **Data quality**: No NULL values in fields that Redux requires NOT NULL. Clean migration path.
+10. **Links**: 108 records, clean data (no NULL urls/parent_item_ids). Redux Link model already exists.
+11. **Storage locations**: 433 of 674 parent_items have data. Must redistribute to items table during transformation.
 
 ## Schema Dependency on a2 (Dependency Updates)
 
@@ -1210,6 +1212,8 @@ This migration plan assumes the current schema.rb. If a2 (Ruby 3.4 + Rails 8 upg
 
 ## Still Open
 
-- v1 Elasticsearch version (check during Phase 0)
 - Preferred cutover weekend
 - Who should be on-call during migration
+- How v1 puma is managed (systemd? manual? need to know for clean stop/rollback)
+- Caddy/port configuration for production cutover (v1 uses 9292, what faces the internet?)
+- SMTP relay configuration for Redux email delivery
