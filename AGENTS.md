@@ -124,10 +124,41 @@ docker compose exec -T rails bash -c \
   'bundle exec rails runner "ParentItem.reindex; Borrower.reindex"'
 ```
 
+## Branching & Releases
+
+Feature branches merge into `beta`. `beta` merges into `main` for production
+releases. Never merge directly into `main` -- all work flows through `beta`.
+
+```
+feature-branch --> beta (prerelease) --> main (stable release)
+```
+
+Versioning is automated via semantic-release using conventional commits:
+- `feat:` commits bump the minor version
+- `fix:` commits bump the patch version
+- `BREAKING CHANGE:` bumps the major version
+
+When commits land on `beta`, semantic-release creates prerelease versions
+(`1.0.0-beta.1`, `1.0.0-beta.2`, etc.) and tags the repo. When `beta` is
+merged into `main`, a stable release is created (`1.0.0`).
+
+The tag push triggers the Docker Build workflow, which produces versioned
+Docker images:
+
+| Branch | Version example | Docker tags |
+|--------|----------------|-------------|
+| `beta` | `1.0.0-beta.1` | `1.0.0-beta.1`, `beta` |
+| `main` | `1.0.0` | `1.0.0`, `1.0`, `latest` |
+
+Configuration is in `release.config.cjs`. The release workflow authenticates
+using a GitHub App and requires `APP_ID` and `APP_PRIVATE_KEY` secrets in the
+repository or organization settings.
+
 ## CI
 
 Add `[skip ci]` to commit messages for docs-only, cleanup, and chore commits
-that don't affect code or builds. Both the test and docker-build jobs respect this.
+that don't affect code or builds. The test, docker-build, and release jobs all
+respect this.
 
 ## Common Commands
 

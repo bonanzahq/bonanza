@@ -1,24 +1,25 @@
 # ABOUTME: Docker build-and-push workflow for the Bonanza application
-# ABOUTME: Builds on all pushes/PRs, pushes to Docker Hub and GHCR on non-PR events
+# ABOUTME: Builds on branch pushes/PRs, and on GitHub releases for versioned images.
 
 name: Docker Build
 
 on:
   push:
-    branches: [main]
-    tags: ['v*']
+    branches: [main, beta]
     paths-ignore:
       - 'docs/**'
       - '*.md'
       - 'LICENSE'
       - '.github/renovate.json'
   pull_request:
-    branches: [main]
+    branches: [main, beta]
     paths-ignore:
       - 'docs/**'
       - '*.md'
       - 'LICENSE'
       - '.github/renovate.json'
+  release:
+    types: [published]
   workflow_dispatch:
 
 env:
@@ -52,6 +53,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=raw,value=latest,enable={{is_default_branch}}
+            type=raw,value=beta,enable=${{ startsWith(github.ref, 'refs/tags/v') && contains(github.ref, '-beta.') }}
 
       - name: Log in to Docker Hub
         if: github.event_name != 'pull_request'

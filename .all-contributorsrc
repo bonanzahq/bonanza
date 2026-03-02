@@ -1,9 +1,5 @@
 {
-  "files": [
-    "README.md"
-  ],
-  "imageSize": 100,
-  "commit": false,
+
   "commitType": "docs",
   "commitConvention": "angular",
   "contributors": [
@@ -26,4 +22,11 @@
   "repoHost": "https://github.com",
   "projectName": "bonanza",
   "projectOwner": "bonanzahq"
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 128,
+  "commit": true,
+  "linkToUsage": true
+
 }
