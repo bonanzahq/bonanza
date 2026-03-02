@@ -150,8 +150,9 @@ Docker images:
 | `beta` | `1.0.0-beta.1` | `1.0.0-beta.1`, `beta` |
 | `main` | `1.0.0` | `1.0.0`, `1.0`, `latest` |
 
-Configuration is in `release.config.cjs`. The release workflow requires a
-`RELEASE_TOKEN` PAT secret in the repository settings.
+Configuration is in `release.config.cjs`. The release workflow authenticates
+using a GitHub App and requires `APP_ID` and `APP_PRIVATE_KEY` secrets in the
+repository or organization settings.
 
 ## CI
 

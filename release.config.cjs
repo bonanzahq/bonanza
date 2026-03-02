@@ -1,5 +1,5 @@
 // ABOUTME: Semantic release configuration for automated versioning and changelog generation.
-// ABOUTME: Supports stable releases on main and prereleases on beta/alpha branches.
+// ABOUTME: Supports stable releases on main and prereleases on the beta branch.
 
 module.exports = {
   branches: [
