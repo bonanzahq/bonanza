@@ -2,7 +2,20 @@
 # ABOUTME: Allows environment variable override for Docker/production environments.
 
 unless Rails.env.test?
-  ENV["ELASTICSEARCH_URL"] ||= "https://elastic:elastic@localhost:9200"
+  unless ENV["ELASTICSEARCH_URL"]
+    if ENV["ES_PASSWORD"].present?
+      encoded = URI.encode_www_form_component(ENV["ES_PASSWORD"])
+      host    = ENV.fetch("ES_HOST", "localhost")
+      port    = ENV.fetch("ES_PORT", "9200")
+      ENV["ELASTICSEARCH_URL"] = "http://elastic:#{encoded}@#{host}:#{port}"
+    elsif ENV["ES_HOST"]
+      host = ENV["ES_HOST"]
+      port = ENV.fetch("ES_PORT", "9200")
+      ENV["ELASTICSEARCH_URL"] = "http://#{host}:#{port}"
+    else
+      ENV["ELASTICSEARCH_URL"] = "http://localhost:9200"
+    end
+  end
 
   if ENV["ELASTICSEARCH_URL"].start_with?("https")
     Searchkick.client_options = {
