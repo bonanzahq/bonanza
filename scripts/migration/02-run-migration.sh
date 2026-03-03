@@ -69,31 +69,19 @@ echo ""
 # --- Reindex Elasticsearch ---
 
 echo "--- Reindexing Elasticsearch ---"
-
-# Read the ELASTICSEARCH_URL that the entrypoint constructed for the running server.
-# docker compose exec bypasses the entrypoint, so env vars exported there are missing.
-# Reading from /proc/1/environ gets the exact working URL without re-encoding.
-ES_URL=$(docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE" \
-  cat /proc/1/environ | tr '\0' '\n' | grep '^ELASTICSEARCH_URL=' | cut -d= -f2- | tr -d '\r')
-
-if [ -z "$ES_URL" ]; then
-  echo "WARNING: Could not read ELASTICSEARCH_URL from container. Skipping reindex."
-  echo "Run reindex manually after fixing ES connectivity."
-else
-  docker compose -f "$COMPOSE_FILE" exec -T -e "ELASTICSEARCH_URL=$ES_URL" "$SERVICE" \
-    bundle exec rails runner '
-      puts "Reindexing ParentItems..."
-      ParentItem.reindex
-      puts "Reindexing Borrowers..."
-      Borrower.reindex
-      puts "Done."
-    ' RAILS_ENV=production
-fi
+docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE" \
+  bundle exec rails runner '
+    puts "Reindexing ParentItems..."
+    ParentItem.reindex
+    puts "Reindexing Borrowers..."
+    Borrower.reindex
+    puts "Done."
+  ' RAILS_ENV=production
 echo ""
 
 # Check ES indexes
 echo "--- Elasticsearch indexes ---"
-docker compose -f "$COMPOSE_FILE" exec -T -e "ELASTICSEARCH_URL=${ES_URL:-}" "$SERVICE" \
+docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE" \
   bundle exec rails runner '
     client = Searchkick.client
     puts client.cat.indices(v: true)
