@@ -82,7 +82,9 @@ ES_HOST=$(echo "$ES_HOST" | tr -d '\r')
 ES_PORT=$(echo "$ES_PORT" | tr -d '\r')
 
 if [ -n "$ES_PASSWORD" ]; then
-  ES_URL="http://elastic:${ES_PASSWORD}@${ES_HOST}:${ES_PORT}"
+  # URL-encode the password (special chars like @ and * break URI parsing)
+  ENCODED_ES_PASSWORD=$(printf '%s' "$ES_PASSWORD" | python3 -c "import sys, urllib.parse; print(urllib.parse.quote(sys.stdin.read(), safe=''))")
+  ES_URL="http://elastic:${ENCODED_ES_PASSWORD}@${ES_HOST}:${ES_PORT}"
 else
   ES_URL="http://${ES_HOST}:${ES_PORT}"
 fi
