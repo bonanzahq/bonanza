@@ -5,7 +5,7 @@
 set -euo pipefail
 
 EXPORT_DIR="${1:-/tmp/v1_export}"
-COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.prod.yml}"
+COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml}"
 SERVICE="${RAILS_SERVICE:-rails}"
 
 echo "=== Bonanza v1 -> Redux Migration ==="
@@ -69,7 +69,25 @@ echo ""
 # --- Reindex Elasticsearch ---
 
 echo "--- Reindexing Elasticsearch ---"
-docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE" \
+
+# Build ELASTICSEARCH_URL the same way the entrypoint does.
+# docker compose exec bypasses the entrypoint, so env vars set there are missing.
+ES_PASSWORD=$(docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE" printenv ES_PASSWORD 2>/dev/null || true)
+ES_HOST=$(docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE" printenv ES_HOST 2>/dev/null || echo "elasticsearch")
+ES_PORT=$(docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE" printenv ES_PORT 2>/dev/null || echo "9200")
+
+# Trim trailing carriage returns from docker exec output
+ES_PASSWORD=$(echo "$ES_PASSWORD" | tr -d '\r')
+ES_HOST=$(echo "$ES_HOST" | tr -d '\r')
+ES_PORT=$(echo "$ES_PORT" | tr -d '\r')
+
+if [ -n "$ES_PASSWORD" ]; then
+  ES_URL="http://elastic:${ES_PASSWORD}@${ES_HOST}:${ES_PORT}"
+else
+  ES_URL="http://${ES_HOST}:${ES_PORT}"
+fi
+
+docker compose -f "$COMPOSE_FILE" exec -T -e "ELASTICSEARCH_URL=$ES_URL" "$SERVICE" \
   bundle exec rails runner '
     puts "Reindexing ParentItems..."
     ParentItem.reindex
@@ -81,8 +99,13 @@ echo ""
 
 # Check ES indexes
 echo "--- Elasticsearch indexes ---"
-docker compose -f "$COMPOSE_FILE" exec -T elasticsearch \
-  curl -s http://localhost:9200/_cat/indices?v 2>/dev/null || echo "(could not query ES)"
+if [ -n "$ES_PASSWORD" ]; then
+  docker compose -f "$COMPOSE_FILE" exec -T elasticsearch \
+    curl -s -u "elastic:${ES_PASSWORD}" http://localhost:9200/_cat/indices?v 2>/dev/null || echo "(could not query ES)"
+else
+  docker compose -f "$COMPOSE_FILE" exec -T elasticsearch \
+    curl -s http://localhost:9200/_cat/indices?v 2>/dev/null || echo "(could not query ES)"
+fi
 echo ""
 
 echo "=== Migration complete ==="
