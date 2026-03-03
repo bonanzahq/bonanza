@@ -30,6 +30,10 @@ namespace :migrate do
         items parent_items borrowers users departments
       ].each { |t| conn.execute("TRUNCATE TABLE #{t} CASCADE") }
 
+      # Drop partial unique indexes that may conflict with v1 data
+      conn.execute("DROP INDEX IF EXISTS index_conducts_unique_active_ban_per_department")
+      conn.execute("DROP INDEX IF EXISTS index_borrowers_unique_student_id")
+
       puts ""
 
       # Collect storage_location and role data during load
@@ -89,7 +93,7 @@ namespace :migrate do
           id: row["id"],
           firstname: row["first_name"],
           lastname: row["last_name"],
-          student_id: presence(row["student_id"]),
+          student_id: blank_to_nil(row["student_id"]),
           email: row["email"],
           phone: row["phone"],
           email_token: row["tos_token"],
@@ -105,7 +109,7 @@ namespace :migrate do
 
       # 4. Parent items (capture storage_location, don't insert it)
       load_jsonl(conn, data_dir, "parent_items", "parent_items") do |row|
-        sl = presence(row["storage_location"])
+        sl = blank_to_nil(row["storage_location"])
         storage_locations[row["id"]] = sl if sl
 
         {
@@ -322,7 +326,34 @@ namespace :migrate do
       end
       puts "  sequences: reset"
 
-      # 19. Re-enable FK constraints
+      # 19. Deduplicate conducts and recreate unique indexes
+      result = conn.execute(<<~SQL)
+        WITH dupes AS (
+          SELECT id, ROW_NUMBER() OVER (
+            PARTITION BY borrower_id, department_id
+            ORDER BY created_at ASC, id ASC
+          ) AS rn
+          FROM conducts
+          WHERE kind = 1 AND lifted_at IS NULL
+        )
+        DELETE FROM conducts WHERE id IN (SELECT id FROM dupes WHERE rn > 1)
+      SQL
+      deduped = result.cmd_tuples
+      puts "  conducts dedup: #{deduped} duplicate active bans removed"
+
+      conn.execute(<<~SQL)
+        CREATE UNIQUE INDEX index_conducts_unique_active_ban_per_department
+        ON conducts (borrower_id, department_id)
+        WHERE kind = 1 AND lifted_at IS NULL
+      SQL
+      conn.execute(<<~SQL)
+        CREATE UNIQUE INDEX index_borrowers_unique_student_id
+        ON borrowers (student_id)
+        WHERE student_id IS NOT NULL
+      SQL
+      puts "  unique indexes: recreated"
+
+      # 20. Re-enable FK constraints
       conn.execute("SET session_replication_role = 'origin'")
 
       # 20. Anonymize deleted borrowers (uses ActiveRecord, needs constraints enabled)
@@ -343,34 +374,47 @@ namespace :migrate do
       conn = ActiveRecord::Base.connection
       errors = []
       warnings = []
+      data_dir = ENV.fetch("V1_DATA_DIR", Rails.root.join("tmp/v1_export").to_s)
 
       puts "=== Validating migration ==="
 
-      # 1. Record counts (staging expectations, adjust for production)
+      # 1. Record counts (compare against JSONL export if available)
       puts "\n1. Record counts:"
-      {
-        "departments" => 10,
-        "users" => 28,
-        "borrowers" => 999,
-        "parent_items" => 674,
-        "items" => 871,
-        "lendings" => 2777,
-        "line_items" => 6727,
-        "item_histories" => 18498,
-        "accessories" => 1281,
-        "accessories_line_items" => 30457,
-        "tags" => 740,
-        "taggings" => 750,
-        "links" => 108,
-        "conducts" => 6
-      }.each do |table, expected|
+
+      # Map JSONL source files to Redux table names
+      source_to_table = {
+        "departments" => "departments",
+        "users" => "users",
+        "lenders" => "borrowers",
+        "parent_items" => "parent_items",
+        "items" => "items",
+        "lendings" => "lendings",
+        "line_items" => "line_items",
+        "item_histories" => "item_histories",
+        "accessories" => "accessories",
+        "accessories_line_items" => "accessories_line_items",
+        "tags" => "tags",
+        "taggings" => "taggings",
+        "links" => "links",
+        "conducts" => "conducts"
+      }
+
+      source_to_table.each do |source, table|
         actual = conn.select_value("SELECT COUNT(*) FROM #{table}").to_i
-        match = actual == expected ? "OK" : "DIFF"
-        puts "   %-25s %6d (expected %d) [%s]" % [table, actual, expected, match]
-        if actual != expected && (actual - expected).abs > expected * 0.1
-          errors << "#{table}: expected ~#{expected}, got #{actual}"
-        elsif actual != expected
-          warnings << "#{table}: expected #{expected}, got #{actual}"
+        jsonl_file = File.join(data_dir, "#{source}.jsonl")
+        if File.exist?(jsonl_file)
+          expected = File.foreach(jsonl_file).count
+          # Conducts may be fewer due to dedup of duplicate active bans
+          if table == "conducts" && actual < expected
+            puts "   %-25s %6d (exported %d, %d deduped) [OK]" % [table, actual, expected, expected - actual]
+          elsif actual == expected
+            puts "   %-25s %6d [OK]" % [table, actual]
+          else
+            puts "   %-25s %6d (exported %d) [MISMATCH]" % [table, actual, expected]
+            errors << "#{table}: exported #{expected}, got #{actual}"
+          end
+        else
+          puts "   %-25s %6d (no export file to compare)" % [table, actual]
         end
       end
 
@@ -549,7 +593,7 @@ def to_bool(value)
   value == true || value == 1 || value == "1" || value == "true"
 end
 
-def presence(value)
+def blank_to_nil(value)
   return nil if value.nil?
   str = value.to_s.strip
   str.empty? ? nil : str
