@@ -70,44 +70,34 @@ echo ""
 
 echo "--- Reindexing Elasticsearch ---"
 
-# Build ELASTICSEARCH_URL the same way the entrypoint does.
-# docker compose exec bypasses the entrypoint, so env vars set there are missing.
-ES_PASSWORD=$(docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE" printenv ES_PASSWORD 2>/dev/null || true)
-ES_HOST=$(docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE" printenv ES_HOST 2>/dev/null || echo "elasticsearch")
-ES_PORT=$(docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE" printenv ES_PORT 2>/dev/null || echo "9200")
+# Read the ELASTICSEARCH_URL that the entrypoint constructed for the running server.
+# docker compose exec bypasses the entrypoint, so env vars exported there are missing.
+# Reading from /proc/1/environ gets the exact working URL without re-encoding.
+ES_URL=$(docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE" \
+  cat /proc/1/environ | tr '\0' '\n' | grep '^ELASTICSEARCH_URL=' | cut -d= -f2- | tr -d '\r')
 
-# Trim trailing carriage returns from docker exec output
-ES_PASSWORD=$(echo "$ES_PASSWORD" | tr -d '\r')
-ES_HOST=$(echo "$ES_HOST" | tr -d '\r')
-ES_PORT=$(echo "$ES_PORT" | tr -d '\r')
-
-if [ -n "$ES_PASSWORD" ]; then
-  # URL-encode the password (special chars like @ and * break URI parsing)
-  ENCODED_ES_PASSWORD=$(printf '%s' "$ES_PASSWORD" | python3 -c "import sys, urllib.parse; print(urllib.parse.quote(sys.stdin.read(), safe=''))")
-  ES_URL="http://elastic:${ENCODED_ES_PASSWORD}@${ES_HOST}:${ES_PORT}"
+if [ -z "$ES_URL" ]; then
+  echo "WARNING: Could not read ELASTICSEARCH_URL from container. Skipping reindex."
+  echo "Run reindex manually after fixing ES connectivity."
 else
-  ES_URL="http://${ES_HOST}:${ES_PORT}"
+  docker compose -f "$COMPOSE_FILE" exec -T -e "ELASTICSEARCH_URL=$ES_URL" "$SERVICE" \
+    bundle exec rails runner '
+      puts "Reindexing ParentItems..."
+      ParentItem.reindex
+      puts "Reindexing Borrowers..."
+      Borrower.reindex
+      puts "Done."
+    ' RAILS_ENV=production
 fi
-
-docker compose -f "$COMPOSE_FILE" exec -T -e "ELASTICSEARCH_URL=$ES_URL" "$SERVICE" \
-  bundle exec rails runner '
-    puts "Reindexing ParentItems..."
-    ParentItem.reindex
-    puts "Reindexing Borrowers..."
-    Borrower.reindex
-    puts "Done."
-  ' RAILS_ENV=production
 echo ""
 
 # Check ES indexes
 echo "--- Elasticsearch indexes ---"
-if [ -n "$ES_PASSWORD" ]; then
-  docker compose -f "$COMPOSE_FILE" exec -T elasticsearch \
-    curl -s -u "elastic:${ES_PASSWORD}" http://localhost:9200/_cat/indices?v 2>/dev/null || echo "(could not query ES)"
-else
-  docker compose -f "$COMPOSE_FILE" exec -T elasticsearch \
-    curl -s http://localhost:9200/_cat/indices?v 2>/dev/null || echo "(could not query ES)"
-fi
+docker compose -f "$COMPOSE_FILE" exec -T -e "ELASTICSEARCH_URL=${ES_URL:-}" "$SERVICE" \
+  bundle exec rails runner '
+    client = Searchkick.client
+    puts client.cat.indices(v: true)
+  ' RAILS_ENV=production 2>/dev/null || echo "(could not query ES)"
 echo ""
 
 echo "=== Migration complete ==="
