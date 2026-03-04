@@ -26,6 +26,11 @@ class UsersController < ApplicationController
 
   # GET /users/1/edit
   def edit
+    Department.all.each do |dept|
+      unless @user.department_memberships.exists?(department: dept)
+        @user.department_memberships.build(department: dept)
+      end
+    end
   end
 
   # POST /users

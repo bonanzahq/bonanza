@@ -112,6 +112,53 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to root_path
   end
 
+  # -- edit builds missing department memberships --
+
+  test "edit form includes departments the user has no membership for" do
+    # Create a second department that @member has no membership for
+    new_dept = Department.create!(name: "New Dept")
+    @member.department_memberships.find_by(department: new_dept)&.destroy
+
+    assert_not @member.department_memberships.exists?(department: new_dept),
+      "Precondition: member should not have a membership for the new department"
+
+    sign_in @admin
+    get edit_user_path(@member)
+    assert_response :success
+    assert_select "select[name*='department_memberships_attributes']" do |selects|
+      dept_ids = selects.map { |s| s.parent.css("input[name*='department_id']").first&.attr("value")&.to_i }
+      assert_includes dept_ids, new_dept.id,
+        "Edit form should include a role select for the new department"
+    end
+  end
+
+  test "admin can assign role in a new department via edit form" do
+    new_dept = Department.create!(name: "New Dept")
+    @member.department_memberships.find_by(department: new_dept)&.destroy
+
+    sign_in @admin
+    # First get the edit form to build the membership
+    get edit_user_path(@member)
+
+    # Submit with the new department role set to leader
+    existing_memberships = @member.department_memberships.reload.map do |dm|
+      { id: dm.id, role: dm.role, department_id: dm.department_id }
+    end
+
+    attrs = {}
+    existing_memberships.each_with_index do |dm, i|
+      attrs[i.to_s] = { id: dm[:id], role: dm[:role], department_id: dm[:department_id] }
+    end
+    attrs[existing_memberships.size.to_s] = { role: "leader", department_id: new_dept.id }
+
+    patch user_path(@member), params: {
+      user: { department_memberships_attributes: attrs }
+    }
+    assert_redirected_to verwaltung_verleihende_path
+    assert @member.reload.department_memberships.exists?(department: new_dept, role: :leader),
+      "Member should now have a leader membership in the new department"
+  end
+
   # -- switch_department --
 
   test "authenticated multi-department user can switch to another department" do
