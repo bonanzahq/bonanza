@@ -51,7 +51,9 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 echo "--- Copying rake task into container ---"
 docker cp "$SCRIPT_DIR/migrate_v1.rake" "$CONTAINER:/app/lib/tasks/migrate_v1.rake"
 
-# Copy patched application files (fixes not yet in the Docker image)
+# Copy patched application files if present alongside this script.
+# Useful when running against an older Docker image that doesn't have fixes yet.
+# Once the image includes the fixes, these files won't exist and are skipped.
 for f in elasticsearch.rb:config/initializers/elasticsearch.rb \
          parent_item.rb:app/models/parent_item.rb; do
   src="${f%%:*}"

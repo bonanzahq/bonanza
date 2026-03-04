@@ -365,6 +365,18 @@ namespace :migrate do
         "conducts" => "department_id"
       }
 
+      # Create the Ponderosa department (catch-all for orphaned records and setup admin).
+      ponderosa_id = conn.select_value("SELECT id FROM departments WHERE name = 'Ponderosa'")
+      unless ponderosa_id
+        conn.execute(<<~SQL)
+          INSERT INTO departments (name, hidden, genus, created_at, updated_at)
+          VALUES ('Ponderosa', true, 2, '#{now}', '#{now}')
+        SQL
+        ponderosa_id = conn.select_value("SELECT id FROM departments WHERE name = 'Ponderosa'")
+        conn.execute("SELECT setval('departments_id_seq', GREATEST((SELECT MAX(id) FROM departments), nextval('departments_id_seq')))")
+      end
+      puts "  ponderosa: department id=#{ponderosa_id}"
+
       orphan_dept_ids = Set.new
       orphan_tables.each do |table, col|
         ids = conn.select_values(
@@ -374,29 +386,45 @@ namespace :migrate do
       end
 
       if orphan_dept_ids.any?
-        net_dept = conn.select_value("SELECT id FROM departments WHERE name = 'Migration'")
-        unless net_dept
-          conn.execute(<<~SQL)
-            INSERT INTO departments (name, hidden, genus, created_at, updated_at)
-            VALUES ('Migration', true, 2, '#{now}', '#{now}')
-          SQL
-          net_dept = conn.select_value("SELECT id FROM departments WHERE name = 'Migration'")
-          conn.execute("SELECT setval('departments_id_seq', GREATEST((SELECT MAX(id) FROM departments), nextval('departments_id_seq')))")
-        end
-
         orphan_tables.each do |table, col|
           count = conn.select_value(
             "SELECT COUNT(*) FROM #{table} WHERE #{col} IN (#{orphan_dept_ids.to_a.join(',')})"
           ).to_i
           if count > 0
             conn.execute(
-              "UPDATE #{table} SET #{col} = #{net_dept} WHERE #{col} IN (#{orphan_dept_ids.to_a.join(',')})"
+              "UPDATE #{table} SET #{col} = #{ponderosa_id} WHERE #{col} IN (#{orphan_dept_ids.to_a.join(',')})"
             )
-            puts "  migration net: #{count} #{table} reassigned from department(s) #{orphan_dept_ids.to_a.join(', ')} -> #{net_dept} (Migration)"
+            puts "  ponderosa: #{count} #{table} reassigned from department(s) #{orphan_dept_ids.to_a.join(', ')} -> Ponderosa"
           end
         end
       else
-        puts "  migration net: no orphaned department references found"
+        puts "  ponderosa: no orphaned department references found"
+      end
+
+      # Create setup admin in Ponderosa from ADMIN_EMAIL/ADMIN_PASSWORD env vars
+      admin_email = ENV["ADMIN_EMAIL"]
+      admin_password = ENV["ADMIN_PASSWORD"]
+      if admin_email.present? && admin_password.present?
+        existing = conn.select_value("SELECT id FROM users WHERE email = '#{conn.quote_string(admin_email)}'")
+        unless existing
+          admin = User.new(
+            email: admin_email,
+            password: admin_password,
+            password_confirmation: admin_password,
+            firstname: "Admin",
+            lastname: "Setup",
+            admin: true,
+            current_department_id: ponderosa_id,
+            department_memberships_attributes: [{ role: :leader, department_id: ponderosa_id }]
+          )
+          admin.skip_confirmation!
+          admin.save!
+          puts "  ponderosa: created setup admin #{admin_email}"
+        else
+          puts "  ponderosa: setup admin #{admin_email} already exists"
+        end
+      else
+        puts "  ponderosa: ADMIN_EMAIL/ADMIN_PASSWORD not set, skipping setup admin"
       end
 
       # 22. Anonymize deleted borrowers (uses ActiveRecord, needs constraints enabled)
