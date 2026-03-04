@@ -356,7 +356,50 @@ namespace :migrate do
       # 20. Re-enable FK constraints
       conn.execute("SET session_replication_role = 'origin'")
 
-      # 20. Anonymize deleted borrowers (uses ActiveRecord, needs constraints enabled)
+      # 21. Catch orphaned records with missing departments.
+      # v1 had no FK constraints, so departments could be deleted while
+      # parent_items/lendings/conducts still referenced them.
+      orphan_tables = {
+        "parent_items" => "department_id",
+        "lendings" => "department_id",
+        "conducts" => "department_id"
+      }
+
+      orphan_dept_ids = Set.new
+      orphan_tables.each do |table, col|
+        ids = conn.select_values(
+          "SELECT DISTINCT #{col} FROM #{table} WHERE #{col} NOT IN (SELECT id FROM departments)"
+        )
+        ids.each { |id| orphan_dept_ids << id.to_i }
+      end
+
+      if orphan_dept_ids.any?
+        net_dept = conn.select_value("SELECT id FROM departments WHERE name = 'Migration'")
+        unless net_dept
+          conn.execute(<<~SQL)
+            INSERT INTO departments (name, hidden, genus, created_at, updated_at)
+            VALUES ('Migration', true, 2, '#{now}', '#{now}')
+          SQL
+          net_dept = conn.select_value("SELECT id FROM departments WHERE name = 'Migration'")
+          conn.execute("SELECT setval('departments_id_seq', GREATEST((SELECT MAX(id) FROM departments), nextval('departments_id_seq')))")
+        end
+
+        orphan_tables.each do |table, col|
+          count = conn.select_value(
+            "SELECT COUNT(*) FROM #{table} WHERE #{col} IN (#{orphan_dept_ids.to_a.join(',')})"
+          ).to_i
+          if count > 0
+            conn.execute(
+              "UPDATE #{table} SET #{col} = #{net_dept} WHERE #{col} IN (#{orphan_dept_ids.to_a.join(',')})"
+            )
+            puts "  migration net: #{count} #{table} reassigned from department(s) #{orphan_dept_ids.to_a.join(', ')} -> #{net_dept} (Migration)"
+          end
+        end
+      else
+        puts "  migration net: no orphaned department references found"
+      end
+
+      # 22. Anonymize deleted borrowers (uses ActiveRecord, needs constraints enabled)
       deleted_count = 0
       Borrower.where(borrower_type: :deleted).find_each do |b|
         next if b.anonymized?

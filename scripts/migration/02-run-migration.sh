@@ -50,6 +50,19 @@ echo ""
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 echo "--- Copying rake task into container ---"
 docker cp "$SCRIPT_DIR/migrate_v1.rake" "$CONTAINER:/app/lib/tasks/migrate_v1.rake"
+
+# Copy patched application files (fixes not yet in the Docker image)
+for f in elasticsearch.rb:config/initializers/elasticsearch.rb \
+         parent_item.rb:app/models/parent_item.rb; do
+  src="${f%%:*}"
+  dest="${f##*:}"
+  if [ -f "$SCRIPT_DIR/$src" ]; then
+    docker cp "$SCRIPT_DIR/$src" "$CONTAINER:/app/$dest"
+    echo "Patched $dest"
+  fi
+done
+
+docker cp "$SCRIPT_DIR/reindex.rb" "$CONTAINER:/tmp/reindex.rb"
 echo "Done."
 echo ""
 
@@ -70,13 +83,7 @@ echo ""
 
 echo "--- Reindexing Elasticsearch ---"
 docker compose -f "$COMPOSE_FILE" exec -T "$SERVICE" \
-  bundle exec rails runner '
-    puts "Reindexing ParentItems..."
-    ParentItem.reindex
-    puts "Reindexing Borrowers..."
-    Borrower.reindex
-    puts "Done."
-  ' RAILS_ENV=production
+  bundle exec rails runner /tmp/reindex.rb RAILS_ENV=production
 echo ""
 
 # Check ES indexes
