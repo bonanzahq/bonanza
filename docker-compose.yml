@@ -77,7 +77,7 @@ services:
       SECRET_KEY_BASE: ${SECRET_KEY_BASE:-}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
-      ALLOW_ANONYMIZE: "NOWAY!!!" # set to "yes" on staging
+      ALLOW_ANONYMIZE: ${ALLOW_ANONYMIZE:-NOWAY!!!}
     depends_on:
       db:
         condition: service_healthy
