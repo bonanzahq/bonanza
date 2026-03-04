@@ -68,7 +68,7 @@ had no FK constraints, so a department could be deleted without cascading.
 - `app/models/parent_item.rb`: `department&.id` safe navigation in `search_data`
 - `scripts/migration/migrate_v1.rake`: after loading data, scans parent_items,
   lendings, conducts for department_ids not in the departments table. If found,
-  creates a hidden "Migration" department and reassigns orphans to it.
+  creates a hidden "Ponderosa" department and reassigns orphans to it.
 - Added `parent_items -> departments` FK check to validation step.
 
 ### 5. Phase 0 count discrepancy (non-issue)
@@ -96,7 +96,7 @@ The bug was in the transport layer, not in our encoding.
 3. Run `01-export-v1.sh` on production
 4. Run `02-run-migration.sh` (now includes patched files and reindex script)
 5. Smoke test
-6. The "Migration" department will catch any orphaned records automatically
+6. The "Ponderosa" department will catch any orphaned records automatically
 
 ## Files Changed This Session
 

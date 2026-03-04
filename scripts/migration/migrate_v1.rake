@@ -2,6 +2,7 @@
 # ABOUTME: Handles column renames, enum mappings, and derived data creation.
 
 require "json"
+require "set"
 
 namespace :migrate do
   namespace :v1 do

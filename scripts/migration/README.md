@@ -1,7 +1,7 @@
 # Migration Scripts
 
 Transfer these scripts to the staging/production server and run them.
-No repo clone needed — just these three files.
+No repo clone needed — just the files listed below.
 
 ## Files
 
@@ -10,6 +10,7 @@ No repo clone needed — just these three files.
 | `01-export-v1.sh` | bare metal | Export v1 MySQL data to JSONL |
 | `migrate_v1.rake` | Docker (Rails) | Import + transform + validate |
 | `02-run-migration.sh` | bare metal | Orchestrate: copy files, run rake tasks, reindex ES |
+| `reindex.rb` | Docker (Rails) | Clean stale ES indices and reindex |
 
 ## Prerequisites
 
@@ -21,7 +22,7 @@ No repo clone needed — just these three files.
 
 ```bash
 # Transfer scripts to server
-scp -r docs/migration/scripts/ root@SERVER:/root/migration/
+scp -r scripts/migration/ root@SERVER:/root/migration/
 
 # SSH into server
 ssh root@SERVER
