@@ -26,6 +26,12 @@ class UsersController < ApplicationController
 
   # GET /users/1/edit
   def edit
+    existing_department_ids = @user.department_memberships.pluck(:department_id)
+    Department.all.each do |dept|
+      unless existing_department_ids.include?(dept.id)
+        @user.department_memberships.build(department: dept)
+      end
+    end
   end
 
   # POST /users

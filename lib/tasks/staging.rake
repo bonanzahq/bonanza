@@ -64,7 +64,9 @@ end
 namespace :staging do
   desc "Anonymize all PII in the database for staging use"
   task anonymize: :environment do
-    abort "REFUSED: staging:anonymize cannot run in production!" if Rails.env.production?
+    unless ENV["ALLOW_ANONYMIZE"] == "yes"
+      abort "REFUSED: set ALLOW_ANONYMIZE=yes to run this task (current value: #{ENV.fetch("ALLOW_ANONYMIZE", "<not set>")})"
+    end
 
     require "faker"
 
