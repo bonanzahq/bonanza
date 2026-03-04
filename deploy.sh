@@ -35,6 +35,12 @@ fi
 BRANCH="${1:-main}"
 BASE_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}"
 
+# Validate token
+if ! curl -fsSL -o /dev/null -H "Authorization: token ${GITHUB_TOKEN}" "https://api.github.com/repos/${REPO}" 2>/dev/null; then
+  echo "Error: GITHUB_TOKEN is invalid or lacks access to ${REPO}"
+  exit 1
+fi
+
 # Validate branch exists
 if ! curl -fsSL -o /dev/null -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/docker-compose.yml" 2>/dev/null; then
   echo "Error: branch '${BRANCH}' not found or docker-compose.yml missing on that branch"
