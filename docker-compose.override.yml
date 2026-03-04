@@ -39,6 +39,7 @@ services:
       RAILS_LOG_TO_STDOUT: ""
       SECRET_KEY_BASE: dev-not-secret
       ALLOW_ANONYMIZE: "yes"
+      SKIP_REINDEX: ""
     ports:
       - "3000:3000"
     volumes:
