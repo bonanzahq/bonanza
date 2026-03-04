@@ -12,7 +12,7 @@ if [ -z "${GITHUB_TOKEN:-}" ]; then
 fi
 
 REPO="bonanzahq/bonanza"
-BRANCH="main"
+BRANCH="${1:-main}"
 BASE_URL="https://raw.githubusercontent.com/${REPO}/${BRANCH}"
 
 echo "Downloading production deployment files from ${REPO}:${BRANCH}..."
