@@ -61,17 +61,30 @@ class StagingAnonymizeTest < ActiveSupport::TestCase
 
   def invoke_task
     Rake::Task["staging:anonymize"].reenable
+    ENV["ALLOW_ANONYMIZE"] = "yes"
     Rake::Task["staging:anonymize"].invoke
+  ensure
+    ENV.delete("ALLOW_ANONYMIZE")
   end
 
   # -- tests --
 
-  test "refuses to run in production" do
-    Rails.stub(:env, ActiveSupport::StringInquirer.new("production")) do
-      assert_raises(SystemExit) do
-        Rake::Task["staging:anonymize"].invoke
-      end
+  test "refuses to run without ALLOW_ANONYMIZE" do
+    ENV.delete("ALLOW_ANONYMIZE")
+    Rake::Task["staging:anonymize"].reenable
+    assert_raises(SystemExit) do
+      Rake::Task["staging:anonymize"].invoke
     end
+  end
+
+  test "refuses to run with wrong ALLOW_ANONYMIZE value" do
+    ENV["ALLOW_ANONYMIZE"] = "NOWAY!!!"
+    Rake::Task["staging:anonymize"].reenable
+    assert_raises(SystemExit) do
+      Rake::Task["staging:anonymize"].invoke
+    end
+  ensure
+    ENV.delete("ALLOW_ANONYMIZE")
   end
 
   test "anonymizes borrower PII fields" do
