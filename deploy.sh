@@ -58,10 +58,6 @@ echo "  Caddyfile"
 curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/elastic_synonyms.txt" -o elastic_synonyms.txt
 echo "  elastic_synonyms.txt"
 
-curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/deploy.sh" -o deploy.sh
-chmod +x deploy.sh
-echo "  deploy.sh"
-
 curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/example.env" -o example.env
 echo "  example.env (reference)"
 
