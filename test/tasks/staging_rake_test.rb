@@ -60,11 +60,17 @@ class StagingAnonymizeTest < ActiveSupport::TestCase
   # -- helpers --
 
   def invoke_task
+    previous_allow = ENV["ALLOW_ANONYMIZE"]
+
     Rake::Task["staging:anonymize"].reenable
     ENV["ALLOW_ANONYMIZE"] = "yes"
     Rake::Task["staging:anonymize"].invoke
   ensure
-    ENV.delete("ALLOW_ANONYMIZE")
+    if previous_allow
+      ENV["ALLOW_ANONYMIZE"] = previous_allow
+    else
+      ENV.delete("ALLOW_ANONYMIZE")
+    end
   end
 
   # -- tests --
