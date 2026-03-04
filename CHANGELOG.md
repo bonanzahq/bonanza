@@ -1,3 +1,12 @@
+# [2.0.0-beta.4](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.3...v2.0.0-beta.4) (2026-03-04)
+
+
+### Bug Fixes
+
+* build missing department memberships in user edit action ([b130928](https://github.com/bonanzahq/bonanza/commit/b13092870cb686be8026539eca2337535675b16a))
+* update anonymize tests for ALLOW_ANONYMIZE env var guard ([6086989](https://github.com/bonanzahq/bonanza/commit/6086989d19875553100229a259b9188ede89b536))
+* use ALLOW_ANONYMIZE env var instead of Rails.env check ([4cfb532](https://github.com/bonanzahq/bonanza/commit/4cfb5324b64fe12f6e89ec2866a52d61e7ae0170))
+
 # [2.0.0-beta.3](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.2...v2.0.0-beta.3) (2026-03-02)
 
 
