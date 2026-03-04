@@ -41,7 +41,7 @@ docker compose up -d
 #   1. Waits for PostgreSQL and Elasticsearch
 #   2. Runs db:prepare (schema:load on fresh DB, migrate on existing)
 #   3. Seeds the database
-#   4. Reindexes Elasticsearch
+#   4. Reindexes Elasticsearch (dev only; skipped in production)
 #   5. Starts Rails with foreman (web + js + css watchers)
 ```
 
@@ -117,6 +117,16 @@ The database config in `config/database.yml` uses env vars for all environments:
 ```
 
 ### Reindexing Elasticsearch
+
+Production skips reindex on container startup for faster restarts.
+Reindex manually when needed:
+
+- After Elasticsearch index mapping changes (e.g. new searchable fields)
+- After direct SQL updates or data migration (e.g. `staging:anonymize`)
+- After ES volume was wiped (`docker compose down -v`)
+
+Normal CRUD through the app does not require manual reindexing —
+Searchkick auto-syncs records on save/delete.
 
 ```bash
 # Inside the container
