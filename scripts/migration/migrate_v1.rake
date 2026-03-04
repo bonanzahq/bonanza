@@ -444,6 +444,8 @@ namespace :migrate do
       # 5. Foreign key integrity
       puts "\n5. Foreign key integrity:"
       {
+        "parent_items -> departments" =>
+          "SELECT COUNT(*) FROM parent_items WHERE department_id NOT IN (SELECT id FROM departments)",
         "items -> parent_items" =>
           "SELECT COUNT(*) FROM items WHERE parent_item_id NOT IN (SELECT id FROM parent_items)",
         "lendings -> borrowers" =>
