@@ -1,3 +1,24 @@
+# [2.0.0-beta.6](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.5...v2.0.0-beta.6) (2026-03-04)
+
+
+### Bug Fixes
+
+* allow ALLOW_ANONYMIZE to be set via .env file ([96f7e95](https://github.com/bonanzahq/bonanza/commit/96f7e951015aba78ee5fd1c8d4d4a87bfbea183d))
+* auto-create missing LegalText records on edit page ([a5b0025](https://github.com/bonanzahq/bonanza/commit/a5b00251d28db07f4677231f3b4ab75a66fbb8e2))
+* stop deploy script from overwriting itself ([6e0b235](https://github.com/bonanzahq/bonanza/commit/6e0b23504640d727245307d2779b1cebdcb97918))
+
+
+### Features
+
+* add help, argument validation, and branch check to deploy script ([a48779c](https://github.com/bonanzahq/bonanza/commit/a48779cb5d3e3e504c52dde6317e58746976f1ab))
+* add token validation to deploy script ([4823e8a](https://github.com/bonanzahq/bonanza/commit/4823e8ae72319b6a5304145c893301f9acef9464))
+* allow deploy.sh to pull from a specific branch ([936f701](https://github.com/bonanzahq/bonanza/commit/936f701ea0605746129a6cff81544ed76352be68))
+
+
+### Performance Improvements
+
+* skip Elasticsearch reindex on production startup ([8f03b41](https://github.com/bonanzahq/bonanza/commit/8f03b419064ba380dbb381cd085646c3c93941a2))
+
 # [2.0.0-beta.5](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.4...v2.0.0-beta.5) (2026-03-04)
 
 
