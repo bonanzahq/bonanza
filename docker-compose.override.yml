@@ -38,6 +38,7 @@ services:
       RAILS_SERVE_STATIC_FILES: ""
       RAILS_LOG_TO_STDOUT: ""
       SECRET_KEY_BASE: dev-not-secret
+      ALLOW_ANONYMIZE: "yes"
     ports:
       - "3000:3000"
     volumes:
