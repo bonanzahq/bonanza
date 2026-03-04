@@ -1,3 +1,25 @@
+# [2.0.0-beta.5](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.4...v2.0.0-beta.5) (2026-03-04)
+
+
+### Bug Fixes
+
+* **elasticsearch:** construct URL from ES_HOST/ES_PORT/ES_PASSWORD when ELASTICSEARCH_URL unset ([df27392](https://github.com/bonanzahq/bonanza/commit/df2739253605407621dc8859f282c4a81f836f05))
+* **elasticsearch:** pass credentials separately to avoid double-encoding ([5a1b601](https://github.com/bonanzahq/bonanza/commit/5a1b601ff255a88bd4dbaee3c827e3dbc1af86d4))
+* **elasticsearch:** use RFC 3986 encoding for ES password ([860a25c](https://github.com/bonanzahq/bonanza/commit/860a25c4926436f0fe63800847f0a4cff445262b))
+* **migration:** add migration net department for orphaned records ([36278fc](https://github.com/bonanzahq/bonanza/commit/36278fcd3afe3d72da9014bd91f850efaaf8bde9))
+* **migration:** address PR review feedback ([d2d45a0](https://github.com/bonanzahq/bonanza/commit/d2d45a0727ce7b15a58dcdd13096c8d5513a9e48))
+* **migration:** construct ELASTICSEARCH_URL for reindex step ([fa117b9](https://github.com/bonanzahq/bonanza/commit/fa117b988e58f8156e2f2fb1ef82478444f6018a))
+* **migration:** handle unique index conflicts and dynamic count validation ([3b65bd4](https://github.com/bonanzahq/bonanza/commit/3b65bd49b5aa612f8357a381efa3ddebdd947231))
+* **migration:** read ELASTICSEARCH_URL from container process env ([bf9b3c5](https://github.com/bonanzahq/bonanza/commit/bf9b3c5a18e6ba92dad384d9baec44403b6e8b49))
+* **migration:** URL-encode ES password for reindex step ([abc5eab](https://github.com/bonanzahq/bonanza/commit/abc5eab892bf541e5ad48f6401896140043889fe))
+* **search:** guard ParentItem#search_data against nil department ([0b3d7bc](https://github.com/bonanzahq/bonanza/commit/0b3d7bcb8754ce5dd03cd4d80dd1d0369a1f9566)), closes [ParentItem#search_data](https://github.com/ParentItem/issues/search_data)
+
+
+### Features
+
+* **migration:** add standalone migration scripts for staging/production ([5870f53](https://github.com/bonanzahq/bonanza/commit/5870f533cf40956bcce12705002c71fdc8637b0e))
+* **migration:** rename catch-all department to Ponderosa, create setup admin ([76f16d0](https://github.com/bonanzahq/bonanza/commit/76f16d00886c275c0dbb16b69802eca6c4c47a29))
+
 # [2.0.0-beta.4](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.3...v2.0.0-beta.4) (2026-03-04)
 
 
