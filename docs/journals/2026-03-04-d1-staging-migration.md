@@ -14,6 +14,8 @@ working.
 - **ES reindex**: 688 ParentItems + 999 Borrowers indexed
 - **Orphan found**: parent_item 791 references department 13 which doesn't exist
   in v1 (deleted department, no FK constraints in MySQL)
+- **Setup admin**: Created from ADMIN_EMAIL/ADMIN_PASSWORD in Ponderosa department
+- **PR #202**: Created, rebased on beta, reviewed, Copilot feedback addressed
 
 ## Issues Found and Fixed
 
@@ -47,6 +49,10 @@ percent-encoded by `URI.parse`. So `%40` became `%2540` and `%2A` became
 instead of embedding them in the URL. elastic-transport then applies `CGI.escape`
 to the raw password — single encoding, correct.
 
+**Key lesson:** When a correctly-constructed URL still produces auth errors, read
+the HTTP client library source to trace how credentials flow from URL to request
+header. The bug was in the transport layer, not in our encoding.
+
 **Files changed:**
 - `config/initializers/elasticsearch.rb` — constructs URL without credentials,
   passes auth via `Searchkick.client_options`
@@ -58,6 +64,7 @@ to the raw password — single encoding, correct.
 Failed reindex attempts left orphaned indices (`parent_items_production_*`).
 Searchkick tried to create an index that already existed. Fixed by listing
 exact index names and deleting them before reindex. Added this to `reindex.rb`.
+Scoped deletion to `Searchkick::Index.name` prefix per Copilot review.
 
 ### 4. Orphaned parent_item (department_id -> missing department)
 
@@ -71,32 +78,46 @@ had no FK constraints, so a department could be deleted without cascading.
   creates a hidden "Ponderosa" department and reassigns orphans to it.
 - Added `parent_items -> departments` FK check to validation step.
 
-### 5. Phase 0 count discrepancy (non-issue)
+### 5. Setup admin wiped by migration
+
+The migration truncates all tables, so the bootstrap admin from
+ADMIN_EMAIL/ADMIN_PASSWORD was lost. Fixed: the rake task now creates the setup
+admin in the Ponderosa department after loading v1 data.
+
+### 6. Phase 0 count discrepancy (non-issue)
 
 The export counts differed from Phase 0 planning counts. Cause: Phase 0 used
 `information_schema.tables.table_rows` which is an InnoDB estimate, not exact.
 The export uses actual SELECT counts. Staging is not actively used.
 
-### 6. Duplicate conduct safeguards (non-issue)
+### 7. Duplicate conduct safeguards (non-issue)
 
 v1 had a duplicate active ban (borrower 824, dept 11, 2 seconds apart — likely
 double-click). Redux has both a model validation and a partial unique index
 preventing this. The rake task deduplicates during import. No bug needed.
 
-## Key Lesson
+## PR Review
 
-When a correctly-constructed URL still produces auth errors, read the HTTP
-client library source to trace how credentials flow from URL to request header.
-The bug was in the transport layer, not in our encoding.
+Rebased on beta (35 commits had landed since branch point, causing false
+"deletions" in the diff). After rebase: 14 files changed, all migration-related.
+657 tests pass.
+
+Copilot review feedback addressed:
+- Scoped ES index deletion to Searchkick prefix (not bare `parent_items_*`)
+- Fixed `RAILS_ENV` position in reindex.rb usage comment
+- Fixed `scp` path in README, added `reindex.rb` to file list
+- Added `require "set"` for `Set` usage in rake task
+- Aligned "Ponderosa" naming across code and docs
 
 ## What's Left for Production
 
-1. Build new Docker image with the initializer and entrypoint fixes
-2. On production: NULL duplicate `student_id='1'` on borrowers 1170/1171 before export
-3. Run `01-export-v1.sh` on production
-4. Run `02-run-migration.sh` (now includes patched files and reindex script)
-5. Smoke test
-6. The "Ponderosa" department will catch any orphaned records automatically
+1. Merge PR #202 to beta
+2. Build new Docker image with ES auth fix + entrypoint changes
+3. On production: NULL duplicate `student_id='1'` on borrowers 1170/1171
+4. Run `01-export-v1.sh` on production
+5. Run `02-run-migration.sh` (creates Ponderosa, setup admin, reindexes)
+6. Smoke test
+7. Update `IMAGE_TAG` in `.env`, re-run `deploy.sh`
 
 ## Files Changed This Session
 
@@ -105,5 +126,8 @@ The bug was in the transport layer, not in our encoding.
 - `app/models/parent_item.rb` — nil guard in search_data
 - `scripts/migration/02-run-migration.sh` — compose file default, patch files
   into container, use reindex.rb script
-- `scripts/migration/migrate_v1.rake` — migration net department, FK validation
-- `scripts/migration/reindex.rb` — standalone reindex with stale index cleanup
+- `scripts/migration/migrate_v1.rake` — Ponderosa department, FK validation,
+  setup admin creation, `require "set"`
+- `scripts/migration/reindex.rb` — standalone reindex with scoped index cleanup
+- `scripts/migration/README.md` — fixed scp path, added reindex.rb to file list
+- `docs/journals/2026-03-04-d1-staging-migration.md` — this file
