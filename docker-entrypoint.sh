@@ -31,12 +31,11 @@ if [ "$RAILS_ENV" = "production" ] && [ -n "${DB_PASSWORD:-}" ]; then
   export DATABASE_URL="postgresql://${DB_USER:-postgres}:${ENCODED_DB_PASSWORD}@${DB_HOST:-db}:${DB_PORT:-5432}/${DB_NAME:-bonanza_redux_production}"
 fi
 
-if [ -n "${ES_PASSWORD:-}" ]; then
-  ENCODED_ES_PASSWORD=$(urlencode "$ES_PASSWORD")
-  export ELASTICSEARCH_URL="http://elastic:${ENCODED_ES_PASSWORD}@${ES_HOST:-elasticsearch}:${ES_PORT:-9200}"
-else
-  export ELASTICSEARCH_URL="http://${ES_HOST:-elasticsearch}:${ES_PORT:-9200}"
-fi
+# Set ELASTICSEARCH_URL without credentials. The initializer passes
+# user/password as separate client options to avoid double-encoding
+# by elastic-transport (which applies CGI.escape to already-encoded
+# URI.parse output).
+export ELASTICSEARCH_URL="http://${ES_HOST:-elasticsearch}:${ES_PORT:-9200}"
 
 # Validate required environment variables in production
 if [ "$RAILS_ENV" = "production" ]; then
@@ -58,9 +57,15 @@ done
 echo "PostgreSQL is ready."
 
 echo "Waiting for Elasticsearch..."
-until curl -sf "${ELASTICSEARCH_URL}/_cluster/health" > /dev/null; do
-  sleep 2
-done
+if [ -n "${ES_PASSWORD:-}" ]; then
+  until curl -sf -u "elastic:${ES_PASSWORD}" "${ELASTICSEARCH_URL}/_cluster/health" > /dev/null; do
+    sleep 2
+  done
+else
+  until curl -sf "${ELASTICSEARCH_URL}/_cluster/health" > /dev/null; do
+    sleep 2
+  done
+fi
 echo "Elasticsearch is ready."
 
 if [ "$RAILS_ENV" != "production" ]; then
