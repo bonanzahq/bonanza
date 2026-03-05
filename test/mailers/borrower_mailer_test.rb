@@ -58,6 +58,17 @@ class BorrowerMailerTest < ActionMailer::TestCase
     assert_not_nil email.text_part
   end
 
+  test "ban_notification_email renders without error when conduct user is nil" do
+    conduct = build_banned_conduct
+    conduct.update_column(:user_id, nil)
+    conduct.reload
+    email = BorrowerMailer.with(borrower: conduct.borrower).ban_notification_email(conduct)
+    assert_equal [conduct.borrower.email], email.to
+    assert_nil email.reply_to
+    assert_includes email.html_part.body.to_s, "Gelöschter Benutzer"
+    assert_includes email.text_part.body.to_s, "Gelöschter Benutzer"
+  end
+
   # ban_lifted_notification_email
 
   test "ban_lifted_notification_email is addressed to the borrower" do
