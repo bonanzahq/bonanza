@@ -51,22 +51,6 @@
         <div class="row mb-4" data-field-container>
             <label class="form-label col-12">Zugewiesene Rolle in den Werkstätten</label>
 
-            <!-- <% unless user.department_memberships.workable.empty? %>
-                <% user.department_memberships.workable.each do |dept| %>
-                    <div class="col-3">
-                        <div class="col-form-label">
-                            <%= dept.department.name %>
-                        </div>
-                        
-                    </div>
-                    <div class="col-9 col-form-label fw-normal">
-                        <%= t( dept.role, scope: 'role') %>
-                    </div>
-                <% end %>
-            <% else %>
-                Du bist Gast bei <%= user.current_department.name %>
-            <% end %> -->
-
             <% user.department_memberships.each do |dept| %>
                 <div class="col-3">
                     <div class="col-form-label">
