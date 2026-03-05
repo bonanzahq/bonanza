@@ -726,7 +726,25 @@ namespace :migrate do
 
     orphaned_lendings = Lending.where.not(borrower_id: Borrower.select(:id))
     if orphaned_lendings.any?
-      errors << "Found #{orphaned_lendings.count} orphaned lendings"
+      errors << "Found #{orphaned_lendings.count} orphaned lendings (missing borrower)"
+    end
+
+    # Check lendings with missing users (expected from v1 — deleted users,
+    # no FK constraints in MySQL). These are historical and should not block
+    # migration. Views handle nil users with fallback text.
+    lendings_missing_users = Lending.left_joins(:user).where(users: { id: nil })
+    if lendings_missing_users.any?
+      missing_user_ids = lendings_missing_users.distinct.pluck(:user_id).sort
+      puts "   ⚠️  Found #{lendings_missing_users.count} lendings referencing #{missing_user_ids.count} non-existent users: #{missing_user_ids.inspect}"
+      puts "      These are v1 deletions — views handle nil users gracefully"
+    end
+
+    # Check item histories with missing line items (same v1 issue)
+    histories_missing_line_items = ItemHistory.where.not(line_item_id: nil)
+      .left_joins(:line_item).where(line_items: { id: nil })
+    if histories_missing_line_items.any?
+      puts "   ⚠️  Found #{histories_missing_line_items.count} item histories referencing non-existent line items"
+      puts "      Views handle nil line items gracefully"
     end
 
     # Check users have department memberships
