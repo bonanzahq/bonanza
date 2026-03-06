@@ -4,7 +4,7 @@
       if p == LegalText.current_tos
         [ "Aktuelle Version", edit_single_legal_text_path(p.id) ]
       else
-        [ "#{l(p.created_at, :format => "%d.%m.%Y %H:%M")} #{user_display_name(p.user)}", edit_single_legal_text_path(p.id) ] 
+        [ "#{l(p.created_at, :format => "%d.%m.%Y %H:%M")} #{user_display_name(p.user)}", edit_single_legal_text_path(p.id) ]
       end
       
     }, edit_single_legal_text_path(text.id) ), class: "form-select", data: { controller: "version-select", action: "change->version-select#change" } %>
