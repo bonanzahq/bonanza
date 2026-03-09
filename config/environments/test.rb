@@ -35,6 +35,7 @@ Rails.application.configure do
 
   # Store uploaded files on the local file system in a temporary directory.
   config.active_storage.service = :test
+  # No image variants are used; disable the processor to avoid requiring the image_processing gem.
   config.active_storage.variant_processor = :disabled
 
   config.active_job.queue_adapter = :test
