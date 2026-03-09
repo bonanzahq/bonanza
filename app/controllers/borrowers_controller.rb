@@ -26,7 +26,7 @@ class BorrowersController < ApplicationController
     @conduct = Conduct.new
 
     returned_line_items = @borrower.line_items.where.not(returned_at: nil).includes(:accessories, :item_histories)
-    lent_line_item_lendings = @borrower.lendings.where.not(:lendings => { lent_at: nil}).includes(line_items: :item_histories, line_items: :accessories)
+    lent_line_item_lendings = @borrower.lendings.where.not(:lendings => { lent_at: nil}).includes(line_items: [:item_histories, :accessories])
     @elements = (returned_line_items + lent_line_item_lendings).group_by do |element|
       if element.class.name.demodulize == "Lending"
         element.lent_at.to_date
