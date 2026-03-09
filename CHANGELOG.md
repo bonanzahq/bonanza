@@ -1,3 +1,16 @@
+# [2.0.0-beta.8](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.7...v2.0.0-beta.8) (2026-03-09)
+
+
+### Bug Fixes
+
+* **mailer:** handle nil user in ban notification email ([31d603e](https://github.com/bonanzahq/bonanza/commit/31d603e4858e6c5d0a6cc9b00671d6dbe3da9015))
+* **views:** guard against nil user references ([275b302](https://github.com/bonanzahq/bonanza/commit/275b30266f4eefb017b15705c07e8b950d0d1671))
+
+
+### Features
+
+* **helpers:** add user_display_name for nil-safe user display ([632a9ea](https://github.com/bonanzahq/bonanza/commit/632a9ea370ee68c61a4a11bfb3fe1852904e7f0c))
+
 # [2.0.0-beta.7](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.6...v2.0.0-beta.7) (2026-03-09)
 
 
