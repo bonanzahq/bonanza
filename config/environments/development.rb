@@ -40,6 +40,8 @@ Rails.application.configure do
 
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
+  # No image variants are used; disable the processor to avoid requiring the image_processing gem.
+  config.active_storage.variant_processor = :disabled
 
   # Deliver via SMTP to Mailpit for email testing in Docker
   config.action_mailer.delivery_method = :smtp
