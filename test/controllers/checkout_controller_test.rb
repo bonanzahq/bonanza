@@ -122,6 +122,21 @@ class CheckoutControllerTest < ActionDispatch::IntegrationTest
     assert_equal "borrower", lending.state
   end
 
+  test "select_borrower allows changing borrower from confirmation state" do
+    lending_id = populate_cart
+    lending = Lending.find(lending_id)
+    borrower_a = create(:borrower, :with_tos)
+    borrower_b = create(:borrower, :with_tos)
+    lending.update_columns(state: Lending.states[:confirmation], borrower_id: borrower_a.id)
+
+    patch select_checkout_borrower_path, params: { lending: { borrower_id: borrower_b.id } }
+
+    lending.reload
+    assert_equal borrower_b.id, lending.borrower_id
+    assert_equal "borrower", lending.state
+    assert_redirected_to checkout_state_path("borrower")
+  end
+
   test "borrower state shows Weiter button in sidebar when borrower is assigned" do
     lending_id = populate_cart
     lending = Lending.find(lending_id)
