@@ -1,3 +1,5 @@
+// ABOUTME: Stimulus controller for the autocomplete search input.
+// ABOUTME: Wraps @tarekraafat/autocomplete.js with a clear button and Turbo cache cleanup.
 import { Controller } from "@hotwired/stimulus"
 import autoComplete from "@tarekraafat/autocomplete.js";
 
@@ -117,25 +119,65 @@ export default class extends Controller {
         newNode.classList.add("visible")
     }
 
-    newNode.addEventListener("click", function (event) {
+    this.clearButton = newNode
+    this.inputElement = referenceNode
+
+    this._boundClearClick = function (event) {
         referenceNode.value = ""
         newNode.classList.remove("visible")
         referenceNode.form.requestSubmit()
-    })
+    }
 
-    referenceNode.addEventListener('input', function (event) {
+    this._boundInputChange = function (event) {
       if (referenceNode.value == "") {
         newNode.classList.remove("visible")
       } else {
         newNode.classList.add("visible")
       }
-    })
+    }
+
+    newNode.addEventListener("click", this._boundClearClick)
+    referenceNode.addEventListener('input', this._boundInputChange)
+
+    this._boundBeforeCache = () => this._teardown()
+    document.addEventListener("turbo:before-cache", this._boundBeforeCache)
 
     // this.element.addEventListener("submit", (event) => {
     //   console.log("updating url")
     //   this.updateUrlParameters()
     // })
 
+  }
+
+  disconnect() {
+    this._teardown()
+    if (this._boundBeforeCache) {
+      document.removeEventListener("turbo:before-cache", this._boundBeforeCache)
+      this._boundBeforeCache = null
+    }
+  }
+
+  _teardown() {
+    if (this.autoCompleteJS) {
+      this.autoCompleteJS.unInit()
+      this.autoCompleteJS = null
+    }
+
+    if (this.clearButton) {
+      if (this._boundClearClick) {
+        this.clearButton.removeEventListener("click", this._boundClearClick)
+      }
+      this.clearButton.remove()
+      this.clearButton = null
+    }
+
+    if (this.inputElement && this._boundInputChange) {
+      this.inputElement.removeEventListener('input', this._boundInputChange)
+    }
+
+    this._boundClearClick = null
+    this._boundInputChange = null
+    this.inputElement = null
   }
 
   setSource({ detail: { content }}) {
