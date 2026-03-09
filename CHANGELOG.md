@@ -1,3 +1,10 @@
+# [2.0.0-beta.7](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.6...v2.0.0-beta.7) (2026-03-09)
+
+
+### Bug Fixes
+
+* remove ERB code inside HTML comments ([4bd317b](https://github.com/bonanzahq/bonanza/commit/4bd317be775083750ad865ddcd82d76716f86350)), closes [#215](https://github.com/bonanzahq/bonanza/issues/215)
+
 # [2.0.0-beta.6](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.5...v2.0.0-beta.6) (2026-03-04)
 
 
