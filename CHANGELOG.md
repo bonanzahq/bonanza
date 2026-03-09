@@ -1,3 +1,11 @@
+# [2.0.0-beta.9](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.8...v2.0.0-beta.9) (2026-03-09)
+
+
+### Bug Fixes
+
+* **borrowers:** merge duplicated includes hash keys ([f83bb4c](https://github.com/bonanzahq/bonanza/commit/f83bb4cf512c171df44fff22d1280b68b3273c93))
+* **config:** disable active storage variant processor ([9b5c1e2](https://github.com/bonanzahq/bonanza/commit/9b5c1e23e29abd1802d55d7943d0b0c55d3959c6))
+
 # [2.0.0-beta.8](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.7...v2.0.0-beta.8) (2026-03-09)
 
 
