@@ -7,7 +7,7 @@
             <span class="date"><%= t(lending.department.genderize('in_the')) %> <%= lending.department.name %> bis <%= l(lending.lent_at + lending.duration.days, :format => "%a. %d.%m.%y" ) %></span>
           </div>
           <div class="right">
-            <div class="user"><%= lending.user.fullname %></div>
+            <div class="user"><%= user_display_name(lending.user) %></div>
           </div>
         </div>
         <div class="body">
@@ -57,7 +57,7 @@ elsif type == "LineItem" # Rückgabe %>
             <span class="date"><%= t(department.genderize('in_the')) %> <%= department.name %></span>
           </div>
         <div class="right">
-          <div class="user"><%= elements.first.lending.user.fullname %></div>
+          <div class="user"><%= user_display_name(elements.first.lending.user) %></div>
         </div>
       </div>
 

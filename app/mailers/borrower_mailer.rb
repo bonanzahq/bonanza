@@ -7,7 +7,11 @@ class BorrowerMailer < ApplicationMailer
   def ban_notification_email(conduct)
     @conduct = conduct
     @borrower = params[:borrower]
-    mail(to: @borrower.email, :reply_to => "#{@conduct.user.fullname} <#{@conduct.user.email}>", subject: 'Du wurdest gesperrt.')
+    options = { to: @borrower.email, subject: "Du wurdest gesperrt." }
+    if @conduct.user
+      options[:reply_to] = "#{@conduct.user.fullname} <#{@conduct.user.email}>"
+    end
+    mail(options)
   end
 
   def ban_lifted_notification_email(department_name:, department_genderize_in_the:, department_genderize_of_the:, user_fullname:, user_email:)

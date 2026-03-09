@@ -1,6 +1,6 @@
 <%= form_with model: text, url: update_legal_text_path(text) do |form| %>
   <h3>Datenschutzbestimmungen</h3>
-  <p class="small">Stand <%= l(text.updated_at, :format => "%d.%m.%Y %H:%M") %>. Editiert von <%= text.user.fullname %></p>
+  <p class="small">Stand <%= l(text.updated_at, :format => "%d.%m.%Y %H:%M") %>. Editiert von <%= user_display_name(text.user) %></p>
 
   <div class="mb-3">
     <%= form.text_area :content, class: "form-control", style: "height: 320px" %>
