@@ -29,7 +29,9 @@ class CheckoutController < ApplicationController
     if params[:lending] && params[:lending][:borrower_id]
       attrs = { borrower_id: params[:lending][:borrower_id] }
       attrs[:state] = :borrower if @lending.confirmation?
-      @lending.update(attrs)
+      unless @lending.update(attrs)
+        redirect_to checkout_state_path(@lending.state), alert: @lending.errors.full_messages.join(", ") and return
+      end
     end
     redirect_to checkout_state_path("borrower")
   end
