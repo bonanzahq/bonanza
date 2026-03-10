@@ -1,3 +1,10 @@
+# [2.0.0-beta.10](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.9...v2.0.0-beta.10) (2026-03-10)
+
+
+### Bug Fixes
+
+* handle Turbo cache restoration in autocomplete controller ([ca6a163](https://github.com/bonanzahq/bonanza/commit/ca6a1637ed910535575614a1daaa3284cda0b26c)), closes [#216](https://github.com/bonanzahq/bonanza/issues/216)
+
 # [2.0.0-beta.9](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.8...v2.0.0-beta.9) (2026-03-09)
 
 
