@@ -1,3 +1,11 @@
+# [2.0.0-beta.11](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.10...v2.0.0-beta.11) (2026-03-11)
+
+
+### Bug Fixes
+
+* **checkout:** allow borrower change from confirmation state ([1c58bf7](https://github.com/bonanzahq/bonanza/commit/1c58bf773fb2abc0eb7df9e74d2065903f9a6fb3))
+* **checkout:** handle borrower update failure in select_borrower ([34c9674](https://github.com/bonanzahq/bonanza/commit/34c9674b7cfe1109b47b1d5f8022828b7b9617d4))
+
 # [2.0.0-beta.10](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.9...v2.0.0-beta.10) (2026-03-10)
 
 
