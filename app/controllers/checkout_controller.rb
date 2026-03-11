@@ -22,12 +22,16 @@ class CheckoutController < ApplicationController
   end
 
   def select_borrower
-    unless @lending.state == "borrower"
+    unless @lending.state.in?(%w[borrower confirmation])
       redirect_to checkout_state_path(@lending.state) and return
     end
 
     if params[:lending] && params[:lending][:borrower_id]
-      @lending.update(borrower_id: params[:lending][:borrower_id])
+      attrs = { borrower_id: params[:lending][:borrower_id] }
+      attrs[:state] = :borrower if @lending.confirmation?
+      unless @lending.update(attrs)
+        redirect_to checkout_state_path(@lending.state), alert: @lending.errors.full_messages.join(", ") and return
+      end
     end
     redirect_to checkout_state_path("borrower")
   end
