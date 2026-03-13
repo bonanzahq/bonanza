@@ -26,8 +26,9 @@ class CheckoutController < ApplicationController
       redirect_to checkout_state_path(@lending.state) and return
     end
 
-    if params[:lending] && params[:lending][:borrower_id]
-      attrs = { borrower_id: params[:lending][:borrower_id] }
+    if params[:lending]&.key?(:borrower_id)
+      permitted = select_borrower_params
+      attrs = { borrower_id: permitted[:borrower_id] }
       attrs[:state] = :borrower if @lending.confirmation?
       unless @lending.update(attrs)
         redirect_to checkout_state_path(@lending.state), alert: @lending.errors.full_messages.join(", ") and return
@@ -42,7 +43,7 @@ class CheckoutController < ApplicationController
 
     logger.debug("return early NOOOO")
 
-    if @lending.update_from_checkout_params(checkout_params, current_user, params[:lending][:accessories])
+    if @lending.update_from_checkout_params(checkout_params, current_user)
 
       if @lending.completed?
         session[:lending_id] = nil
@@ -131,6 +132,10 @@ class CheckoutController < ApplicationController
       return false if params[:lending].empty?
       
       cleaned_params.require(:lending).permit(:borrower_id, :note, :duration, :line_items_attributes => [:id, :quantity, :accessory_ids => []], :borrower_attributes => [:id, :id_checked, :insurance_checked])
+    end
+
+    def select_borrower_params
+      params.require(:lending).permit(:borrower_id)
     end
 
 end

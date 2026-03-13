@@ -209,4 +209,36 @@ class CheckoutControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to lending_path
   end
 
+  # -- strong parameters --
+
+  test "select_borrower ignores unpermitted params" do
+    lending_id = populate_cart
+    lending = Lending.find(lending_id)
+    lending.update_column(:state, Lending.states[:borrower])
+    borrower = create(:borrower, :with_tos)
+
+    patch select_checkout_borrower_path, params: {
+      lending: { borrower_id: borrower.id, duration: 99, note: "injected" }
+    }
+
+    lending.reload
+    assert_equal borrower.id, lending.borrower_id
+    assert_nil lending.duration
+    assert_nil lending.note
+  end
+
+  test "update ignores unpermitted params in lending" do
+    lending_id = populate_cart
+    lending = Lending.find(lending_id)
+    lending.update_column(:state, Lending.states[:borrower])
+    borrower = create(:borrower, :with_tos)
+
+    patch update_checkout_path("borrower"), params: {
+      lending: { borrower_id: borrower.id, user_id: 999 }
+    }
+
+    lending.reload
+    assert_not_equal 999, lending.user_id
+  end
+
 end
