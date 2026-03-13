@@ -59,7 +59,7 @@ class ParentItemsController < ApplicationController
 
     respond_to do |format|
       if @parent_item.save
-        @department.tag(@parent_item, :with => params[:parent_item][:all_tags_list], :on => :tags)
+        @department.tag(@parent_item, :with => tags_param, :on => :tags)
         format.html { redirect_to lending_path, notice: "Parent item was successfully created." }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -96,7 +96,7 @@ class ParentItemsController < ApplicationController
     respond_to do |format|
       if @parent_item.update(parent_item_params)
         tagging_department = department_changed ? @parent_item.department : @department
-        tagging_department.tag(@parent_item, :with => params[:parent_item][:all_tags_list], :on => :tags)
+        tagging_department.tag(@parent_item, :with => tags_param, :on => :tags)
 
         @parent_item.attach_files
 
