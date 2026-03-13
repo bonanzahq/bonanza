@@ -175,7 +175,7 @@ class ParentItemsController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def parent_item_params
-      params.require(:parent_item).permit(:name, :description, :note, :price, :all_tags_list, new_files: [], items_attributes: [:id, :uid, :quantity, :condition, :storage_location, :note, :_destroy], :accessories_attributes => [:id, :name, :_destroy], links_attributes: [:id, :url, :title, :_destroy])
+      params.require(:parent_item).permit(:name, :description, :note, :price, new_files: [], items_attributes: [:id, :uid, :quantity, :condition, :storage_location, :note, :_destroy], :accessories_attributes => [:id, :name, :_destroy], links_attributes: [:id, :url, :title, :_destroy])
     end
 
     def tags_param
