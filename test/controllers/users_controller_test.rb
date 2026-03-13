@@ -215,4 +215,17 @@ class UsersControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to new_user_session_path
   end
+
+  # -- strong parameters --
+
+  test "update ignores unpermitted params" do
+    sign_in @admin
+    original_password = @member.encrypted_password
+    patch user_path(@member), params: {
+      user: { firstname: "Updated", evil_field: "hacked" }
+    }
+    assert_redirected_to verwaltung_verleihende_path
+    assert_equal "Updated", @member.reload.firstname
+    assert_equal original_password, @member.reload.encrypted_password
+  end
 end

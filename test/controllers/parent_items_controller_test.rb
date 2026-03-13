@@ -192,4 +192,23 @@ class ParentItemsControllerTest < ActionDispatch::IntegrationTest
     link = Link.last
     assert_equal "http://example.com/manual", link.url
   end
+
+  # -- strong parameters --
+
+  test "create ignores unpermitted params in parent_item" do
+    sign_in @user
+    post parent_items_path, params: {
+      parent_item: { name: "Test Item", evil_field: "hacked" }
+    }
+    assert_response :redirect
+  end
+
+  test "update ignores unpermitted params in parent_item" do
+    sign_in @user
+    patch parent_item_path(@parent_item), params: {
+      parent_item: { name: "Updated", evil_field: "hacked" }
+    }
+    assert_redirected_to parent_item_path(@parent_item)
+    assert_equal "Updated", @parent_item.reload.name
+  end
 end
