@@ -26,7 +26,7 @@ class ReturnsController < ApplicationController
     authorize! :take_back, @line_item
 
     respond_to do |format|
-      if @line_item.take_back(params)
+      if @line_item.take_back(take_back_params)
         @line_item.lending.all_items_returned?
 
         index
@@ -51,5 +51,9 @@ class ReturnsController < ApplicationController
 
     def set_department
       @department = current_user.current_department
+    end
+
+    def take_back_params
+      params.permit(:quantity)
     end
 end
