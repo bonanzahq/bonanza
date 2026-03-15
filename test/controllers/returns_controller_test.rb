@@ -80,7 +80,6 @@ class ReturnsControllerTest < ActionDispatch::IntegrationTest
 
   test "take_back ignores unpermitted params" do
     sign_in @user
-    original_status = @item.status
     post take_back_path, params: { line_item_id: @line_item.id, quantity: "1", evil_param: "injected" }
 
     @line_item.reload
