@@ -19,6 +19,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
     user: root
+    entrypoint: ["./docker/docker-entrypoint.sh"]
     environment:
       RAILS_ENV: development
       DEV_DATABASE_HOST: db
@@ -61,6 +62,7 @@ services:
       context: ..
       dockerfile: docker/Dockerfile
     user: root
+    entrypoint: ["./docker/docker-entrypoint.sh"]
     environment:
       RAILS_ENV: development
       DEV_DATABASE_HOST: db
