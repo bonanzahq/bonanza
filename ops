@@ -1,1 +1,1 @@
-{"author":{"id":"cff9ab1d2ee9741039b2a60d90cca378a5320ba753398f6f3df8d03abcebee1b"},"ops":[{"type":4,"timestamp":1773652741,"nonce":"5ezbp9YVIum2a8qBSvaZaLudQng=","status":2}]}
+{"author":{"id":"cff9ab1d2ee9741039b2a60d90cca378a5320ba753398f6f3df8d03abcebee1b"},"ops":[{"type":8,"timestamp":1773652753,"nonce":"raeyWvkLch3LweyBmkrc3dMhoHc=","target":"d900cf7ce495e32ee0987940896688732b242bc4208a28a04b09ce7e67dcd068","new_metadata":{"github-id":"I_kwDORKr0287xd6Zw","github-url":"https://github.com/bonanzahq/bonanza/issues/233"}}]}
