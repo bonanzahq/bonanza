@@ -32,7 +32,7 @@ Equipment lending management system for FH Potsdam. Rewrite of Bonanza v1.
 The application runs in Docker containers. To start a fresh environment:
 
 ```bash
-cd ~/Documents/bonanzahq/bonanza/<worktree>
+cd ~/Documents/bonanzahq/bonanza/<worktree>/docker
 
 # Start all services (builds image if needed)
 docker compose up -d
@@ -53,6 +53,7 @@ Default seed credentials: `admin@example.com` / `platypus-umbrella-cactus`
 If the database or ES get into a bad state, nuke everything and restart:
 
 ```bash
+cd docker
 docker compose down -v    # -v removes volumes (DB data, ES data)
 docker compose up -d      # Fresh start
 ```
@@ -129,7 +130,8 @@ Normal CRUD through the app does not require manual reindexing —
 Searchkick auto-syncs records on save/delete.
 
 ```bash
-# Inside the container
+# Inside the container (run from docker/ directory)
+cd docker
 docker compose exec -T rails bash -c \
   'bundle exec rails runner "ParentItem.reindex; Borrower.reindex"'
 ```
