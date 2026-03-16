@@ -51,6 +51,7 @@ COPY --from=build /usr/local/bundle /usr/local/bundle
 
 WORKDIR /app
 COPY --chown=rails:rails --from=build /app /app
+COPY --chown=rails:rails docker/docker-entrypoint.sh ./docker-entrypoint.sh
 
 USER rails
 
