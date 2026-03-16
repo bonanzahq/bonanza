@@ -15,3 +15,8 @@ test/
 
 .DS_Store
 .claude/
+
+docker/docker-compose*.yml
+docker/Caddyfile
+docker/.env*
+docker/example.env
