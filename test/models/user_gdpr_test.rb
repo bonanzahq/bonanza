@@ -15,8 +15,8 @@ class UserGdprTest < ActiveSupport::TestCase
     @user.anonymize!
     @user.reload
 
-    assert_equal "Ehemaliger", @user.firstname
-    assert_equal "Mitarbeiter", @user.lastname
+    assert_equal "Ehemalige", @user.firstname
+    assert_equal "Fachkraft", @user.lastname
     assert_match(/@anonymized\.local$/, @user.email)
     assert_equal "", @user.encrypted_password
   end

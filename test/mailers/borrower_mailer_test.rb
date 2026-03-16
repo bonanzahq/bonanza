@@ -65,8 +65,8 @@ class BorrowerMailerTest < ActionMailer::TestCase
     email = BorrowerMailer.with(borrower: conduct.borrower).ban_notification_email(conduct)
     assert_equal [conduct.borrower.email], email.to
     assert_nil email.reply_to
-    assert_includes email.html_part.body.to_s, "Gelöschter Benutzer"
-    assert_includes email.text_part.body.to_s, "Gelöschter Benutzer"
+    assert_includes email.html_part.body.to_s, "Gelöschtes Konto"
+    assert_includes email.text_part.body.to_s, "Gelöschtes Konto"
   end
 
   # ban_lifted_notification_email
