@@ -42,23 +42,23 @@ if ! curl -fsSL -o /dev/null -H "Authorization: token ${GITHUB_TOKEN}" "https://
 fi
 
 # Validate branch exists
-if ! curl -fsSL -o /dev/null -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/docker-compose.yml" 2>/dev/null; then
+if ! curl -fsSL -o /dev/null -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/docker/docker-compose.yml" 2>/dev/null; then
   echo "Error: branch '${BRANCH}' not found or docker-compose.yml missing on that branch"
   exit 1
 fi
 
 echo "Downloading deployment files from ${REPO}:${BRANCH}..."
 
-curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/docker-compose.yml" -o docker-compose.yml
+curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/docker/docker-compose.yml" -o docker-compose.yml
 echo "  docker-compose.yml"
 
-curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/Caddyfile" -o Caddyfile
+curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/docker/Caddyfile" -o Caddyfile
 echo "  Caddyfile"
 
-curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/elastic_synonyms.txt" -o elastic_synonyms.txt
+curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/docker/elastic_synonyms.txt" -o elastic_synonyms.txt
 echo "  elastic_synonyms.txt"
 
-curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/example.env" -o example.env
+curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/docker/example.env" -o example.env
 echo "  example.env (reference)"
 
 if [ ! -f .env ]; then
