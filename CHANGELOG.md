@@ -1,3 +1,13 @@
+# [2.0.0-beta.13](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.12...v2.0.0-beta.13) (2026-03-16)
+
+
+### Bug Fixes
+
+* **docker:** address review feedback ([23692df](https://github.com/bonanzahq/bonanza/commit/23692df751ad87cf47d17854bd21baad05f1443b))
+* **docker:** override entrypoint path for dev volume mount ([aecb540](https://github.com/bonanzahq/bonanza/commit/aecb540ee97612ec90210f1129e78392b99c356f))
+* **docker:** update compose references in scripts ([50ebaa0](https://github.com/bonanzahq/bonanza/commit/50ebaa067e4a863ddf14b1e0b3867d967a385a59))
+* **docker:** update deploy.sh download URLs for docker/ paths ([988b198](https://github.com/bonanzahq/bonanza/commit/988b1984b5cdae46848b919dad71127cd15aa1bd))
+
 # [2.0.0-beta.12](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.11...v2.0.0-beta.12) (2026-03-16)
 
 
