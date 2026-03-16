@@ -5,7 +5,7 @@
 set -euo pipefail
 
 EXPORT_DIR="${1:-/tmp/v1_export}"
-COMPOSE_FILE="${COMPOSE_FILE:-docker-compose.yml}"
+COMPOSE_FILE="${COMPOSE_FILE:-docker/docker-compose.yml}"
 SERVICE="${RAILS_SERVICE:-rails}"
 
 echo "=== Bonanza v1 -> Redux Migration ==="
