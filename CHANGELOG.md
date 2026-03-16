@@ -1,3 +1,11 @@
+# [2.0.0-beta.14](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.13...v2.0.0-beta.14) (2026-03-16)
+
+
+### Bug Fixes
+
+* **i18n:** replace gendered person terms with gender-neutral alternatives ([6577abe](https://github.com/bonanzahq/bonanza/commit/6577abea26a794546ca6f07fe0d74a471ff6a0f0)), closes [Department#genderize](https://github.com/Department/issues/genderize) [#232](https://github.com/bonanzahq/bonanza/issues/232)
+* **i18n:** use Studierende instead of rephrasing ([91b2b14](https://github.com/bonanzahq/bonanza/commit/91b2b14506e1e896ff9d11c074032d5669bfec17))
+
 # [2.0.0-beta.13](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.12...v2.0.0-beta.13) (2026-03-16)
 
 
