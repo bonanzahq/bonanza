@@ -46,7 +46,7 @@ echo ""
 echo "Starting restore..."
 
 # Gunzip and pipe into psql via docker compose
-gunzip -c "${BACKUP_FILE}" | docker compose exec -T db psql -U "${DB_USER}" "${DATABASE}"
+gunzip -c "${BACKUP_FILE}" | docker compose --project-directory docker exec -T db psql -U "${DB_USER}" "${DATABASE}"
 
 echo ""
 echo "✓ Database restored successfully from ${BACKUP_FILE}"

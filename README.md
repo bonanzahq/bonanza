@@ -14,7 +14,7 @@ See [docs/SPEC.md](docs/SPEC.md) for the system specification.
 ## Setup
 
 ```bash
-docker compose up --build
+cd docker && docker compose up --build
 ```
 
 This starts all services:
@@ -48,6 +48,9 @@ All seed users share the password `platypus-umbrella-cactus`.
 Access the app at **http://localhost:8080** (through Caddy).
 
 ```bash
+# All docker compose commands run from the docker/ directory
+cd docker
+
 # Rails console
 docker compose exec rails bundle exec rails console
 
@@ -85,12 +88,13 @@ This is a known Turbo Frame issue, not a Docker problem. See git-bug issues.
 **Elasticsearch reindex fails:**
 Non-fatal on startup. Run manually:
 ```bash
-docker compose exec rails bundle exec rails runner "ParentItem.reindex; Borrower.reindex"
+cd docker && docker compose exec rails bundle exec rails runner "ParentItem.reindex; Borrower.reindex"
 ```
 
 **Stale PID file prevents Puma from starting:**
 The entrypoint removes `tmp/pids/server.pid` automatically. If it persists:
 ```bash
+cd docker
 docker compose exec rails rm -f tmp/pids/server.pid
 docker compose restart rails
 ```
@@ -98,7 +102,7 @@ docker compose restart rails
 **Assets look wrong or missing:**
 The entrypoint builds assets on every boot. Force a rebuild:
 ```bash
-docker compose exec rails pnpm build && docker compose exec rails pnpm build:css
+cd docker && docker compose exec rails pnpm build && docker compose exec rails pnpm build:css
 ```
 
 ## Deployment
@@ -125,8 +129,8 @@ the server manually and run it:
 GITHUB_TOKEN=ghp_xxx bash deploy.sh
 ```
 
-The script downloads `docker-compose.yml`, `Caddyfile`,
-`elastic_synonyms.txt`, and `example.env` (as `.env`).
+The script downloads `docker/docker-compose.yml`, `docker/Caddyfile`,
+`docker/elastic_synonyms.txt`, and `docker/example.env` (as `.env`).
 
 Then fill in `.env` with production values (see `example.env` for reference)
 and start the stack:

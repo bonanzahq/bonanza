@@ -54,5 +54,5 @@ COPY --chown=rails:rails --from=build /app /app
 
 USER rails
 
-ENTRYPOINT ["./docker-entrypoint.sh"]
+ENTRYPOINT ["./docker/docker-entrypoint.sh"]
 CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]

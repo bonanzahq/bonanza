@@ -15,7 +15,9 @@ services:
       - "9200:9200"
 
   rails:
-    build: .
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     user: root
     environment:
       RAILS_ENV: development
@@ -43,7 +45,7 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - .:/app
+      - ..:/app
       - bonanza_node_modules:/app/node_modules
       - bonanza_rails_storage:/app/storage
     command: ["foreman", "start", "-f", "Procfile.dev"]
@@ -55,7 +57,9 @@ services:
       CADDY_ADDRESS: ":8080"
 
   worker:
-    build: .
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
     user: root
     environment:
       RAILS_ENV: development
@@ -79,7 +83,7 @@ services:
       RAILS_MAX_THREADS: "15"
       SKIP_REINDEX: "true"
     volumes:
-      - .:/app
+      - ..:/app
       - bonanza_node_modules:/app/node_modules
     command: ["bundle", "exec", "rake", "solid_queue:start"]
 

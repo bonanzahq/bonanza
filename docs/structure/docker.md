@@ -2,17 +2,24 @@
 
 ## File Layout
 
+Docker infrastructure lives in the `docker/` subdirectory:
+
 | File | Purpose |
 |------|---------|
-| `Dockerfile` | Builds the Rails image (gems, node packages, asset precompilation) |
-| `docker-compose.yml` | Production base: db, elasticsearch, rails, caddy |
-| `docker-compose.override.yml` | Development additions (tracked in git) |
-| `docker-entrypoint.sh` | Startup script: waits for deps, prepares DB, execs CMD |
-| `Caddyfile` | Reverse proxy config with env var substitution |
+| `docker/Dockerfile` | Builds the Rails image (gems, node packages, asset precompilation) |
+| `docker/docker-compose.yml` | Production base: db, elasticsearch, rails, caddy |
+| `docker/docker-compose.override.yml` | Development additions (tracked in git) |
+| `docker/docker-entrypoint.sh` | Startup script: waits for deps, prepares DB, execs CMD |
+| `docker/Caddyfile` | Reverse proxy config with env var substitution |
+| `docker/example.env` | Documents required env vars for both environments |
+| `docker/elastic_synonyms.txt` | Elasticsearch synonym list (mounted into ES container) |
 | `Procfile.dev` | Foreman process file: puma + esbuild + sass watchers |
-| `.env.example` | Documents required env vars for both environments |
-| `bin/backup` | PostgreSQL backup script (gzipped dumps, 30-day retention) |
-| `bin/restore` | PostgreSQL restore from backup file |
+
+All `docker compose` commands run from the `docker/` directory:
+
+```bash
+cd docker && docker compose up -d
+```
 
 ## Two-Environment Design
 
@@ -21,7 +28,7 @@
 Docker Compose auto-merges `docker-compose.yml` + `docker-compose.override.yml`.
 
 - `RAILS_ENV=development`
-- Source mounted at `/app` for live reload
+- Source mounted at `/app` for live reload (via `..:/app` volume)
 - Foreman runs puma + asset watchers via `Procfile.dev`
 - Mailpit captures email on port 8025
 - Dozzle log viewer on port 9999
@@ -50,7 +57,6 @@ Production requires these env vars (via `.env` file or host environment):
 - `ELASTIC_PASSWORD` -- Elasticsearch password (xpack security enabled in production)
 - `APP_HOST` -- domain name (also used as Caddy address for HTTPS)
 - `SMTP_HOST`, `SMTP_PORT` -- mail relay
-- `RAILS_MASTER_KEY` -- decrypts Rails credentials
 - `SECRET_KEY_BASE` -- Rails session signing
 
 ## Caddyfile
@@ -68,3 +74,12 @@ Uses `{$CADDY_ADDRESS}` env var:
 | `bonanza_caddy_data` | Caddy TLS certificates |
 | `bonanza_node_modules` | Dev only: persistent node_modules |
 | `bonanza_rails_storage` | Dev only: ActiveStorage files |
+
+## Build Context
+
+The Docker build context is the project root (`..` from docker/). This allows
+the Dockerfile to COPY application files. The entrypoint script lives at
+`docker/docker-entrypoint.sh` in both the repo and the built image.
+
+`.dockerignore` in the project root excludes Docker infrastructure files
+that aren't needed in the image (compose files, Caddyfile, env files).
