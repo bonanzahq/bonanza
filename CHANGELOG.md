@@ -1,3 +1,14 @@
+# [2.0.0-beta.12](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.11...v2.0.0-beta.12) (2026-03-16)
+
+
+### Bug Fixes
+
+* **checkout:** use strong parameters in CheckoutController ([3220aeb](https://github.com/bonanzahq/bonanza/commit/3220aebfe4299662c89b287032d8df89b3981b27))
+* **controllers:** use strong params instead of raw param access/mutation ([3c538bd](https://github.com/bonanzahq/bonanza/commit/3c538bd0615635974024721779286c0d0578f0cb))
+* **parent-items:** remove all_tags_list from parent_item_params ([8f1fbbc](https://github.com/bonanzahq/bonanza/commit/8f1fbbc4c0e49d02e73e79fb3b4aae666c12cf7e))
+* **parent-items:** use tags_param instead of raw params access ([81a1d5b](https://github.com/bonanzahq/bonanza/commit/81a1d5b5c7c82053544beafdfbd430847e255bad))
+* **returns:** use strong parameters in take_back action ([1e8a286](https://github.com/bonanzahq/bonanza/commit/1e8a28616a09b71033384bf67fa2224b983b9972))
+
 # [2.0.0-beta.11](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.10...v2.0.0-beta.11) (2026-03-11)
 
 
