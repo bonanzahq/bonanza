@@ -78,6 +78,16 @@ class ReturnsControllerTest < ActionDispatch::IntegrationTest
     assert flash[:alert].present?
   end
 
+  test "take_back ignores unpermitted params" do
+    sign_in @user
+    post take_back_path, params: { line_item_id: @line_item.id, quantity: "1", evil_param: "injected" }
+
+    @line_item.reload
+    @item.reload
+    assert @line_item.returned_at.present?
+    assert_equal 1, @item.quantity
+  end
+
   test "take_back guest cannot take back items" do
     guest = create(:user, :guest, department: @department)
     sign_in guest

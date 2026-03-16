@@ -59,7 +59,7 @@ class ParentItemsController < ApplicationController
 
     respond_to do |format|
       if @parent_item.save
-        @department.tag(@parent_item, :with => params[:parent_item][:all_tags_list], :on => :tags)
+        @department.tag(@parent_item, :with => tags_param, :on => :tags)
         format.html { redirect_to lending_path, notice: "Parent item was successfully created." }
       else
         format.html { render :new, status: :unprocessable_entity }
@@ -96,7 +96,7 @@ class ParentItemsController < ApplicationController
     respond_to do |format|
       if @parent_item.update(parent_item_params)
         tagging_department = department_changed ? @parent_item.department : @department
-        tagging_department.tag(@parent_item, :with => params[:parent_item][:all_tags_list], :on => :tags)
+        tagging_department.tag(@parent_item, :with => tags_param, :on => :tags)
 
         @parent_item.attach_files
 
@@ -176,5 +176,9 @@ class ParentItemsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def parent_item_params
       params.require(:parent_item).permit(:name, :description, :note, :price, new_files: [], items_attributes: [:id, :uid, :quantity, :condition, :storage_location, :note, :_destroy], :accessories_attributes => [:id, :name, :_destroy], links_attributes: [:id, :url, :title, :_destroy])
+    end
+
+    def tags_param
+      params.require(:parent_item).permit(:all_tags_list)[:all_tags_list]
     end
 end
