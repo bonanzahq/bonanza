@@ -28,7 +28,7 @@ module ApplicationHelper
   end
 
   def user_display_name(user)
-    user&.fullname || "Gelöschter Benutzer"
+    user&.fullname || "Gelöschtes Konto"
   end
 
 end

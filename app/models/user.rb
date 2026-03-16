@@ -85,8 +85,8 @@ class User < ApplicationRecord
     transaction do
       department_memberships.update_all(role: :deleted)
       update_columns(
-        firstname: "Ehemaliger",
-        lastname: "Mitarbeiter",
+        firstname: "Ehemalige",
+        lastname: "Fachkraft",
         email: "former-#{id}-#{SecureRandom.hex(4)}@anonymized.local",
         encrypted_password: ""
       )
