@@ -9,7 +9,7 @@ class ApplicationHelperTest < ActionView::TestCase
     assert_equal "Max Mustermann", user_display_name(user)
   end
 
-  test "user_display_name returns Gelöschter Benutzer when user is nil" do
-    assert_equal "Gelöschter Benutzer", user_display_name(nil)
+  test "user_display_name returns Gelöschtes Konto when user is nil" do
+    assert_equal "Gelöschtes Konto", user_display_name(nil)
   end
 end

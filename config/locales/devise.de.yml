@@ -28,7 +28,7 @@ de:
         terms_accepted_at: AGB
         privacy_accepted_at: Datenschutzerklärung
     models:
-      user: Benutzer
+      user: Konto
   devise:
     confirmations:
       confirmed: Deine E-Mail-Adresse wurde erfolgreich bestätigt.
