@@ -43,7 +43,7 @@ fi
 
 # Validate branch exists
 if ! curl -fsSL -o /dev/null -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/docker/docker-compose.yml" 2>/dev/null; then
-  echo "Error: branch '${BRANCH}' not found or docker-compose.yml missing on that branch"
+  echo "Error: branch '${BRANCH}' not found or docker/docker-compose.yml missing on that branch"
   exit 1
 fi
 

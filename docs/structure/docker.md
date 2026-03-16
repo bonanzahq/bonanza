@@ -78,9 +78,8 @@ Uses `{$CADDY_ADDRESS}` env var:
 ## Build Context
 
 The Docker build context is the project root (`..` from docker/). This allows
-the Dockerfile to COPY application files. The `docker-entrypoint.sh` is
-explicitly COPYed from `docker/docker-entrypoint.sh` to `/app/docker-entrypoint.sh`
-in the image.
+the Dockerfile to COPY application files. The entrypoint script lives at
+`docker/docker-entrypoint.sh` in both the repo and the built image.
 
 `.dockerignore` in the project root excludes Docker infrastructure files
 that aren't needed in the image (compose files, Caddyfile, env files).
