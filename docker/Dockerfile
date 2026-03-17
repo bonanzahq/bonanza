@@ -29,7 +29,7 @@ RUN SECRET_KEY_BASE=precompile-placeholder \
     RAILS_ENV=production \
     bundle exec rails assets:precompile
 
-FROM ruby:4.0.1-slim AS production
+FROM ruby:4.0.1-slim AS base
 
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends \
@@ -50,7 +50,7 @@ USER rails
 ENTRYPOINT ["./docker/docker-entrypoint.sh"]
 CMD ["bundle", "exec", "puma", "-C", "config/puma.rb"]
 
-FROM production AS development
+FROM base AS development
 
 USER root
 
@@ -66,3 +66,5 @@ ENV CI=true
 RUN corepack enable && corepack prepare pnpm@10 --activate
 
 USER rails
+
+FROM base AS production
