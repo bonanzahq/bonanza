@@ -1,3 +1,16 @@
+# [2.0.0-beta.15](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.14...v2.0.0-beta.15) (2026-03-17)
+
+
+### Bug Fixes
+
+* **docker:** keep production as default build target ([571e757](https://github.com/bonanzahq/bonanza/commit/571e757002fcb603c00ab4320ff906770028aa77))
+
+
+### Features
+
+* **docker:** switch to ruby-slim and remove Node.js from production image ([424ae45](https://github.com/bonanzahq/bonanza/commit/424ae456b0d4c5632147e2e97dadf8de67958d55))
+* **docker:** target development stage in compose override ([ab48deb](https://github.com/bonanzahq/bonanza/commit/ab48debd5af11e3d9390b241200c62d203919302))
+
 # [2.0.0-beta.14](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.13...v2.0.0-beta.14) (2026-03-16)
 
 
