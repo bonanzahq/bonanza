@@ -2,6 +2,6 @@
 # ABOUTME: Regenerates tables of contents when markdown files change.
 
 [pre-commit.commands.doctoc]
-glob = "*.md"
+glob = "{README,AGENTS}.md"
 run = "pnpm toc"
 stage_fixed = true
