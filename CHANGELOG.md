@@ -1,3 +1,10 @@
+# [2.0.0-beta.17](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.16...v2.0.0-beta.17) (2026-03-17)
+
+
+### Bug Fixes
+
+* **borrowers:** normalize blank student_id to nil before validation ([20a0937](https://github.com/bonanzahq/bonanza/commit/20a0937bf55347a2926627bd0ef30b6ac3cc8345))
+
 # [2.0.0-beta.16](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.15...v2.0.0-beta.16) (2026-03-17)
 
 
