@@ -7,6 +7,28 @@ Equipment lending management system for FH Potsdam. v2
 
 See [docs/SPEC.md](docs/SPEC.md) for the system specification.
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Prerequisites](#prerequisites)
+- [Setup](#setup)
+  - [Seed users](#seed-users)
+- [Development](#development)
+- [Troubleshooting](#troubleshooting)
+- [Deployment](#deployment)
+  - [Prerequisites](#prerequisites-1)
+  - [First-time setup](#first-time-setup)
+  - [TLS / HTTPS](#tls--https)
+  - [Updating](#updating)
+- [GDPR Compliance](#gdpr-compliance)
+  - [Data Export](#data-export)
+  - [Right to Erasure](#right-to-erasure)
+  - [Automatic Anonymization](#automatic-anonymization)
+  - [Audit Logging](#audit-logging)
+- [Contributors ✨](#contributors-)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Prerequisites
 
 - Docker and Docker Compose
