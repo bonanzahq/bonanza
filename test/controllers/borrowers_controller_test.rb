@@ -152,6 +152,31 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Updated", @borrower.firstname
   end
 
+  test "update saves employee with empty student_id when another employee exists" do
+    sign_in @user
+    emp1 = create(:borrower, :employee, :with_tos)
+    emp2 = create(:borrower, :employee, :with_tos)
+    # Simulate a previous edit that set student_id to empty string
+    emp1.update_column(:student_id, "")
+
+    patch borrower_path(emp2), params: {
+      borrower: {
+        firstname: emp2.firstname,
+        lastname: emp2.lastname,
+        email: emp2.email,
+        phone: emp2.phone,
+        borrower_type: "employee",
+        student_id: "",
+        id_checked: "0",
+        insurance_checked: "0",
+        tos_accepted: "1"
+      }
+    }
+    assert_redirected_to borrower_url(emp2)
+    emp2.reload
+    assert_nil emp2.student_id
+  end
+
   # -- destroy --
 
   test "destroy removes borrower" do

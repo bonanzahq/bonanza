@@ -14,6 +14,7 @@ class Borrower < ApplicationRecord
   validates :email, uniqueness: true
   validates :tos_accepted, inclusion: { in: [true], message: "Die Registrierung muss erst bestätigt werden"}, on: [:self]
 
+  before_validation :normalize_student_id
   before_save :borrower_accepted_tos
 
   enum :borrower_type, { student: 0, employee: 1, deleted: 2 }
@@ -189,6 +190,10 @@ class Borrower < ApplicationRecord
   end
 
   private
+
+    def normalize_student_id
+      self.student_id = nil if student_id.blank?
+    end
 
     def borrower_accepted_tos
       return unless tos_accepted?
