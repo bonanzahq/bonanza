@@ -48,7 +48,8 @@ All seed users share the password `platypus-umbrella-cactus`.
 Access the app at **http://localhost:8080** (through Caddy).
 
 ```bash
-# All docker compose commands run from the docker/ directory
+# All docker compose commands run from the docker/ directory.
+# Standalone docker build must run from the repo root (see below).
 cd docker
 
 # Rails console
@@ -68,6 +69,19 @@ docker compose logs -f rails
 
 # Rebuild after Gemfile or package.json changes
 docker compose up --build rails
+```
+
+### Building without Compose
+
+The Dockerfile expects the repository root as build context. `docker compose`
+handles this automatically, but standalone builds must run from the repo root:
+
+```bash
+# Production image (default target, no Node.js)
+docker build -f docker/Dockerfile -t bonanzahq/bonanza .
+
+# Development image (includes Node.js for asset watchers)
+docker build -f docker/Dockerfile --target development -t bonanzahq/bonanza:dev .
 ```
 
 Emails sent by the app are captured by Mailpit at **http://localhost:8025**.
