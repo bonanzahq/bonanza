@@ -1,3 +1,10 @@
+# [2.0.0-beta.16](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.15...v2.0.0-beta.16) (2026-03-17)
+
+
+### Bug Fixes
+
+* **hooks:** restrict doctoc hook to README.md and AGENTS.md [skip ci] ([17f2780](https://github.com/bonanzahq/bonanza/commit/17f2780f25174cc580c93333f62aa8689cbf8cd3))
+
 # [2.0.0-beta.15](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.14...v2.0.0-beta.15) (2026-03-17)
 
 
