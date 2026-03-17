@@ -1,0 +1,49 @@
+# ABOUTME: Runs semantic-release on main and beta branches to create versioned releases.
+# ABOUTME: Analyzes conventional commits, generates changelogs, and pushes git tags.
+
+name: Release
+
+on:
+  push:
+    branches: [main, beta]
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - 'LICENSE'
+      - '.github/renovate.json'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
+
+jobs:
+  release:
+    if: "!contains(github.event.head_commit.message, 'skip ci')"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate GitHub App token
+        id: app-token
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # App token is used so the tag push triggers the Docker Build workflow.
+          # GITHUB_TOKEN events don't trigger downstream workflows.
+          token: ${{ steps.app-token.outputs.token }}
+
+      - name: Install mise
+        uses: jdx/mise-action@v2
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Run semantic-release
+        run: pnpm exec semantic-release
+        env:
+          GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
