@@ -2,6 +2,29 @@
 
 Equipment lending management system for FH Potsdam. Rewrite of Bonanza v1.
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Tech Stack](#tech-stack)
+- [Core Models](#core-models)
+- [Development Environment Setup](#development-environment-setup)
+  - [Docker (full stack)](#docker-full-stack)
+  - [Running tests locally](#running-tests-locally)
+  - [Reindexing Elasticsearch](#reindexing-elasticsearch)
+- [Branching & Releases](#branching--releases)
+- [CI](#ci)
+- [Common Commands](#common-commands)
+- [Project Structure](#project-structure)
+- [Authorization Model](#authorization-model)
+- [Key Conventions](#key-conventions)
+- [Issue Tracking](#issue-tracking)
+  - [Labels](#labels)
+  - [Workflow](#workflow)
+  - [Identity Setup](#identity-setup)
+- [Migration Plans](#migration-plans)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Tech Stack
 
 - **Language**: Ruby 4.0.1
