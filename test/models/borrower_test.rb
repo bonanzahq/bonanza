@@ -105,6 +105,8 @@ class BorrowerTest < ActiveSupport::TestCase
     assert borrower.valid?
   end
 
+  # -- Student ID normalization --
+
   test "blank student_id is normalized to nil" do
     borrower = build(:borrower, :employee, student_id: "")
     borrower.valid?
