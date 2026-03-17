@@ -58,6 +58,21 @@ docker compose down -v    # -v removes volumes (DB data, ES data)
 docker compose up -d      # Fresh start
 ```
 
+**Building without Compose:** The Dockerfile expects the repository root as
+build context. `docker compose` handles this via `context: ..` in the compose
+files, but standalone builds must run from the repo root:
+
+```bash
+# Production image (default target)
+docker build -f docker/Dockerfile .
+
+# Development image (includes Node.js for asset watchers)
+docker build -f docker/Dockerfile --target development .
+```
+
+Do NOT run `docker build .` from inside `docker/` — the context will be wrong
+and the build will fail.
+
 **pnpm in Docker:** pnpm will fail with `ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY`
 if `node_modules` needs recreating and there's no TTY. `ENV CI=true` in the
 Dockerfile handles this. Do NOT add workarounds elsewhere -- the fix is already
