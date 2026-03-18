@@ -1,0 +1,7 @@
+# ABOUTME: Pre-commit hooks configuration for lefthook.
+# ABOUTME: Regenerates tables of contents when markdown files change.
+
+[pre-commit.commands.doctoc]
+glob = "{README,AGENTS}.md"
+run = "pnpm toc"
+stage_fixed = true

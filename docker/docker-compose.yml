@@ -77,6 +77,8 @@ services:
       SECRET_KEY_BASE: ${SECRET_KEY_BASE:-}
       ADMIN_EMAIL: ${ADMIN_EMAIL:-}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
+      ALLOW_ANONYMIZE: ${ALLOW_ANONYMIZE:-NOWAY!!!}
+      SKIP_REINDEX: "true"
     depends_on:
       db:
         condition: service_healthy

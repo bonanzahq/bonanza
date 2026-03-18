@@ -26,6 +26,8 @@ class StaticPagesController < ApplicationController
   def edit
     authorize! :edit, LegalText
 
+    ensure_legal_texts_exist
+
     @tos_versions = LegalText.where(kind: 'tos').order(created_at: :desc, id: :desc)
 
     @current_tos = LegalText.current_tos
@@ -70,6 +72,21 @@ class StaticPagesController < ApplicationController
     # Only allow a list of trusted parameters through.
     def legaltext_params
       params.require(:legal_text).permit(:content, :notify_borrowers)
+    end
+
+    # Creates missing LegalText records with placeholder content.
+    def ensure_legal_texts_exist
+      defaults = {
+        tos: "Ausleihbedingungen",
+        privacy: "Datenschutzbestimmungen",
+        imprint: "Impressum"
+      }
+
+      defaults.each do |kind, content|
+        next if LegalText.where(kind: kind).exists?
+
+        LegalText.create!(kind: kind, content: content, user: current_user)
+      end
     end
 
 end

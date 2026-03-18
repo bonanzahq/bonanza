@@ -26,6 +26,12 @@ class UsersController < ApplicationController
 
   # GET /users/1/edit
   def edit
+    existing_department_ids = @user.department_memberships.pluck(:department_id)
+    Department.all.each do |dept|
+      unless existing_department_ids.include?(dept.id)
+        @user.department_memberships.build(department: dept)
+      end
+    end
   end
 
   # POST /users
@@ -86,7 +92,7 @@ class UsersController < ApplicationController
   def destroy
     if @user.destroy
       respond_to do |format|
-        format.html { redirect_to users_url, notice: "Benutzer wurde gelöscht." }
+        format.html { redirect_to users_url, notice: "Konto wurde gelöscht." }
       end
     else
       respond_to do |format|
@@ -131,24 +137,14 @@ class UsersController < ApplicationController
 
     # Only allow a list of trusted parameters through.
     def user_params
-      params[:user]&.delete(:current_password)
       permitted = [:firstname, :lastname, :email, :current_department_id,
                    department_memberships_attributes: [:id, :role, :department_id]]
       permitted.unshift(:admin) if current_user.admin?
 
-      if @user == current_user
-        if params[:user] && params[:user][:password].present?
-          permitted << :password << :password_confirmation
-        else
-          params[:user]&.delete(:password)
-          params[:user]&.delete(:password_confirmation)
-        end
-      else
-        params[:user]&.delete(:password)
-        params[:user]&.delete(:password_confirmation)
+      if @user == current_user && params.dig(:user, :password).present?
+        permitted << :password << :password_confirmation
       end
 
-      # If user params exist after deletion, permit them. Otherwise return empty params.
       if params[:user].present?
         params.require(:user).permit(*permitted)
       else

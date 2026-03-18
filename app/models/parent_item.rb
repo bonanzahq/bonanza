@@ -23,7 +23,7 @@ class ParentItem < ApplicationRecord
       description: description,
       uids: items.pluck(:uid),
       tags: all_tags_list,
-      department: department.id,
+      department: department&.id,
       statuses: items.collect(&:status),
       conditions: items.collect(&:condition),
       lendings_count: items.joins(:line_items).count # to boost frequently lent items

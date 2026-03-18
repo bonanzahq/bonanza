@@ -26,6 +26,15 @@ class LendingControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "index succeeds when user belongs to hidden department" do
+    hidden_dept = create(:department, hidden: true, staffed: true)
+    hidden_user = create(:user, department: hidden_dept)
+    create(:parent_item, department: hidden_dept)
+    sign_in hidden_user
+    get lending_path
+    assert_response :success
+  end
+
   # -- show --
 
   test "show with valid token renders for signed-in user" do

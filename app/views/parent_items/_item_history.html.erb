@@ -2,22 +2,22 @@
   <div class="header">
     <% if item_history.status == 'created' %>
       <div class="left"><span class="icon-before pulse fw-bold">Angelegt</span></div>
-      <div class="right"><div class="user"><%= item_history.user&.fullname %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
+      <div class="right"><div class="user"><%= user_display_name(item_history.user) %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
     <% end %>
 
     <% if item_history.status == 'lent' %>
       <div class="left"><span class="icon-before arrow-right fw-bold">Ausgeliehen</span><% if can? :read, Lending %> <%= link_to "von #{item_history.line_item.lending.borrower.fullname}", borrower_path(item_history.line_item.lending.borrower)%><% end %></div>
-      <div class="right"><div class="user"><%= item_history.user&.fullname %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
+      <div class="right"><div class="user"><%= user_display_name(item_history.user) %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
     <% end %>
 
     <% if item_history.status == 'returned' %>
       <div class="left"><span class="icon-before arrow-left fw-bold">Zurückgegeben</span></div>
-      <div class="right"><div class="user"><%= item_history.user.fullname %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
+      <div class="right"><div class="user"><%= user_display_name(item_history.user) %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
     <% end %>
 
     <% if item_history.status == 'deleted' %>
       <div class="left"><span class="icon-before pulse fw-bold">Gelöscht</span></div>
-      <div class="right"><div class="user"><%= item_history.user.fullname %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
+      <div class="right"><div class="user"><%= user_display_name(item_history.user) %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
     <% end %>
 
     <% if item_history.status.nil? && item_history.condition %>
@@ -26,14 +26,14 @@
           Neuer Zustand
         </div>
       </div>
-      <div class="right"><div class="user"><%= item_history.user.fullname %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
+      <div class="right"><div class="user"><%= user_display_name(item_history.user) %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
     <% end %>
 
     <% if item_history.note && item_history.condition.nil? && item_history.status.nil? %>
       <div class="left fw-bold">
           Neuer Kommentar
       </div>
-      <div class="right"><div class="user"><%= item_history.user.fullname %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
+      <div class="right"><div class="user"><%= user_display_name(item_history.user) %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
     <% end %>
 
   </div>

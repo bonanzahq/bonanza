@@ -2,6 +2,29 @@
 
 Equipment lending management system for FH Potsdam. Rewrite of Bonanza v1.
 
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+
+- [Tech Stack](#tech-stack)
+- [Core Models](#core-models)
+- [Development Environment Setup](#development-environment-setup)
+  - [Docker (full stack)](#docker-full-stack)
+  - [Running tests locally](#running-tests-locally)
+  - [Reindexing Elasticsearch](#reindexing-elasticsearch)
+- [Branching & Releases](#branching--releases)
+- [CI](#ci)
+- [Common Commands](#common-commands)
+- [Project Structure](#project-structure)
+- [Authorization Model](#authorization-model)
+- [Key Conventions](#key-conventions)
+- [Issue Tracking](#issue-tracking)
+  - [Labels](#labels)
+  - [Workflow](#workflow)
+  - [Identity Setup](#identity-setup)
+- [Migration Plans](#migration-plans)
+
+<!-- END doctoc generated TOC please keep comment here to allow auto update -->
+
 ## Tech Stack
 
 - **Language**: Ruby 4.0.1
@@ -32,7 +55,7 @@ Equipment lending management system for FH Potsdam. Rewrite of Bonanza v1.
 The application runs in Docker containers. To start a fresh environment:
 
 ```bash
-cd ~/Documents/bonanzahq/bonanza/<worktree>
+cd ~/Documents/bonanzahq/bonanza/<worktree>/docker
 
 # Start all services (builds image if needed)
 docker compose up -d
@@ -41,7 +64,7 @@ docker compose up -d
 #   1. Waits for PostgreSQL and Elasticsearch
 #   2. Runs db:prepare (schema:load on fresh DB, migrate on existing)
 #   3. Seeds the database
-#   4. Reindexes Elasticsearch
+#   4. Reindexes Elasticsearch (dev only; skipped in production)
 #   5. Starts Rails with foreman (web + js + css watchers)
 ```
 
@@ -53,9 +76,25 @@ Default seed credentials: `admin@example.com` / `platypus-umbrella-cactus`
 If the database or ES get into a bad state, nuke everything and restart:
 
 ```bash
+cd docker
 docker compose down -v    # -v removes volumes (DB data, ES data)
 docker compose up -d      # Fresh start
 ```
+
+**Building without Compose:** The Dockerfile expects the repository root as
+build context. `docker compose` handles this via `context: ..` in the compose
+files, but standalone builds must run from the repo root:
+
+```bash
+# Production image (default target)
+docker build -f docker/Dockerfile .
+
+# Development image (includes Node.js for asset watchers)
+docker build -f docker/Dockerfile --target development .
+```
+
+Do NOT run `docker build .` from inside `docker/` — the context will be wrong
+and the build will fail.
 
 **pnpm in Docker:** pnpm will fail with `ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY`
 if `node_modules` needs recreating and there's no TTY. `ENV CI=true` in the
@@ -118,16 +157,58 @@ The database config in `config/database.yml` uses env vars for all environments:
 
 ### Reindexing Elasticsearch
 
+Production skips reindex on container startup for faster restarts.
+Reindex manually when needed:
+
+- After Elasticsearch index mapping changes (e.g. new searchable fields)
+- After direct SQL updates or data migration (e.g. `staging:anonymize`)
+- After ES volume was wiped (`docker compose down -v`)
+
+Normal CRUD through the app does not require manual reindexing —
+Searchkick auto-syncs records on save/delete.
+
 ```bash
-# Inside the container
+# Inside the container (run from docker/ directory)
+cd docker
 docker compose exec -T rails bash -c \
   'bundle exec rails runner "ParentItem.reindex; Borrower.reindex"'
 ```
 
+## Branching & Releases
+
+Feature branches merge into `beta`. `beta` merges into `main` for production
+releases. Never merge directly into `main` -- all work flows through `beta`.
+
+```
+feature-branch --> beta (prerelease) --> main (stable release)
+```
+
+Versioning is automated via semantic-release using conventional commits:
+- `feat:` commits bump the minor version
+- `fix:` commits bump the patch version
+- `BREAKING CHANGE:` bumps the major version
+
+When commits land on `beta`, semantic-release creates prerelease versions
+(`1.0.0-beta.1`, `1.0.0-beta.2`, etc.) and tags the repo. When `beta` is
+merged into `main`, a stable release is created (`1.0.0`).
+
+The tag push triggers the Docker Build workflow, which produces versioned
+Docker images:
+
+| Branch | Version example | Docker tags |
+|--------|----------------|-------------|
+| `beta` | `1.0.0-beta.1` | `1.0.0-beta.1`, `beta` |
+| `main` | `1.0.0` | `1.0.0`, `1.0`, `latest` |
+
+Configuration is in `release.config.cjs`. The release workflow authenticates
+using a GitHub App and requires `APP_ID` and `APP_PRIVATE_KEY` secrets in the
+repository or organization settings.
+
 ## CI
 
 Add `[skip ci]` to commit messages for docs-only, cleanup, and chore commits
-that don't affect code or builds. Both the test and docker-build jobs respect this.
+that don't affect code or builds. The test, docker-build, and release jobs all
+respect this.
 
 ## Common Commands
 

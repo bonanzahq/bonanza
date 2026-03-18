@@ -2,3 +2,4 @@
 ruby = "4.0.1"
 node = "24"
 pnpm = "10"
+lefthook = "2.1.4"

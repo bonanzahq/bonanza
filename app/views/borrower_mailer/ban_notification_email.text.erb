@@ -4,7 +4,7 @@ Du wurdest gesperrt.
 
 Hallo <%= @borrower.firstname %>,
 
-Du wurdest leider heute von <%= @conduct.user.fullname %> <%= @conduct.permanent ? "auf unbestimmte Zeit" : "für #{@conduct.duration} Tage" %> von der Ausleihe <%= t(@conduct.department.genderize('in_the')) %> <%= @conduct.department.name %> ausgeschlossen.
+Du wurdest leider heute von <%= @conduct.user&.fullname || "Gelöschtes Konto" %> <%= @conduct.permanent ? "auf unbestimmte Zeit" : "für #{@conduct.duration} Tage" %> von der Ausleihe <%= t(@conduct.department.genderize('in_the')) %> <%= @conduct.department.name %> ausgeschlossen.
 
 Grund: <%= @conduct.reason %>
 

@@ -11,7 +11,7 @@ class ApplicationController < ActionController::Base
     elsif current_user.member? || current_user.leader? || current_user.admin?
       redirect_to root_path, :alert => "Zugang verweigert. Du hast leider nicht die notwendige Berechtigung."
     else
-      redirect_to public_home_page_path, :alert => "Zugang verweigert. Dein Benutzer-Konto muss erst noch freigeschaltet werden."
+      redirect_to public_home_page_path, :alert => "Zugang verweigert. Dein Konto muss erst noch freigeschaltet werden."
     end
   end
 

@@ -13,7 +13,7 @@
 </div>
 <div id="user">
   Verleihende Person<br/>
-  <%= @lending.user.fullname %>
+  <%= user_display_name(@lending.user) %>
   <%= @lending.department.name %>
 </div>
 

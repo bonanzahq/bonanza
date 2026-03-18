@@ -20,7 +20,7 @@ echo "Database: ${DATABASE}"
 echo "Backup file: ${BACKUP_FILE}"
 
 # Run pg_dump via docker compose and gzip the output
-docker compose exec -T db pg_dump -U "${DB_USER}" "${DATABASE}" | gzip > "${BACKUP_FILE}"
+docker compose --project-directory docker exec -T db pg_dump -U "${DB_USER}" "${DATABASE}" | gzip > "${BACKUP_FILE}"
 
 echo "✓ Backup created: ${BACKUP_FILE}"
 

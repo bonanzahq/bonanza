@@ -1,6 +1,7 @@
 {
   "name": "app",
-  "private": "true",
+  "version": "2.0.0-beta.17",
+  "private": true,
   "dependencies": {
     "@hotwired/stimulus": "3.0.1",
     "@hotwired/turbo-rails": "8.0.23",
@@ -24,6 +25,17 @@
     "build": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds",
     "build:css": "sass ./app/assets/stylesheets/application.sass.scss ./app/assets/builds/application.css --no-source-map --load-path=node_modules",
     "watch": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds --watch=forever",
-    "watch:css": "sass ./app/assets/stylesheets/application.sass.scss ./app/assets/builds/application.css --no-source-map --load-path=node_modules --watch"
+    "watch:css": "sass ./app/assets/stylesheets/application.sass.scss ./app/assets/builds/application.css --no-source-map --load-path=node_modules --watch",
+    "toc": "doctoc --update-only README.md AGENTS.md"
+  },
+  "devDependencies": {
+    "@semantic-release/changelog": "6.0.3",
+    "@semantic-release/commit-analyzer": "13.0.1",
+    "@semantic-release/git": "10.0.1",
+    "@semantic-release/github": "12.0.6",
+    "@semantic-release/npm": "13.1.5",
+    "@semantic-release/release-notes-generator": "14.1.0",
+    "doctoc": "2.3.0",
+    "semantic-release": "25.0.3"
   }
 }

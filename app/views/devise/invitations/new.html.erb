@@ -12,11 +12,10 @@
 <div class="row">
     <div class="col-2 pt-3 d-flex justify-content-end align-items-start">
         <%= link_to "Verleihende Personen", verwaltung_verleihende_path, class: "link-back link-dark" %>
-        <!-- <%= link_to "Verwaltung", borrowers_path, class: "link-back link-dark" %> -->
     </div>
     <div class="col-7">
         <div class="p-3 bg-light mb-3 rounded">
-          <p>Lade eine weitere Person per E-Mail zu Deiner Werkstatt ein. Die Person kann dann ein Benutzer-Konto anlegen und in Deiner Werkstatt Artikel verleihen.</p>
+          <p>Lade eine weitere Person per E-Mail zu Deiner Werkstatt ein. Die Person kann dann ein Konto anlegen und in Deiner Werkstatt Artikel verleihen.</p>
           <p><em>Die E-Mail-Adresse, welche Du für die Einladung verwendest, kann die eingeladene Person später noch ändern.</em></p>
 
           <%= form_for(resource, as: resource_name, url: invitation_path(resource_name), html: { method: :post }, data: {controller: "form-validation", turbo: false}) do |f| %>

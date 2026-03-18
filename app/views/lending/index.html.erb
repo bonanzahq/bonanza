@@ -17,18 +17,11 @@
 </header>
 
 <div class="row">
-    <div class="col-2 pt-3 d-flex justify-content-end align-items-start" data-controller="depts-selector">
-        <!-- <% if current_user.admin? %>
-            <%= select_tag :dept,
-            options_for_select([["Meine Werkstatt / #{current_user.current_department.name}", current_user.current_department.id], ["Alle Werkstätten", Department.pluck(:id).join(",")]] + Department.all.collect { |o| [o.name, o.id] unless o.id == current_user.current_department_id }.compact!, select = params[:dept].blank? ? current_user.current_department_id : params[:dept].to_s), id: "dept-selector" , class: "form-select", data: {action: "depts-selector#setDept"}  %>
-        <% else %>
-            <%= select_tag :dept,
-            options_for_select([["Meine Werkstatt / #{current_user.current_department.name}", current_user.current_department.id], ["Alle Werkstätten", Department.get_all_visible_ids.join(",")]] + Department.where(hidden: false).collect { |o| [o.name, o.id] unless o.id == current_user.current_department_id }.compact!, select = params[:dept].blank? ? current_user.current_department_id : params[:dept].to_s), id: "dept-selector" , class: "form-select", data: {action: "depts-selector#setDept"} %>
-        <% end %> -->
+    <div class="col-2 pt-3 d-flex justify-content-end align-items-start">
     </div>
     <div class="col-7">
         <div class="p-3 bg-light mb-3 rounded-bottom">
-            <%= form_tag(lending_path, method: :get, data: { turbo: "true", "turbo-frame": "results", controller: "autocomplete", action: "depts-selector:setDept@document->autocomplete#setSource", "autocomplete-source-value": "/autocomplete/items/depts/", "autocomplete-dept-value": @dept_id}) do %>
+            <%= form_tag(lending_path, method: :get, data: { turbo: "true", "turbo-frame": "results", controller: "autocomplete", "autocomplete-source-value": "/autocomplete/items/depts/", "autocomplete-dept-value": @dept_id}) do %>
             <%= hidden_field_tag :dept, @dept_id %>
             <div class="input-group mb-3">
                 <%= text_field_tag :q, params[:q], class: "form-control search-icon", id: "autoComplete-lending", autocomplete: "off", placeholder: "Artikel suchen", autofocus: true, data: { "autocomplete-target": "input"} %>
