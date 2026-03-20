@@ -2,6 +2,10 @@
 
 Equipment lending management system for FH Potsdam. Rewrite of Bonanza v1.
 
+**Production**: `bonanza.fh-potsdam.de` — deployed at `/opt/bonanza/` on the server,
+running Docker Compose (Rails, PostgreSQL, Elasticsearch, Caddy). nginx on the host
+terminates TLS and proxies to Caddy on port 8080.
+
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 
