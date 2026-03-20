@@ -7,6 +7,7 @@ No repo clone needed — just the files listed below.
 
 | File | Runs on | Purpose |
 |------|---------|---------|
+| `00-backup-v1.sh` | bare metal | Backup v1 MySQL database and Paperclip files |
 | `01-export-v1.sh` | bare metal | Export v1 MySQL data to JSONL |
 | `migrate_v1.rake` | Docker (Rails) | Import + transform + validate |
 | `02-run-migration.sh` | bare metal | Orchestrate: copy files, run rake tasks, reindex ES |
