@@ -1,3 +1,14 @@
+## [2.1.1-beta.1](https://github.com/bonanzahq/bonanza/compare/v2.1.0...v2.1.1-beta.1) (2026-03-21)
+
+
+### Bug Fixes
+
+* **autocomplete:** remove results list on teardown ([ed3ce8d](https://github.com/bonanzahq/bonanza/commit/ed3ce8dd5ebe43cbfda63dce3448534b23408c70))
+* **lending:** guard current_lending against nil department ([d774f23](https://github.com/bonanzahq/bonanza/commit/d774f23dca8ba18602e05c1ebbbef924c7f3a46b))
+* **views:** add nil guards for line_items chain in lending item partial ([0b7549b](https://github.com/bonanzahq/bonanza/commit/0b7549bdc369fe8e18d14717256aa2f038b4408b))
+* **views:** guard current_department access in layout and switcher ([02044fc](https://github.com/bonanzahq/bonanza/commit/02044fc33fc353d3d05b3f1836cb6a02426aa47a))
+* **views:** skip recent lendings with nil borrower ([784b8c1](https://github.com/bonanzahq/bonanza/commit/784b8c1afbbfe37b7c95afe4cb0026c134614932))
+
 # [2.1.0](https://github.com/bonanzahq/bonanza/compare/v2.0.0...v2.1.0) (2026-03-21)
 
 
