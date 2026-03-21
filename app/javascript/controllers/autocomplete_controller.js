@@ -100,6 +100,9 @@ export default class extends Controller {
       document.getElementById('clear-button').remove()
     }
 
+    // Remove orphaned results lists left by incomplete teardowns (e.g. Turbo cache)
+    document.querySelectorAll('[id^="autoComplete_list_"]').forEach(el => el.remove())
+
     this.autoCompleteJS = new autoComplete( config )
     let autoCompleteJS = this.autoCompleteJS
 
@@ -159,6 +162,9 @@ export default class extends Controller {
 
   _teardown() {
     if (this.autoCompleteJS) {
+      if (this.autoCompleteJS.list) {
+        this.autoCompleteJS.list.remove()
+      }
       this.autoCompleteJS.unInit()
       this.autoCompleteJS = null
     }
