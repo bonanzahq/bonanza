@@ -110,14 +110,47 @@ Files copied into container would be lost on recreate. Added
 - `test/controllers/parent_items_controller_test.rb` — test for nil line_item
 - `docs/plans/d1_data-migration.md` — archived (migration complete)
 
+## Post-Merge Work
+
+### Beta branch ruleset blocking merges
+The newly created beta branch ruleset had "Restrict updates" enabled, which
+blocked PR merges even with Repository admin as a bypass actor. Removing the
+"Restrict updates" rule fixed it. The remaining rules (require PR, require
+status checks, block force pushes, restrict deletions) provide sufficient
+protection.
+
+### Semantic-release versioning: 2.0.0-beta.18 instead of 2.0.1-beta.1
+After merging PR #251 to beta, semantic-release created `2.0.0-beta.18` instead
+of `2.0.1-beta.1`. This is because main was not backmerged into beta after the
+`2.0.0` release — beta didn't know about the stable version tag. Needs a
+backmerge of main into beta to reset the version baseline.
+
+### Autocomplete back button regression (P0)
+The autocomplete dropdown bug (#211, originally fixed in PR #231) is back on
+production. Navigating away from `/ausleihe` and using the browser back button
+causes the autocomplete results to render as a plain text bullet list instead
+of a styled dropdown. Reopened GitHub #211, added to project board as P0/Ready.
+git-bug `5850389` updated with regression details. Needs local reproduction
+before fixing.
+
+### Worktree cleanup
+Removed `production-deploy` worktree and branch after merge.
+
 ## Issues Closed
 
 - `299908f` Execute d1: Data migration from v1
 - `c259e88` fix: nil guard for orphaned line_item in item history view
 - `d6fc456` Epic: Phase D - Cutover
 
+## Issues Opened / Triaged
+
+- GitHub #211 reopened — autocomplete back button regression (P0/Ready)
+- git-bug `5850389` — updated with regression details
+
 ## Post-Migration TODO
 
+- [ ] Fix autocomplete back button regression (P0, GitHub #211)
+- [ ] Backmerge main into beta for correct semantic-release versioning
 - [ ] Create dedicated `bonanza` user (Step 15 in runbook)
 - [ ] Update TOS and privacy policy content in legal_texts
 - [ ] Configure SMTP settings for email delivery
