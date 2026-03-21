@@ -47,3 +47,50 @@ jobs:
         run: pnpm exec semantic-release
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
+
+      - name: Backmerge main into beta
+        if: github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ steps.app-token.outputs.token }}
+        run: |
+          echo "=== Backmerge: main -> beta ==="
+
+          # Configure git for the merge commit
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          # Fetch latest state of beta
+          git fetch origin beta:beta
+
+          # Resolve conflicts in release artifacts by keeping beta's version.
+          # These files always conflict because semantic-release writes different
+          # version numbers on each branch.
+          git config merge.ours.driver true
+          echo "CHANGELOG.md merge=ours" >> .git/info/attributes
+          echo "package.json merge=ours" >> .git/info/attributes
+          echo "pnpm-lock.yaml merge=ours" >> .git/info/attributes
+
+          # Attempt merge of main into beta
+          git checkout beta
+          if git merge main --no-edit -m "chore: backmerge main into beta [skip ci]"; then
+            echo "Merge succeeded, pushing..."
+            git push origin beta
+            echo "Backmerge complete."
+          else
+            echo "Merge has conflicts, creating PR for manual resolution..."
+            git merge --abort
+
+            # Check if a backmerge PR already exists
+            EXISTING=$(gh pr list --base beta --head main --state open --json number --jq '.[0].number')
+            if [ -n "$EXISTING" ]; then
+              echo "Backmerge PR #${EXISTING} already exists, skipping."
+            else
+              gh pr create \
+                --base beta \
+                --head main \
+                --title "chore: backmerge main into beta" \
+                --body "Automatic backmerge after release on main. Conflicts need manual resolution." \
+                || echo "::warning::Could not create backmerge PR. Backmerge manually."
+              echo "Backmerge PR created."
+            fi
+          fi
