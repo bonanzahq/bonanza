@@ -28,10 +28,19 @@
             </div>
             <div class="right">
                 <div class="note">
-                    <% if can? :read, Lending %>
-                        von <%= link_to item.line_items.last.lending.borrower.fullname, borrower_path(item.line_items.last.lending.borrower), data: {turbo: false} %><br>
+                    <% last_lending = item.line_items.last&.lending %>
+                    <% if last_lending %>
+                        <% if can?(:read, Lending) && last_lending.borrower %>
+                            von <%= link_to last_lending.borrower.fullname, borrower_path(last_lending.borrower), data: {turbo: false} %><br>
+                        <% end %>
+                        <% if last_lending.lent_at && last_lending.duration %>
+                            bis <%= l(last_lending.lent_at.to_date + last_lending.duration, :format => "%a. %d.%m.%y") %> ausgeliehen
+                        <% else %>
+                            ausgeliehen
+                        <% end %>
+                    <% else %>
+                        ausgeliehen
                     <% end %>
-                    bis <%= l(item.line_items.last.lending.lent_at.to_date + item.line_items.last.lending.duration, :format => "%a. %d.%m.%y") %> ausgeliehen
                 </div>
             </div>
         </div>
