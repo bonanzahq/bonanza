@@ -2,7 +2,7 @@ class LineItem < ApplicationRecord
   belongs_to :item
   belongs_to :lending
 
-  has_many :item_histories
+  has_many :item_histories, dependent: :nullify
 
   has_and_belongs_to_many :accessories
 
