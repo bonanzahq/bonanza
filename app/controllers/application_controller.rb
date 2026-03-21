@@ -58,7 +58,10 @@ class ApplicationController < ActionController::Base
     def current_lending
       Lending.find(session[:lending_id])
       rescue ActiveRecord::RecordNotFound
-        lending = Lending.create(user_id: current_user.id, department_id: current_user.current_department.id)
+        department = current_user.current_department
+        return nil unless department
+
+        lending = Lending.create(user_id: current_user.id, department_id: department.id)
         session[:lending_id] = lending.id
         lending
     end
