@@ -95,6 +95,16 @@ class LineItemTest < ActiveSupport::TestCase
     assert_equal false, result
   end
 
+  # -- dependent: :nullify --
+
+  test "destroying line_item nullifies item_history references" do
+    history = ItemHistory.create!(item: @item, user: @user, status: :lent, line_item: @line_item)
+    @line_item.destroy!
+    history.reload
+
+    assert_nil history.line_item_id
+  end
+
   test "take_back rejects multiple return for UID items" do
     @item.update_column(:uid, "SERIAL-001")
     @item.reload
