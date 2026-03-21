@@ -3,7 +3,7 @@
 <% if departments.any? %>
   <div class="dropdown">
     <button class="btn btn-sm dropdown-toggle p-0 link-dark" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-      <%= current_user.current_department.name %>
+      <%= current_user.current_department&.name || "–" %>
     </button>
     <ul class="dropdown-menu">
       <% departments.each do |dept| %>
@@ -14,5 +14,5 @@
     </ul>
   </div>
 <% else %>
-  <span><%= current_user.current_department.name %></span>
+  <span><%= current_user.current_department&.name || "–" %></span>
 <% end %>

@@ -111,6 +111,7 @@
             <h6>Letzte Ausleihen</h6>
             <div class="lending">
                 <% @previous_lendings.each do |lending| %>
+                    <% next unless lending.borrower %>
                     <%= link_to token_lending_path(lending, token: lending.token) do %>
                     <strong class="name"><%= lending.borrower.fullname %></strong> 
                     <p>Ausleihe <span data-controller="timeago" datetime="<%= lending.lent_at %>"></span></p>
