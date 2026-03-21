@@ -1,3 +1,17 @@
+# [2.1.0-beta.1](https://github.com/bonanzahq/bonanza/compare/v2.0.0...v2.1.0-beta.1) (2026-03-21)
+
+
+### Bug Fixes
+
+* **docker:** persist public files with named volume ([e77d26b](https://github.com/bonanzahq/bonanza/commit/e77d26b33e9ccb5a9081fe4a96c0394914397d32))
+* **views:** add nil guard for orphaned line_item in item history ([3f156f3](https://github.com/bonanzahq/bonanza/commit/3f156f3ae9b0ab1998d8a4e88a4098563301008c)), closes [#252](https://github.com/bonanzahq/bonanza/issues/252)
+
+
+### Features
+
+* **deploy:** add nginx site config and include in deploy script ([7dd3c6d](https://github.com/bonanzahq/bonanza/commit/7dd3c6d38c505b266321cda050e5c175ec51b41c))
+* **migration:** add v1 backup script ([212ad75](https://github.com/bonanzahq/bonanza/commit/212ad75979d5e21004038174559a49dacba79298))
+
 # [2.0.0-beta.18](https://github.com/bonanzahq/bonanza/compare/v2.0.0-beta.17...v2.0.0-beta.18) (2026-03-20)
 
 
