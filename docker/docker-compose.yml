@@ -79,6 +79,8 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-}
       ALLOW_ANONYMIZE: ${ALLOW_ANONYMIZE:-NOWAY!!!}
       SKIP_REINDEX: "true"
+    volumes:
+      - bonanza_public_files:/app/public/files
     depends_on:
       db:
         condition: service_healthy
@@ -165,3 +167,4 @@ volumes:
   bonanza_postgres_data:
   bonanza_elasticsearch_data:
   bonanza_caddy_data:
+  bonanza_public_files:

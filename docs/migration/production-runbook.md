@@ -10,6 +10,17 @@
 - Paperclip hash secret (in `/var/www/bonanza/config/secrets.yml`)
 - Redux Docker image built and pushed to registry
 
+## Deployment Layout
+
+| Component | Path |
+|-----------|------|
+| Redux deployment | `/opt/bonanza/` |
+| Docker Compose, Caddyfile, .env | `/opt/bonanza/` |
+| Migration scripts (temporary) | `/root/migration/` |
+
+The deployment runs as root during initial setup. After migration is validated,
+a dedicated `bonanza` user takes over (see Step 15).
+
 ## Server Layout (confirmed on both staging and production)
 
 | Component | Value |
@@ -308,12 +319,12 @@ docker compose -f docker-compose.prod.yml exec -T rails \
 ### Step 9: Copy Paperclip Files (1 min)
 
 ```bash
-# Copy files into a location accessible by Caddy/Rails
-# The exact destination depends on how file serving is configured
-cp -r /var/www/bonanza/public/files/ /path/to/redux/public/files/
+# Copy files into the Rails container's public directory
+CONTAINER=$(docker compose -f docker-compose.prod.yml ps -q rails)
+docker cp /var/www/bonanza/public/files/ "$CONTAINER:/app/public/files/"
 
 # Verify
-ls /path/to/redux/public/files/ | wc -l  # Should be 23 directories
+docker exec "$CONTAINER" ls /app/public/files/ | wc -l  # Should be 23 directories
 ```
 
 File serving via ActiveStorage is a separate post-migration task. For now,
@@ -384,6 +395,7 @@ curl -s http://localhost/up
 
 These are not blockers for go-live but should be done soon after:
 
+- [ ] Create dedicated `bonanza` user (Step 15)
 - [ ] Update TOS and privacy policy content in legal_texts
 - [ ] Configure SMTP settings for email delivery
 - [ ] Verify Paperclip files are accessible via the web
@@ -391,6 +403,36 @@ These are not blockers for go-live but should be done soon after:
 - [ ] Rotate MySQL password (exposed during staging exploration)
 - [ ] Rotate Paperclip hash secret (exposed during staging exploration)
 - [ ] Keep v1 backup for 30 days minimum
+- [ ] Apply OS updates (safe once v1 is stopped and Redux runs in Docker)
+
+### Step 15: Switch to Non-Root User
+
+Running Docker as root works but expands the blast radius of mistakes.
+Create a dedicated user to own the deployment:
+
+```bash
+# Create user with no login shell (service account)
+useradd --system --create-home --shell /usr/sbin/nologin bonanza
+
+# Add to docker group so it can manage containers
+usermod -aG docker bonanza
+
+# Transfer ownership of the deployment directory
+chown -R bonanza:bonanza /opt/bonanza
+
+# Verify docker access works
+su -s /bin/bash bonanza -c "docker ps"
+```
+
+After this, manage the stack as the `bonanza` user:
+
+```bash
+su -s /bin/bash bonanza
+cd /opt/bonanza
+docker compose ps
+```
+
+Systemd service files or cron jobs should also run as `bonanza`, not root.
 
 ## Rollback
 

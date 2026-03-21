@@ -34,6 +34,14 @@ class ParentItemsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "show handles item history with nil line_item" do
+    ItemHistory.create!(item: @item, user: @user, status: :lent, line_item: nil)
+
+    sign_in @user
+    get parent_item_path(@parent_item)
+    assert_response :success
+  end
+
   test "guest does not see borrower name in item history" do
     borrower = create(:borrower, :with_tos)
     lending = create(:lending, :completed, user: @user, department: @department, borrower: borrower)

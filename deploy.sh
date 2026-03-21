@@ -61,6 +61,9 @@ echo "  elastic_synonyms.txt"
 curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/docker/example.env" -o example.env
 echo "  example.env (reference)"
 
+curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/docker/nginx-site.conf" -o nginx-site.conf
+echo "  nginx-site.conf (reference)"
+
 if [ ! -f .env ]; then
   cp example.env .env
   echo "  .env created from example.env"
