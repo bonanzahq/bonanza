@@ -1,4 +1,4 @@
-<div class="bnz-card <%= "overdue" if item_history.line_item && item_history.line_item.lending.is_overdue? %>">
+<div class="bnz-card <%= "overdue" if item_history.line_item&.lending&.is_overdue? %>">
   <div class="header">
     <% if item_history.status == 'created' %>
       <div class="left"><span class="icon-before pulse fw-bold">Angelegt</span></div>
@@ -6,7 +6,7 @@
     <% end %>
 
     <% if item_history.status == 'lent' %>
-      <div class="left"><span class="icon-before arrow-right fw-bold">Ausgeliehen</span><% if can? :read, Lending %> <%= link_to "von #{item_history.line_item.lending.borrower.fullname}", borrower_path(item_history.line_item.lending.borrower)%><% end %></div>
+      <div class="left"><span class="icon-before arrow-right fw-bold">Ausgeliehen</span><% if item_history.line_item&.lending && can?(:read, Lending) %> <%= link_to "von #{item_history.line_item.lending.borrower.fullname}", borrower_path(item_history.line_item.lending.borrower)%><% end %></div>
       <div class="right"><div class="user"><%= user_display_name(item_history.user) %></div> <div class="date"><%= l(item_history.created_at.to_date) %></div></div>
     <% end %>
 
@@ -47,7 +47,7 @@
           <%= item_history.note %>
         </div>
         <div class="right">
-          <% if item_history.line_item && item_history.line_item.lending.is_overdue? %>
+          <% if item_history.line_item&.lending&.is_overdue? %>
             <span class="status overdue">23 Tage überfällig</span>
           <% end %>
         </div>
