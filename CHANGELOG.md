@@ -1,3 +1,10 @@
+# [2.1.0-beta.2](https://github.com/bonanzahq/bonanza/compare/v2.1.0-beta.1...v2.1.0-beta.2) (2026-03-21)
+
+
+### Bug Fixes
+
+* **models:** nullify item_history references when line_item is destroyed ([314156c](https://github.com/bonanzahq/bonanza/commit/314156ca868f5e3757af219544fb82de3e927395))
+
 # [2.1.0-beta.1](https://github.com/bonanzahq/bonanza/compare/v2.0.0...v2.1.0-beta.1) (2026-03-21)
 
 
