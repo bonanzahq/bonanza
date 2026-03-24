@@ -44,7 +44,6 @@ docs/repomix*.xml
 docs/bonanza-dev-notes
 /app/assets/builds/*
 !/app/assets/builds/.keep
-!/app/assets/builds/printable_agreement.css
 
 /node_modules
 /.pnpm-store
