@@ -1,6 +1,6 @@
 {
   "name": "app",
-  "version": "2.1.0",
+  "version": "2.1.1-beta.3",
   "private": true,
   "dependencies": {
     "@hotwired/stimulus": "3.0.1",
@@ -23,9 +23,9 @@
   },
   "scripts": {
     "build": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds",
-    "build:css": "sass ./app/assets/stylesheets/application.sass.scss ./app/assets/builds/application.css --no-source-map --load-path=node_modules",
+    "build:css": "sass ./app/assets/stylesheets/application.sass.scss:./app/assets/builds/application.css ./app/assets/stylesheets/printable-agreement.scss:./app/assets/builds/printable_agreement.css --no-source-map --load-path=node_modules",
     "watch": "esbuild app/javascript/*.* --bundle --sourcemap --outdir=app/assets/builds --watch=forever",
-    "watch:css": "sass ./app/assets/stylesheets/application.sass.scss ./app/assets/builds/application.css --no-source-map --load-path=node_modules --watch",
+    "watch:css": "sass ./app/assets/stylesheets/application.sass.scss:./app/assets/builds/application.css ./app/assets/stylesheets/printable-agreement.scss:./app/assets/builds/printable_agreement.css --no-source-map --load-path=node_modules --watch",
     "toc": "doctoc --update-only README.md AGENTS.md"
   },
   "devDependencies": {

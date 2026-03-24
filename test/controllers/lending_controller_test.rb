@@ -65,10 +65,31 @@ class LendingControllerTest < ActionDispatch::IntegrationTest
   test "show_printable_agreement renders with print layout" do
     borrower = create(:borrower, :with_tos)
     lending = create(:lending, :completed, user: @user, department: @department, borrower: borrower)
+    line_item = create(:line_item, lending: lending, item: @item, quantity: 1)
     sign_in @user
 
     get lending_agreement_path(lending, token: lending.token)
     assert_response :success
+
+    # Print layout: stylesheet linked, body has print class, no application chrome
+    assert_select "link[href*=printable_agreement]"
+    assert_select "body.print"
+    assert_select "nav", count: 0
+    assert_select "#logo h1", count: 0
+
+    # Agreement structure
+    assert_select "#wrapper" do
+      assert_select "#lender-info", text: /#{Regexp.escape(borrower.fullname)}/
+      assert_select "#dept-info #logo img"
+      assert_select "#dept-info p", text: /FH Potsdam/
+      assert_select "#user", text: /#{Regexp.escape(@department.name)}/
+      assert_select "#heading", text: /Leihvertrag/
+      assert_select "table thead th", count: 3
+      assert_select "table tbody tr", count: 1
+      assert_select "table tbody td", text: /#{Regexp.escape(@parent_item.name)}/
+      assert_select "#legal .note strong", text: /Rückgabe spätestens/
+      assert_select "#sig", text: /Potsdam, den/
+    end
   end
 
   test "show_printable_agreement with invalid token redirects" do
