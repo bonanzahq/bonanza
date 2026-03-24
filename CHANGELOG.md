@@ -1,3 +1,10 @@
+## [2.1.1-beta.3](https://github.com/bonanzahq/bonanza/compare/v2.1.1-beta.2...v2.1.1-beta.3) (2026-03-24)
+
+
+### Bug Fixes
+
+* **docker:** align dev DB password with database.yml defaults ([9a397e1](https://github.com/bonanzahq/bonanza/commit/9a397e147bfd305184babd45745dd626a0ccf890))
+
 ## [2.1.1-beta.2](https://github.com/bonanzahq/bonanza/compare/v2.1.1-beta.1...v2.1.1-beta.2) (2026-03-24)
 
 
