@@ -1,0 +1,124 @@
+// ABOUTME: Print stylesheet for the lending agreement PDF/print view.
+// Formats the A4 page layout, typography, and table for printable output.
+
+@page {
+  size: A4;
+  margin: 2cm 2.5cm 1.6cm 2.5cm;
+}
+
+html, body.print {
+  margin: 0;
+  padding: 0;
+}
+
+body.print {
+  font: 8pt/10pt "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: .005em;
+}
+
+.print {
+  #wrapper {
+    position: relative;
+    overflow: hidden;
+    page-break-inside: auto;
+  }
+
+  h1 {
+    text-transform: uppercase;
+    letter-spacing: .35em;
+    font-weight: normal;
+    font-size: 9pt;
+    line-height: 13pt;
+    clear: both;
+    margin: 0;
+  }
+
+  #heading {
+    position: absolute;
+    top: 3.35cm;
+  }
+
+  #logo {
+    width: 28mm;
+    height: 5mm;
+    margin: 0 0 7.5mm 0;
+  }
+
+  #logo img {
+    display: block;
+    height: 100%;
+  }
+
+  #lender-info {
+    position: absolute;
+    top: 1.25cm;
+    left: 0;
+    line-height: 13pt;
+    letter-spacing: 0.01em;
+  }
+
+  #dept-info {
+    position: absolute;
+    top: 0;
+    right: 0;
+    line-height: 13pt;
+    letter-spacing: 0.01em;
+    width: 28mm;
+  }
+
+  #user {
+    position: absolute;
+    top: 3.35cm;
+    right: 0;
+    width: 28mm;
+    line-height: 13pt;
+  }
+
+  table {
+    margin-top: 6.25cm;
+    width: 100%;
+    page-break-inside: auto;
+  }
+
+  thead th {
+    text-align: left;
+    padding: 0 0 3mm 0;
+  }
+
+  table td {
+    padding: 1mm 0;
+    vertical-align: top;
+  }
+
+  table p.name {
+    font-size: 7pt;
+    padding-left: 3mm;
+    margin: 0;
+  }
+
+  #legal {
+    line-height: 13pt;
+    margin: 4cm 0 0 0;
+    width: 12.7cm;
+    page-break-inside: avoid;
+  }
+
+  .note {
+    margin: 0 0 8mm 0;
+  }
+
+  #sig {
+    margin: 8mm 0 0 0;
+  }
+
+  #sig:after {
+    height: 1mm;
+    display: inline-block;
+    content: " ";
+    width: 6cm;
+    border-bottom: 1px solid black;
+    position: relative;
+    left: 2mm;
+    top: .5mm;
+  }
+}
