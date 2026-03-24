@@ -1,3 +1,10 @@
+## [2.1.1-beta.2](https://github.com/bonanzahq/bonanza/compare/v2.1.1-beta.1...v2.1.1-beta.2) (2026-03-24)
+
+
+### Bug Fixes
+
+* **print:** compile print stylesheet as separate sass output ([88cd27b](https://github.com/bonanzahq/bonanza/commit/88cd27b305a42d5430485bf3ce48447ef0e3588c))
+
 ## [2.1.1-beta.1](https://github.com/bonanzahq/bonanza/compare/v2.1.0...v2.1.1-beta.1) (2026-03-21)
 
 
