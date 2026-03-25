@@ -2,7 +2,11 @@
 // ABOUTME: Regression for #262 — changing return date by 7 days on an active lending failed.
 
 import assert from 'node:assert/strict';
-import { calculateReturnDuration } from '../../app/javascript/utils/lending_duration.mjs';
+import dayjs from 'dayjs';
+import {
+  calculateReturnDuration,
+  calculatePickerDate
+} from '../../app/javascript/utils/lending_duration.mjs';
 
 // Scenario: lending started 10 days ago, user picks a date 7 days from now.
 // The computed duration must be relative to the lending start date so that
@@ -18,6 +22,14 @@ const duration = calculateReturnDuration(SELECTED, START_DATE);
 assert.strictEqual(duration, 17,
   `Expected duration=17 (diff from start date), got ${duration}. ` +
   `If this is 8, the calculation used today as base instead of start date.`
+);
+
+const pickerDate = calculatePickerDate(START_DATE, '17');
+assert.ok(pickerDate instanceof Date, 'Expected a Date for numeric duration values');
+assert.strictEqual(dayjs(pickerDate).format('YYYY-MM-DD'), '2026-04-01');
+
+assert.strictEqual(calculatePickerDate(START_DATE, ''), null,
+  'Expected null for blank duration to avoid Invalid Date in picker init.'
 );
 
 console.log('OK');

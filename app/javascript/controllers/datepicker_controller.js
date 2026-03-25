@@ -1,7 +1,7 @@
 import { Controller } from "@hotwired/stimulus"
 import dayjs from 'dayjs'
 import 'dayjs/locale/de'
-import { calculateReturnDuration } from '../utils/lending_duration.mjs'
+import { calculatePickerDate, calculateReturnDuration } from '../utils/lending_duration.mjs'
 
 var Pikaday = require('pikaday');
 
@@ -19,14 +19,14 @@ export default class extends Controller {
   connect() {
     let output = this.outputTarget
     let startdate = this.startdateValue
-    let defaultDate = dayjs(startdate, 'YYYY-MM-DD').add(parseInt(this.outputTarget.value), 'day').toDate()
+    let defaultDate = calculatePickerDate(startdate, this.outputTarget.value)
 
     let picker = new Pikaday({
       field: this.inputTarget,
       firstDay: 1,
       minDate: dayjs().add(1, 'day').toDate(),
       defaultDate: defaultDate,
-      setDefaultDate: true,
+      setDefaultDate: defaultDate != null,
       format: 'dd. DD.MM.YY',
       toString(date, format) {
           return dayjs(date).locale('de').format(format);
@@ -52,13 +52,18 @@ export default class extends Controller {
     let startRangeDate = dayjs(startdate, 'YYYY-MM-DD').toDate()
 
     this.picker.setStartRange(startRangeDate)
-    this.picker.setEndRange(defaultDate)
+    if (defaultDate != null) {
+      this.picker.setEndRange(defaultDate)
+    }
     this.picker.draw()
   }
 
   setDateinPicker() {
     if( this.outputTarget ) {
-      this.picker.setDate(dayjs(this.startdateValue, 'YYYY-MM-DD').add(parseInt(this.outputTarget.value), 'day').toDate())
+      let date = calculatePickerDate(this.startdateValue, this.outputTarget.value)
+      if (date != null) {
+        this.picker.setDate(date)
+      }
     }
   }
 
