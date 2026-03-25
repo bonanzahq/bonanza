@@ -9,9 +9,8 @@ import dayjs from 'dayjs';
  *
  * @param {Date}   selectedDate - The return date the user picked in the calendar.
  * @param {string} startDate    - The lending start date as a 'YYYY-MM-DD' string.
- * @param {Date}   [today]      - Injected for testing; defaults to new Date().
  * @returns {number}
  */
-export function calculateReturnDuration(selectedDate, startDate, today = new Date()) {
+export function calculateReturnDuration(selectedDate, startDate) {
   return dayjs(selectedDate).diff(dayjs(startDate, 'YYYY-MM-DD'), 'day');
 }

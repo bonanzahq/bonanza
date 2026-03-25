@@ -9,10 +9,9 @@ import { calculateReturnDuration } from '../../app/javascript/utils/lending_dura
 // lent_at + duration lands on the selected date (in the future), not today.
 
 const START_DATE = '2026-03-15'; // 10 days before the test reference date
-const TODAY = new Date('2026-03-25T12:00:00');
-const SELECTED = new Date('2026-04-01T12:00:00'); // 7 days after TODAY
+const SELECTED = new Date('2026-04-01T12:00:00'); // 7 days after 2026-03-25
 
-const duration = calculateReturnDuration(SELECTED, START_DATE, TODAY);
+const duration = calculateReturnDuration(SELECTED, START_DATE);
 
 // Server validates: lent_at.to_date + duration.days >= Date.today
 // So duration must equal diff(SELECTED, START_DATE) = 17
