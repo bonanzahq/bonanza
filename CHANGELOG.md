@@ -1,3 +1,11 @@
+## [2.1.2-beta.1](https://github.com/bonanzahq/bonanza/compare/v2.1.1...v2.1.2-beta.1) (2026-03-26)
+
+
+### Bug Fixes
+
+* **datepicker:** compute return duration relative to lending start date ([c902732](https://github.com/bonanzahq/bonanza/commit/c902732a1b1f11dd1ac9a41ee0df166d60044fc7)), closes [#262](https://github.com/bonanzahq/bonanza/issues/262)
+* **datepicker:** handle blank duration values in picker ([b52afa2](https://github.com/bonanzahq/bonanza/commit/b52afa2d78e0f6dc0bab3a117d79cdcc89729faa))
+
 ## [2.1.1](https://github.com/bonanzahq/bonanza/compare/v2.1.0...v2.1.1) (2026-03-24)
 
 
