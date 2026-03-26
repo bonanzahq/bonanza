@@ -2,10 +2,7 @@ import { Controller } from "@hotwired/stimulus"
 import dayjs from 'dayjs'
 import 'dayjs/locale/de'
 import { calculatePickerDate, calculateReturnDuration } from '../utils/lending_duration.mjs'
-
-var Pikaday = require('pikaday');
-
-window.Pikaday = Pikaday;
+import Pikaday from 'pikaday'
 
 // Connects to data-controller="datepicker"
 export default class extends Controller {
