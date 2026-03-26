@@ -56,6 +56,9 @@ jobs:
       - name: Build assets
         run: pnpm build && pnpm build:css
 
+      - name: Run JavaScript tests
+        run: node test/javascript/datepicker_duration_test.mjs
+
       - name: Setup database
         run: bundle exec rails db:create db:schema:load
 
