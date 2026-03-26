@@ -1,1 +1,1 @@
-{"author":{"id":"cff9ab1d2ee9741039b2a60d90cca378a5320ba753398f6f3df8d03abcebee1b"},"ops":[{"type":3,"timestamp":1774518776,"nonce":"S3q3RcMLKAp2gcRGy8hMuLS0cFc=","message":"Fixed on branch address-feedback in PR #263: datepicker now computes duration relative to lending start date, handles blank duration safely, and JS regression test is wired into CI.","files":null}]}
+{"author":{"id":"cff9ab1d2ee9741039b2a60d90cca378a5320ba753398f6f3df8d03abcebee1b"},"ops":[{"type":4,"timestamp":1774518776,"nonce":"eRz3Jas9lhs66Axe98caOMFdhmI=","status":2}]}
