@@ -52,6 +52,18 @@ class LendingControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "show renders parent item links inside bnz-card body item structure" do
+    create(:link, parent_item: @parent_item, url: "https://example.com/manual", title: "Manual")
+    lending = create(:lending, :completed, user: @user, department: @department)
+    create(:line_item, lending: lending, item: @item, quantity: 1)
+    sign_in @user
+
+    get token_lending_path(lending, token: lending.token)
+    assert_response :success
+
+    assert_select ".bnz-card .body .item a[href='https://example.com/manual']", text: "Manual"
+  end
+
   test "show with invalid token redirects" do
     lending = create(:lending, :completed, user: @user, department: @department)
     sign_in @user
