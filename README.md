@@ -217,12 +217,21 @@ times out on ACME challenges. See `docs/plans/tls-debugging.md` for details.
 ### Updating
 
 ```bash
-# Pull latest image and restart
+# Go into the production bonanza folder
+cd /opt/bonanza
+
+# Alter the desired IMAGE_TAG environment variable
+# See https://hub.docker.com/repository/docker/bonanzahq/bonanza/tags
+# for current tags. Don't use main, latest or beta in production
+vim .env
+
+# Pull changed image and restart
 docker compose pull
 docker compose up -d
 
 # Re-download config files if changed upstream
-bash deploy.sh
+# deploy.sh accepts any git ref: branch, tag, or SHA (e.g. v2.1.2, beta)
+bash deploy.sh v2.1.2
 ```
 
 ## GDPR Compliance
