@@ -201,8 +201,6 @@ export default class extends Controller {
   async fetchNewItems(val) {
     try {
       console.log("fetching new items")
-      //let sourceUrl = "/autocomplete/items.json"
-
       let sourceUrl = this.sourceValue
 
       if( val == 'all' ) {
