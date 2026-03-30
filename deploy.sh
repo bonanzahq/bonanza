@@ -49,22 +49,63 @@ if ! curl -fsSL -o /dev/null -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_U
   exit 1
 fi
 
+# Required files fail the deploy if missing. Optional files are skipped with a warning.
+# Format: "remote_path:local_filename"
+REQUIRED_FILES=(
+  "docker-compose.yml:docker-compose.yml"
+  "Caddyfile:Caddyfile"
+  "elastic_synonyms.txt:elastic_synonyms.txt"
+  "example.env:example.env"
+)
+
+OPTIONAL_FILES=(
+  "nginx-site.conf:nginx-site.conf"
+)
+
 echo "Downloading deployment files from ${REPO}:${REF}..."
 
-curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/docker/docker-compose.yml" -o docker-compose.yml
-echo "  docker-compose.yml"
+# Download required files atomically via temp directory
+TMPDIR=$(mktemp -d)
+trap 'rm -rf "${TMPDIR}"' EXIT
 
-curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/docker/Caddyfile" -o Caddyfile
-echo "  Caddyfile"
+MISSING=()
+for entry in "${REQUIRED_FILES[@]}"; do
+  remote="${entry%%:*}"
+  local_name="${entry##*:}"
+  if ! curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" \
+       "${BASE_URL}/docker/${remote}" -o "${TMPDIR}/${local_name}" 2>/dev/null; then
+    MISSING+=("${remote}")
+  fi
+done
 
-curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/docker/elastic_synonyms.txt" -o elastic_synonyms.txt
-echo "  elastic_synonyms.txt"
+if [ ${#MISSING[@]} -gt 0 ]; then
+  echo "Error: required files missing at '${REF}':"
+  for f in "${MISSING[@]}"; do
+    echo "  - docker/${f}"
+  done
+  echo ""
+  echo "This ref may predate these files. Try a newer tag or branch."
+  exit 1
+fi
 
-curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/docker/example.env" -o example.env
-echo "  example.env (reference)"
+# All required files succeeded — move to working directory
+for entry in "${REQUIRED_FILES[@]}"; do
+  local_name="${entry##*:}"
+  mv "${TMPDIR}/${local_name}" "./${local_name}"
+  echo "  ${local_name}"
+done
 
-curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" "${BASE_URL}/docker/nginx-site.conf" -o nginx-site.conf
-echo "  nginx-site.conf (reference)"
+# Optional files — skip gracefully on 404
+for entry in "${OPTIONAL_FILES[@]}"; do
+  remote="${entry%%:*}"
+  local_name="${entry##*:}"
+  if curl -fsSL -H "Authorization: token ${GITHUB_TOKEN}" \
+       "${BASE_URL}/docker/${remote}" -o "./${local_name}" 2>/dev/null; then
+    echo "  ${local_name} (reference)"
+  else
+    echo "  ${local_name} (reference) — skipped, not available at '${REF}'"
+  fi
+done
 
 if [ ! -f .env ]; then
   cp example.env .env
