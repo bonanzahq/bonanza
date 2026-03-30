@@ -1,3 +1,10 @@
+## [2.1.3](https://github.com/bonanzahq/bonanza/compare/v2.1.2...v2.1.3) (2026-03-30)
+
+
+### Bug Fixes
+
+* **lending:** render parent item links inside bnz-card body item structure ([ab0e727](https://github.com/bonanzahq/bonanza/commit/ab0e727d1d8db540167aa521916036474e7d2c75))
+
 ## [2.1.3-beta.1](https://github.com/bonanzahq/bonanza/compare/v2.1.2...v2.1.3-beta.1) (2026-03-29)
 
 
