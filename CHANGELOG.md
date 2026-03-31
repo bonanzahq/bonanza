@@ -1,3 +1,10 @@
+## [2.1.4-beta.1](https://github.com/bonanzahq/bonanza/compare/v2.1.3...v2.1.4-beta.1) (2026-03-31)
+
+
+### Bug Fixes
+
+* **deploy:** handle missing optional files at older refs ([fcf1300](https://github.com/bonanzahq/bonanza/commit/fcf1300e2d83e032507e49b6fbc4093a100b2ca5))
+
 ## [2.1.3](https://github.com/bonanzahq/bonanza/compare/v2.1.2...v2.1.3) (2026-03-30)
 
 
