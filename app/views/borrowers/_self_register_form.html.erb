@@ -41,7 +41,13 @@
 
     <div class="mb-4 form-check check-input-container">
       <%= form.check_box :tos_accepted, :autocomplete => 'off', required: true, class: "form-check-input", data: { "value-missing": "Du musst die Ausleihbedingungen akzeptieren, um fortfahren zu können"} %>
-      <%= form.label :tos_accepted, "Ich akzeptiere die oben aufgeführten Ausleihbedingungen.", class: "form-check-label" %>
+      <% if defined?(@tos) && @tos.present? %>
+        <%= form.label :tos_accepted, "Ich akzeptiere die oben aufgeführten Ausleihbedingungen.", class: "form-check-label" %>
+      <% else %>
+        <%= form.label :tos_accepted, class: "form-check-label" do %>
+          Ich akzeptiere die <%= link_to "Ausleihbedingungen", ausleihbedingungen_path, target: "_blank", rel: "noopener noreferrer" %>.
+        <% end %>
+      <% end %>
     </div>
 
     <div class="actions">

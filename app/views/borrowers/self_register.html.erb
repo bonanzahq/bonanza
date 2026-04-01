@@ -17,7 +17,7 @@
           <div class="bg-light p-3 rounded mb-3 pb-1">
             <h4>Ausleihbedingungen</h4>
             <p class="small text-muted">Stand <%= l(@tos.created_at, :format => "%d.%m.%Y") %></p>
-            <div class="tos-content">
+            <div class="tos-content" tabindex="0" role="region" aria-label="Ausleihbedingungen">
               <%= render_markdown(@tos.content) %>
             </div>
           </div>
