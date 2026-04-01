@@ -125,6 +125,7 @@ class BorrowersController < ApplicationController
 
   def self_register
     @borrower = Borrower.new
+    @tos = LegalText.current_tos
   end
 
   def email_confirmation_pending
@@ -158,6 +159,7 @@ class BorrowersController < ApplicationController
           format.html { redirect_to borrower_email_pending_url() }
         end
       else
+        @tos = LegalText.current_tos
         format.html { render :self_register, status: :unprocessable_entity, alert: "Bei der Registrierung ist etwas schiefgelaufen." }
       end
     end
