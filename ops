@@ -1,1 +1,1 @@
-{"author":{"id":"cff9ab1d2ee9741039b2a60d90cca378a5320ba753398f6f3df8d03abcebee1b"},"ops":[{"type":5,"timestamp":1775039503,"nonce":"wH9jxTD7zvU4cpWFzbnJ9jYhG1Q=","added":["in-progress"],"removed":null}]}
+{"author":{"id":"cff9ab1d2ee9741039b2a60d90cca378a5320ba753398f6f3df8d03abcebee1b"},"ops":[{"type":3,"timestamp":1775039506,"nonce":"6WHvKbaMuhPULWEY4DUqETJXU38=","message":"Fixed in PR #277. Staff form now has a TOS link (opens in new tab). Self-registration page now embeds the full TOS content above the form.","files":null}]}
