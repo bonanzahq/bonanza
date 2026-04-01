@@ -1548,3 +1548,29 @@ header {
     padding: .75rem;
   }
 }
+
+.legal-text {
+  h1 { font-size: 1.15rem; }
+  h2 { font-size: 1.05rem; }
+  h3 { font-size: 1rem; }
+  h4, h5, h6 { font-size: 0.95rem; }
+}
+
+.tos-content {
+  max-height: 400px;
+  overflow-y: auto;
+  border: 1px solid $light-grey;
+  border-radius: 0.25rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: white;
+  font-size: 13px;
+  line-height: 1.5;
+
+  h1 { font-size: 1.1rem; font-weight: 700; margin: 0.75rem 0 0.25rem; }
+  h2 { font-size: 1rem; font-weight: 700; margin: 0.75rem 0 0.25rem; }
+  h3 { font-size: 0.95rem; font-weight: 700; margin: 0.5rem 0 0.25rem; }
+  h4, h5, h6 { font-size: 0.9rem; font-weight: 700; margin: 0.5rem 0 0.25rem; }
+  p { margin-bottom: 0.5rem; }
+  ul, ol { margin-bottom: 0.5rem; padding-left: 1.25rem; }
+}
