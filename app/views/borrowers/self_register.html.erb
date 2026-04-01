@@ -17,7 +17,7 @@
           <div class="bg-light p-3 rounded mb-3 pb-1">
             <h4>Ausleihbedingungen</h4>
             <p class="small text-muted">Stand <%= l(@tos.created_at, :format => "%d.%m.%Y") %></p>
-            <div class="tos-content" style="max-height: 400px; overflow-y: auto; border: 1px solid #dee2e6; border-radius: 0.25rem; padding: 1rem; margin-bottom: 1rem; background: white;">
+            <div class="tos-content">
               <%= render_markdown(@tos.content) %>
             </div>
           </div>
