@@ -1549,6 +1549,13 @@ header {
   }
 }
 
+.legal-text {
+  h1 { font-size: 1.15rem; }
+  h2 { font-size: 1.05rem; }
+  h3 { font-size: 1rem; }
+  h4, h5, h6 { font-size: 0.95rem; }
+}
+
 .tos-content {
   max-height: 400px;
   overflow-y: auto;
