@@ -49,7 +49,9 @@
 
   <div class="mb-4 form-check">
     <%= form.check_box :tos_accepted, :autocomplete => 'off', class: "form-check-input" %>
-    <%= form.label :tos_accepted, "Bedingungen akzeptiert?", class: "form-check-label" %>
+    <%= form.label :tos_accepted, class: "form-check-label" do %>
+      Bedingungen akzeptiert? (<%= link_to "Ausleihbedingungen lesen", ausleihbedingungen_path, target: "_blank", rel: "noopener noreferrer" %>)
+    <% end %>
   </div>
 
   <div class="actions">
