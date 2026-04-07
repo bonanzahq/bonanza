@@ -1,3 +1,19 @@
+# [2.2.0](https://github.com/bonanzahq/bonanza/compare/v2.1.3...v2.2.0) (2026-04-07)
+
+
+### Bug Fixes
+
+* **borrowers:** add TOS link to staff borrower form ([98d4625](https://github.com/bonanzahq/bonanza/commit/98d4625b74d2f76b14f0423e558247667123cbcd))
+* **borrowers:** address review feedback on accessibility and fallback ([0be6122](https://github.com/bonanzahq/bonanza/commit/0be6122735bf996001ca0abd211023c42990ee56))
+* **borrowers:** move TOS embed styles to stylesheet with scaled typography ([7d7c513](https://github.com/bonanzahq/bonanza/commit/7d7c5139fcd68955137d8d1e8bb1bf4d836d9d12))
+* **deploy:** handle missing optional files at older refs ([fcf1300](https://github.com/bonanzahq/bonanza/commit/fcf1300e2d83e032507e49b6fbc4093a100b2ca5))
+* **static-pages:** cap heading sizes in legal text pages ([96f3162](https://github.com/bonanzahq/bonanza/commit/96f316222e340368c491b190f52ca4501d36eda4))
+
+
+### Features
+
+* **borrowers:** embed TOS content on self-registration page ([778f264](https://github.com/bonanzahq/bonanza/commit/778f26460a988099ce2f4e83de6943b1e89daebc))
+
 # [2.2.0-beta.1](https://github.com/bonanzahq/bonanza/compare/v2.1.4-beta.1...v2.2.0-beta.1) (2026-04-01)
 
 
