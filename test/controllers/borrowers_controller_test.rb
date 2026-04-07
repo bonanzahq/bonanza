@@ -253,11 +253,35 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to public_home_page_path
   end
 
+  # -- TOS link in staff form --
+
+  test "new borrower form has TOS link" do
+    sign_in @user
+    get new_borrower_path
+    assert_response :success
+    assert_select "a[href='#{ausleihbedingungen_path}'][target='_blank']", text: "Ausleihbedingungen lesen"
+  end
+
+  test "edit borrower form has TOS link" do
+    sign_in @user
+    get edit_borrower_path(@borrower)
+    assert_response :success
+    assert_select "a[href='#{ausleihbedingungen_path}'][target='_blank']", text: "Ausleihbedingungen lesen"
+  end
+
   # -- Public: self_register --
 
   test "self_register renders registration form without authentication" do
     get borrower_self_registration_path
     assert_response :success
+  end
+
+  test "self_register displays TOS content on page" do
+    tos = LegalText.create!(kind: :tos, content: "**Testbedingungen** für die Ausleihe", user: @user)
+    get borrower_self_registration_path
+    assert_response :success
+    assert_select ".tos-content", count: 1
+    assert_select ".tos-content strong", text: "Testbedingungen"
   end
 
   # -- Public: self_create --
