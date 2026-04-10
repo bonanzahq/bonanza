@@ -1,3 +1,10 @@
+## [2.2.1-beta.1](https://github.com/bonanzahq/bonanza/compare/v2.2.0...v2.2.1-beta.1) (2026-04-10)
+
+
+### Bug Fixes
+
+* **borrowers:** rename delete button to "Benutzerdaten löschen" ([ff024f4](https://github.com/bonanzahq/bonanza/commit/ff024f46ba9474952cb8ac5feba79665efcc49a5)), closes [#283](https://github.com/bonanzahq/bonanza/issues/283)
+
 # [2.2.0](https://github.com/bonanzahq/bonanza/compare/v2.1.3...v2.2.0) (2026-04-07)
 
 
