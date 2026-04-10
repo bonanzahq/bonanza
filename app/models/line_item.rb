@@ -8,6 +8,8 @@ class LineItem < ApplicationRecord
 
   validates :quantity, numericality: { only_integer: true }
 
+  scope :orphaned, -> { where.not(item_id: Item.select(:id)) }
+
   def take_back(params)
     begin
       ActiveRecord::Base.transaction do

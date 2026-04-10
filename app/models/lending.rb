@@ -22,6 +22,7 @@ class Lending < ApplicationRecord
   before_create :create_token
 
   scope :unfinished, -> { where(lent_at: nil) }
+  scope :with_orphaned_items, -> { joins(:line_items).merge(LineItem.orphaned).distinct }
 
   def populate(item_id, quantity = 1)
     quantity = quantity.to_i # if quantity is letters, then quantity will be 0
@@ -93,6 +94,33 @@ class Lending < ApplicationRecord
     rescue => e
       logger.error("Error removing lending with id #{self.id}: #{e.message}")
       return false
+    end
+  end
+
+  # Closes a lending regardless of item state. Handles orphaned line items
+  # (where the referenced item no longer exists) and returns valid items.
+  def force_close!(user, reason)
+    raise RuntimeError, "Lending is already returned" if returned_at.present?
+    raise ArgumentError, "Reason is required" if reason.blank?
+
+    ActiveRecord::Base.transaction do
+      line_items.each do |li|
+        next if li.returned_at.present?
+
+        item = Item.find_by(id: li.item_id)
+        if item
+          item.quantity += li.quantity
+          item.status = :available
+          item.save!(validate: false)
+        end
+
+        li.update_column(:returned_at, Time.current)
+      end
+
+      timestamp = Time.current.strftime("%Y-%m-%d %H:%M")
+      close_note = "[Force-closed by #{user.email} at #{timestamp}] #{reason}"
+      new_note = note.present? ? "#{note}\n#{close_note}" : close_note
+      update_columns(returned_at: Time.current, note: new_note)
     end
   end
 
