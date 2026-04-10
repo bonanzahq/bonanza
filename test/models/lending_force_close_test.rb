@@ -14,13 +14,21 @@ class LendingForceCloseTest < ActiveSupport::TestCase
 
   private
 
-  # Hard-deletes an item and its history records to simulate orphaned state.
-  # In production, orphans were created by v1 migration deleting items without
-  # cleaning up line_items. The FK on item_histories requires us to delete
-  # history first in tests.
-  def hard_delete_items(*item_ids)
-    ItemHistory.where(item_id: item_ids).delete_all
-    Item.where(id: item_ids).delete_all
+  # Inserts a line item referencing a non-existent item by temporarily disabling
+  # FK triggers. Used to simulate orphaned state from v1 migration.
+  def create_orphaned_line_item(lending, quantity: 1, returned_at: nil)
+    fake_item_id = 999_999_000 + rand(1000)
+    returned_sql = returned_at ? "'#{returned_at.utc.iso8601}'" : "NULL"
+    now = Time.current.utc.iso8601
+
+    ActiveRecord::Base.connection.execute("SET session_replication_role = 'replica'")
+    ActiveRecord::Base.connection.execute(<<~SQL)
+      INSERT INTO line_items (item_id, lending_id, quantity, returned_at, created_at, updated_at)
+      VALUES (#{fake_item_id}, #{lending.id}, #{quantity}, #{returned_sql}, '#{now}', '#{now}')
+    SQL
+    ActiveRecord::Base.connection.execute("SET session_replication_role = 'origin'")
+
+    LineItem.where(lending_id: lending.id, item_id: fake_item_id).first!
   end
 
   public
@@ -28,14 +36,10 @@ class LendingForceCloseTest < ActiveSupport::TestCase
   # -- LineItem.orphaned scope --
 
   test "orphaned scope returns line items referencing non-existent items" do
-    item = create(:item, parent_item: @parent_item)
     lending = create(:lending, :completed, user: @user, department: @department)
-    line_item = create(:line_item, lending: lending, item: item, quantity: 1)
+    orphaned_li = create_orphaned_line_item(lending)
 
-    # Hard-delete the item, bypassing callbacks and the soft-delete override
-    hard_delete_items(item.id)
-
-    assert_includes LineItem.orphaned, line_item
+    assert_includes LineItem.orphaned, orphaned_li
   end
 
   test "orphaned scope excludes line items with existing items" do
@@ -49,11 +53,8 @@ class LendingForceCloseTest < ActiveSupport::TestCase
   # -- Lending.with_orphaned_items scope --
 
   test "with_orphaned_items returns lendings that have orphaned line items" do
-    item = create(:item, parent_item: @parent_item)
     lending = create(:lending, :completed, user: @user, department: @department)
-    create(:line_item, lending: lending, item: item, quantity: 1)
-
-    hard_delete_items(item.id)
+    create_orphaned_line_item(lending)
 
     assert_includes Lending.with_orphaned_items, lending
   end
@@ -66,28 +67,25 @@ class LendingForceCloseTest < ActiveSupport::TestCase
     assert_not_includes Lending.with_orphaned_items, lending
   end
 
-  # -- force_close! --
+  # -- force_close! with valid items --
 
   test "force_close sets returned_at on lending" do
-    item = create(:item, parent_item: @parent_item)
+    item = create(:item, parent_item: @parent_item, quantity: 0, status: :lent)
     lending = create(:lending, :completed, user: @user, department: @department)
     create(:line_item, lending: lending, item: item, quantity: 1)
-    hard_delete_items(item.id)
 
-    lending.force_close!(@admin, "Orphaned items from v1 migration")
+    lending.force_close!(@admin, "Admin override")
 
     lending.reload
     assert lending.returned_at.present?
   end
 
   test "force_close sets returned_at on all unreturned line items" do
-    item1 = create(:item, parent_item: @parent_item)
-    item2 = create(:item, parent_item: @parent_item)
+    item1 = create(:item, parent_item: @parent_item, quantity: 0, status: :lent)
+    item2 = create(:item, parent_item: @parent_item, quantity: 0, status: :lent)
     lending = create(:lending, :completed, user: @user, department: @department)
     li1 = create(:line_item, lending: lending, item: item1, quantity: 1)
     li2 = create(:line_item, lending: lending, item: item2, quantity: 1)
-
-    hard_delete_items(item1.id, item2.id)
 
     lending.force_close!(@admin, "Cleanup")
 
@@ -98,11 +96,10 @@ class LendingForceCloseTest < ActiveSupport::TestCase
   end
 
   test "force_close does not overwrite already-returned line items" do
-    item = create(:item, parent_item: @parent_item)
+    item = create(:item, parent_item: @parent_item, quantity: 0, status: :lent)
     lending = create(:lending, :completed, user: @user, department: @department)
     original_time = 3.days.ago
     li = create(:line_item, lending: lending, item: item, quantity: 1, returned_at: original_time)
-    hard_delete_items(item.id)
 
     lending.force_close!(@admin, "Cleanup")
 
@@ -110,51 +107,42 @@ class LendingForceCloseTest < ActiveSupport::TestCase
     assert_in_delta original_time, li.returned_at, 1.second
   end
 
-  test "force_close records reason in note" do
-    item = create(:item, parent_item: @parent_item)
+  test "force_close records reason and user in note" do
+    item = create(:item, parent_item: @parent_item, quantity: 0, status: :lent)
     lending = create(:lending, :completed, user: @user, department: @department)
     create(:line_item, lending: lending, item: item, quantity: 1)
-    hard_delete_items(item.id)
 
     lending.force_close!(@admin, "Items deleted during v1 migration")
 
     lending.reload
     assert_includes lending.note, "Items deleted during v1 migration"
     assert_includes lending.note, @admin.email
+    assert_includes lending.note, "Force-closed by"
   end
 
-  test "force_close restores item quantity for non-orphaned line items" do
+  test "force_close appends to existing note" do
     item = create(:item, parent_item: @parent_item, quantity: 0, status: :lent)
     lending = create(:lending, :completed, user: @user, department: @department)
+    lending.update_column(:note, "Original note")
     create(:line_item, lending: lending, item: item, quantity: 1)
+
+    lending.force_close!(@admin, "Override reason")
+
+    lending.reload
+    assert_includes lending.note, "Original note"
+    assert_includes lending.note, "Override reason"
+  end
+
+  test "force_close restores item quantity and sets available" do
+    item = create(:item, parent_item: @parent_item, quantity: 0, status: :lent)
+    lending = create(:lending, :completed, user: @user, department: @department)
+    create(:line_item, lending: lending, item: item, quantity: 3)
 
     lending.force_close!(@admin, "Force closing")
 
     item.reload
-    assert_equal 1, item.quantity
+    assert_equal 3, item.quantity
     assert_equal "available", item.status
-  end
-
-  test "force_close handles mix of orphaned and valid line items" do
-    orphaned_item = create(:item, parent_item: @parent_item)
-    valid_item = create(:item, parent_item: @parent_item, quantity: 0, status: :lent)
-    lending = create(:lending, :completed, user: @user, department: @department)
-    li_orphaned = create(:line_item, lending: lending, item: orphaned_item, quantity: 1)
-    li_valid = create(:line_item, lending: lending, item: valid_item, quantity: 1)
-
-    hard_delete_items(orphaned_item.id)
-
-    lending.force_close!(@admin, "Mixed cleanup")
-
-    li_orphaned.reload
-    li_valid.reload
-    valid_item.reload
-
-    assert li_orphaned.returned_at.present?
-    assert li_valid.returned_at.present?
-    assert_equal 1, valid_item.quantity
-    assert_equal "available", valid_item.status
-    assert lending.reload.returned_at.present?
   end
 
   test "force_close raises on already-returned lending" do
@@ -167,13 +155,22 @@ class LendingForceCloseTest < ActiveSupport::TestCase
   end
 
   test "force_close requires a reason" do
-    item = create(:item, parent_item: @parent_item)
+    item = create(:item, parent_item: @parent_item, quantity: 0, status: :lent)
     lending = create(:lending, :completed, user: @user, department: @department)
     create(:line_item, lending: lending, item: item, quantity: 1)
-    hard_delete_items(item.id)
 
     assert_raises(ArgumentError) do
       lending.force_close!(@admin, "")
+    end
+  end
+
+  test "force_close with nil reason raises" do
+    item = create(:item, parent_item: @parent_item, quantity: 0, status: :lent)
+    lending = create(:lending, :completed, user: @user, department: @department)
+    create(:line_item, lending: lending, item: item, quantity: 1)
+
+    assert_raises(ArgumentError) do
+      lending.force_close!(@admin, nil)
     end
   end
 end

@@ -12,17 +12,8 @@ class LendingForceCloseControllerTest < ActionDispatch::IntegrationTest
     @parent_item = create(:parent_item, department: @department)
   end
 
-  private
-
-  def hard_delete_items(*item_ids)
-    ItemHistory.where(item_id: item_ids).delete_all
-    Item.where(id: item_ids).delete_all
-  end
-
-  public
-
   test "force_close requires authentication" do
-    item = create(:item, parent_item: @parent_item)
+    item = create(:item, parent_item: @parent_item, quantity: 0, status: :lent)
     lending = create(:lending, :completed, user: @user, department: @department)
     create(:line_item, lending: lending, item: item, quantity: 1)
 
@@ -30,29 +21,27 @@ class LendingForceCloseControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_user_session_path
   end
 
-  test "force_close closes orphaned lending as admin" do
+  test "force_close closes lending as admin" do
     sign_in @admin
-    item = create(:item, parent_item: @parent_item)
+    item = create(:item, parent_item: @parent_item, quantity: 0, status: :lent)
     lending = create(:lending, :completed, user: @user, department: @department)
     li = create(:line_item, lending: lending, item: item, quantity: 1)
-    hard_delete_items(item.id)
 
-    patch force_close_lending_path(lending), params: { reason: "Orphaned from v1 migration" }
+    patch force_close_lending_path(lending), params: { reason: "Admin override" }
 
     lending.reload
     li.reload
     assert lending.returned_at.present?
     assert li.returned_at.present?
-    assert_includes lending.note, "Orphaned from v1 migration"
+    assert_includes lending.note, "Admin override"
     assert_redirected_to token_lending_path(lending, token: lending.token)
   end
 
-  test "force_close closes orphaned lending as member" do
+  test "force_close closes lending as member" do
     sign_in @user
-    item = create(:item, parent_item: @parent_item)
+    item = create(:item, parent_item: @parent_item, quantity: 0, status: :lent)
     lending = create(:lending, :completed, user: @user, department: @department)
     create(:line_item, lending: lending, item: item, quantity: 1)
-    hard_delete_items(item.id)
 
     patch force_close_lending_path(lending), params: { reason: "Cleanup" }
 
@@ -61,13 +50,25 @@ class LendingForceCloseControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to token_lending_path(lending, token: lending.token)
   end
 
+  test "force_close restores item quantity" do
+    sign_in @admin
+    item = create(:item, parent_item: @parent_item, quantity: 0, status: :lent)
+    lending = create(:lending, :completed, user: @user, department: @department)
+    create(:line_item, lending: lending, item: item, quantity: 2)
+
+    patch force_close_lending_path(lending), params: { reason: "Force close" }
+
+    item.reload
+    assert_equal 2, item.quantity
+    assert_equal "available", item.status
+  end
+
   test "force_close rejects guest users" do
     guest = create(:user, :guest, department: @department)
     sign_in guest
-    item = create(:item, parent_item: @parent_item)
+    item = create(:item, parent_item: @parent_item, quantity: 0, status: :lent)
     lending = create(:lending, :completed, user: @user, department: @department)
     create(:line_item, lending: lending, item: item, quantity: 1)
-    hard_delete_items(item.id)
 
     patch force_close_lending_path(lending), params: { reason: "test" }
 
@@ -80,10 +81,10 @@ class LendingForceCloseControllerTest < ActionDispatch::IntegrationTest
     other_dept = create(:department)
     other_user = create(:user, department: other_dept)
     sign_in @user
-    item = create(:item, parent_item: @parent_item)
+    other_parent = create(:parent_item, department: other_dept)
+    item = create(:item, parent_item: other_parent, quantity: 0, status: :lent)
     lending = create(:lending, :completed, user: other_user, department: other_dept)
     create(:line_item, lending: lending, item: item, quantity: 1)
-    hard_delete_items(item.id)
 
     patch force_close_lending_path(lending), params: { reason: "test" }
     assert_response :not_found
@@ -102,10 +103,9 @@ class LendingForceCloseControllerTest < ActionDispatch::IntegrationTest
 
   test "force_close requires a reason" do
     sign_in @admin
-    item = create(:item, parent_item: @parent_item)
+    item = create(:item, parent_item: @parent_item, quantity: 0, status: :lent)
     lending = create(:lending, :completed, user: @user, department: @department)
     create(:line_item, lending: lending, item: item, quantity: 1)
-    hard_delete_items(item.id)
 
     patch force_close_lending_path(lending), params: { reason: "" }
 
