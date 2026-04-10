@@ -67,7 +67,7 @@ class Ability
       can :update, User, :id => user.id
       can :read, User
       can :manage, Borrower
-      can :manage, ParentItem, :department_id => user.current_department.id
+      can [:create, :read, :update, :destroy_file], ParentItem, :department_id => user.current_department.id
       can :move, ParentItem, :department_id => user.current_department.id
       can :manage, Lending, :department_id => user.current_department.id
       can [:edit, :update, :select_borrower], :checkout
