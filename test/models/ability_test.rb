@@ -220,7 +220,11 @@ class AbilityTest < ActiveSupport::TestCase
     parent_item = create(:parent_item, department: @department)
     other_item = create(:parent_item, department: @other_department)
 
-    assert ability.can?(:manage, parent_item)
+    assert ability.can?(:create, parent_item)
+    assert ability.can?(:read, parent_item)
+    assert ability.can?(:update, parent_item)
+    assert ability.can?(:destroy_file, parent_item)
+    assert ability.cannot?(:destroy, parent_item)
     assert ability.cannot?(:manage, other_item)
   end
 
@@ -454,7 +458,11 @@ class AbilityTest < ActiveSupport::TestCase
     assert ability.can?(:read, :all)
     assert ability.can?(:update, user)
     assert ability.can?(:manage, Borrower)
-    assert ability.can?(:manage, parent_item)
+    assert ability.can?(:create, parent_item)
+    assert ability.can?(:read, parent_item)
+    assert ability.can?(:update, parent_item)
+    assert ability.can?(:destroy_file, parent_item)
+    assert ability.cannot?(:destroy, parent_item)
     assert ability.cannot?(:manage, other_item)
     assert ability.can?(:manage, lending)
     assert ability.can?(:edit, :checkout)
