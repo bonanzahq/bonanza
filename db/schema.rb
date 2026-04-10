@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_03_01_160852) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_10_074401) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -407,6 +407,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_03_01_160852) do
   add_foreign_key "item_histories", "line_items"
   add_foreign_key "item_histories", "users"
   add_foreign_key "legal_texts", "users"
+  add_foreign_key "line_items", "items"
+  add_foreign_key "line_items", "lendings"
   add_foreign_key "links", "parent_items"
   add_foreign_key "parent_items", "departments"
   add_foreign_key "solid_queue_blocked_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
