@@ -1,1 +1,1 @@
-{"author":{"id":"cff9ab1d2ee9741039b2a60d90cca378a5320ba753398f6f3df8d03abcebee1b"},"ops":[{"type":3,"timestamp":1775806080,"nonce":"bBI+eb1XTN2tvYrzyR/Eeo+hvVQ=","message":"Fixed in PR #286. Renamed all three instances (button, modal title, confirm button) and added test.","files":null}]}
+{"author":{"id":"cff9ab1d2ee9741039b2a60d90cca378a5320ba753398f6f3df8d03abcebee1b"},"ops":[{"type":4,"timestamp":1775806080,"nonce":"W6T93a+xrScyHYttEWrT+3RYeg8=","status":2}]}
