@@ -23,31 +23,41 @@
             </h3>
                 
             <% @lending.line_items.each_with_index do |line_item, line_item_index| %>
-                <div class="bnz-card">
+                <% item = Item.find_by(id: line_item.item_id) %>
+                <div class="bnz-card<%= ' border-danger' if item.nil? %>">
                     <div class="header">
+                        <% if item %>
                         <div class="left fw-bold">
-                            <%= line_item.item.parent_item.name %>
+                            <%= item.parent_item.name %>
                         </div>
                         <div class="right">
-                            <% if line_item.item.storage_location.present? %>
-                                <div class="storage-location"><%= line_item.item.storage_location %></div>
+                            <% if item.storage_location.present? %>
+                                <div class="storage-location"><%= item.storage_location %></div>
                             <% end %>
 
                             
-                            <% if line_item.item.uid.present? %>
-                                <div class="identifier <%= line_item.item.condition %>" title="<%= t(line_item.item.condition, :scope => 'condition') %>">
-                                    <%= line_item.item.uid %>
+                            <% if item.uid.present? %>
+                                <div class="identifier <%= item.condition %>" title="<%= t(item.condition, :scope => 'condition') %>">
+                                    <%= item.uid %>
                                 </div>
                             <% else %>
                                 <%= line_item.quantity %>
                                 x
                             <% end %>
                         </div> 
+                        <% else %>
+                        <div class="left fw-bold text-danger">
+                            Artikel nicht mehr vorhanden (ID: <%= line_item.item_id %>)
+                        </div>
+                        <div class="right">
+                            <%= line_item.quantity %> x
+                        </div>
+                        <% end %>
                     </div>
 
-                    <% if line_item.item.parent_item.accessories.any? %>
+                    <% if item&.parent_item&.accessories&.any? %>
                         <div class="body">
-                            <% line_item.item.parent_item.accessories.each do |accessory| %>
+                            <% item.parent_item.accessories.each do |accessory| %>
                                 <div class="item">
                                     <div class="left"><%= accessory.name %></div>
                                     <div class="right">
@@ -60,9 +70,9 @@
                         </div>
                     <% end %>
 
-                    <% if line_item.item.parent_item.links.any? %>
+                    <% if item&.parent_item&.links&.any? %>
                         <div class="body">
-                            <% line_item.item.parent_item.links.each do |link| %>
+                            <% item.parent_item.links.each do |link| %>
                                 <div class="item">
                                     <div class="left">
                                         <a href="<%= link.url %>" target="_blank" rel="noopener noreferrer">
@@ -95,6 +105,17 @@
             </div>
             <% end %>
        
+            <% if user_signed_in? and can? :manage, @lending and @lending.returned_at.nil? %>
+                <% has_orphaned = @lending.line_items.any? { |li| Item.where(id: li.item_id).none? } %>
+                <% if has_orphaned %>
+                <div class="p-3 bg-warning bg-opacity-10 border border-warning rounded mb-3">
+                    <p class="fw-bold mb-2">Diese Ausleihe enthält Artikel, die nicht mehr existieren.</p>
+                    <p class="mb-2">Eine normale Rückgabe ist nicht möglich. Mit der Zwangsschließung werden alle Artikel als zurückgegeben markiert.</p>
+                    <a href="#" class="btn btn-warning" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="forceCloseModal">Ausleihe zwangsweise schließen</a>
+                </div>
+                <% end %>
+            <% end %>
+
             <% if user_signed_in? and can? :update, @lending %>
                 <div class="actions">
                     <div>
@@ -121,6 +142,30 @@
         </div>
     </div>
     <div class="col-3">
+    </div>
+
+    <div class="modal fade" id="forceCloseModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Ausleihe zwangsweise schließen</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <%= form_with url: force_close_lending_path(@lending), method: :patch, data: { turbo: false } do |form| %>
+          <div class="modal-body">
+            <p>Alle Artikel werden als zurückgegeben markiert. Diese Aktion kann nicht rückgängig gemacht werden.</p>
+            <div class="mb-3">
+              <%= form.label :reason, "Grund", class: "form-label" %>
+              <%= form.text_area :reason, class: "form-control", rows: 3, required: true, placeholder: "Warum wird diese Ausleihe zwangsweise geschlossen?" %>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <%= form.submit "Zwangsweise schließen", class: "btn btn-warning" %>
+          </div>
+          <% end %>
+        </div>
+      </div>
     </div>
 
     <div class="modal fade" id="editDurationModal" tabindex="-1">
