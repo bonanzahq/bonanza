@@ -30,15 +30,14 @@
   <tbody>
     <% if @lending.has_line_items? %>
       <% @lending.line_items.each do |line_item| %>
-      <% item = Item.find_by(id: line_item.item_id) %>
       <tr>
         <td><%= line_item.quantity %></td>
-        <td><%= item ? item.parent_item.name : "Artikel nicht mehr vorhanden" %>
+        <td><%= line_item.item.parent_item.name %>
             <% line_item.accessories.each do |a| %>
               <p class="name"><%= a.name %></p>
             <% end %>
         </td>
-        <td><%= item&.uid %></td>
+        <td><%= line_item.item.uid %></td>
       </tr>
       <% end %>
     <% end %>

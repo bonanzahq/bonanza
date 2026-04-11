@@ -16,23 +16,12 @@
         <div class="p-3 bg-light mb-3 rounded">
 
             <% @lending.line_items.each_with_index do |line_item, line_item_index| %>
-                <% item = Item.find_by(id: line_item.item_id) %>
-                <% if item.nil? %>
-                <div class="bnz-card border-danger">
-                    <div class="header">
-                        <div class="left">
-                            <span class="fw-bold text-danger">Artikel nicht mehr vorhanden</span>
-                            <%= line_item.quantity %> x
-                        </div>
-                    </div>
-                </div>
-                <% else %>
                 <div class="bnz-card" data-controller="show-details">
                     <div class="header">
                         <div class="left">
-                            <span class="fw-bold"><%= item.parent_item.name %></span>
-                            <% if item.uid.present? %>
-                                <%= item.uid %>
+                            <span class="fw-bold"><%= line_item.item.parent_item.name %></span>
+                            <% if line_item.item.uid.present? %>
+                                <%= line_item.item.uid %>
                             <% else %>
                                 <%= line_item.quantity %>
                                 x
@@ -40,29 +29,29 @@
                             
                         </div>
                         <div class="right">
-                            <% if item.parent_item.description.present? or item.parent_item.files.attached? %>
+                            <% if line_item.item.parent_item.description.present? or line_item.item.parent_item.files.attached? %>
                                 <a href="#" data-action="show-details#toggleDetails">Details</a>
                             <% end %>
                         </div>
                     </div>
                     <div class="body d-none">
                         <div class="inner">
-                            <% if item.parent_item.description.present? %>
+                            <% if line_item.item.parent_item.description.present? %>
                                 <div class="mb-2">
                                     <div class="form-label">
                                         Beschreibung
                                     </div>
                                     <div>
-                                        <%= render_markdown(item.parent_item.description) %>
+                                        <%= render_markdown(line_item.item.parent_item.description) %>
                                     </div>
                                 </div>
                             <% end %>
 
-                            <% if item.parent_item.files.attached? %>
+                            <% if line_item.item.parent_item.files.attached? %>
                                 <div class="mb-2">
                                     <div class="form-label">Dateien</div>
                                     <ul class="files">
-                                        <% item.parent_item.files.each do |file| %>
+                                        <% line_item.item.parent_item.files.each do |file| %>
                                             <li>
                                                 <a href="<%= url_for(file) %>" title="<%= file.filename %>" class="filename icon-before <%= file.content_type.include?("image") ? "picture" : "document" %>">
                                                   <span><%= file.filename %></span>
@@ -74,8 +63,8 @@
                             <% end %>
 
                         </div>
-                        <% if item.parent_item.accessories.any? %>
-                            <% item.parent_item.accessories.each do |accessory| %>
+                        <% if line_item.item.parent_item.accessories.any? %>
+                            <% line_item.item.parent_item.accessories.each do |accessory| %>
                                 <div class="item">
                                     <div class="left"><%= accessory.name %></div>
                                     <div class="right">
@@ -89,7 +78,6 @@
                     </div>
                     
                 </div>
-                <% end %>
             <% end %>
 
             <hr class="divider">

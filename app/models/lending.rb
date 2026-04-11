@@ -22,7 +22,6 @@ class Lending < ApplicationRecord
   before_create :create_token
 
   scope :unfinished, -> { where(lent_at: nil) }
-  scope :with_orphaned_items, -> { joins(:line_items).merge(LineItem.orphaned).distinct }
 
   def populate(item_id, quantity = 1)
     quantity = quantity.to_i # if quantity is letters, then quantity will be 0

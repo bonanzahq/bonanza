@@ -1,45 +1,29 @@
-<% item = Item.find_by(id: line_item.item_id) %>
-<% if item.nil? %>
-<div class="item border-danger">
-    <div class="line">
-        <div class="left">
-            <span class="fw-bold text-danger">Artikel nicht mehr vorhanden (ID: <%= line_item.item_id %>)</span>
-        </div>
-        <div class="right">
-            <% if line_item.returned_at.nil? %>
-                <span class="text-muted">Zwangsschließung erforderlich</span>
-            <% else %>
-                zurückgegeben
-            <% end %>
-        </div>
-    </div>
-</div>
-<% elsif item.uid.present? %>
+    
+<% if line_item.item.uid.present? %>
 <div class="item flex-column <%= "overdue" if line_item.lending.is_overdue? && line_item.returned_at.nil?  %>">
     <div class="line">
-        <span class="fw-bold"><%= item.parent_item.name %></span>
+        <span class="fw-bold"><%= line_item.item.parent_item.name %></span>
     </div>
     <div class="line">
     <div class="left">
-        <%= item.uid %>
+        <%= line_item.item.uid %>
     </div>
 
 <% else %>
 <div class="item">
     <div class="line">
         <div class="left">
-            <%= "#{line_item.quantity.to_s}x <span class='fw-bold'>#{item.parent_item.name}</span>".html_safe %>
+            <%= "#{line_item.quantity.to_s}x <span class='fw-bold'>#{line_item.item.parent_item.name}</span>".html_safe %>
         </div>
 <% end %>
         
-<% if item %>
         <%= form_tag take_back_path, data: { turbo_frame: "_top"} do %>
             <%= hidden_field_tag(:line_item_id, line_item.id) %>
     
             <div class="right">
                 <% if can? :take_back, line_item %>
                     <% if line_item.returned_at.nil? %>
-                        <% if item.uid.blank? %>
+                        <% if line_item.item.uid.blank? %>
                             <input type="text" class="form-control" name="quantity" value="<%= line_item.quantity %>">
                         <% else %>
                             <input type="hidden" class="form-control" name="quantity" value="1">
@@ -52,6 +36,5 @@
             </div>
         <% end %>
     </div>
-<% end %>
    
 </div>

@@ -1,5 +1,5 @@
-# ABOUTME: Tests for Lending#force_close! and orphaned lending detection.
-# ABOUTME: Covers force-closing lendings with orphaned or valid line items.
+# ABOUTME: Tests for Lending#force_close! method.
+# ABOUTME: Covers force-closing lendings, restoring items, and audit trail.
 
 require "test_helper"
 
@@ -11,63 +11,6 @@ class LendingForceCloseTest < ActiveSupport::TestCase
     User.current_user = @user
     @parent_item = create(:parent_item, department: @department)
   end
-
-  private
-
-  # Inserts a line item referencing a non-existent item by temporarily disabling
-  # FK triggers. Used to simulate orphaned state from v1 migration.
-  def create_orphaned_line_item(lending, quantity: 1, returned_at: nil)
-    fake_item_id = 999_999_000 + rand(1000)
-    returned_sql = returned_at ? "'#{returned_at.utc.iso8601}'" : "NULL"
-    now = Time.current.utc.iso8601
-
-    ActiveRecord::Base.connection.execute("SET session_replication_role = 'replica'")
-    ActiveRecord::Base.connection.execute(<<~SQL)
-      INSERT INTO line_items (item_id, lending_id, quantity, returned_at, created_at, updated_at)
-      VALUES (#{fake_item_id}, #{lending.id}, #{quantity}, #{returned_sql}, '#{now}', '#{now}')
-    SQL
-    ActiveRecord::Base.connection.execute("SET session_replication_role = 'origin'")
-
-    LineItem.where(lending_id: lending.id, item_id: fake_item_id).first!
-  end
-
-  public
-
-  # -- LineItem.orphaned scope --
-
-  test "orphaned scope returns line items referencing non-existent items" do
-    lending = create(:lending, :completed, user: @user, department: @department)
-    orphaned_li = create_orphaned_line_item(lending)
-
-    assert_includes LineItem.orphaned, orphaned_li
-  end
-
-  test "orphaned scope excludes line items with existing items" do
-    item = create(:item, parent_item: @parent_item)
-    lending = create(:lending, :completed, user: @user, department: @department)
-    line_item = create(:line_item, lending: lending, item: item, quantity: 1)
-
-    assert_not_includes LineItem.orphaned, line_item
-  end
-
-  # -- Lending.with_orphaned_items scope --
-
-  test "with_orphaned_items returns lendings that have orphaned line items" do
-    lending = create(:lending, :completed, user: @user, department: @department)
-    create_orphaned_line_item(lending)
-
-    assert_includes Lending.with_orphaned_items, lending
-  end
-
-  test "with_orphaned_items excludes lendings with valid items" do
-    item = create(:item, parent_item: @parent_item)
-    lending = create(:lending, :completed, user: @user, department: @department)
-    create(:line_item, lending: lending, item: item, quantity: 1)
-
-    assert_not_includes Lending.with_orphaned_items, lending
-  end
-
-  # -- force_close! with valid items --
 
   test "force_close sets returned_at on lending" do
     item = create(:item, parent_item: @parent_item, quantity: 0, status: :lent)
