@@ -1,3 +1,11 @@
+# [2.3.0-beta.1](https://github.com/bonanzahq/bonanza/compare/v2.2.1-beta.1...v2.3.0-beta.1) (2026-04-11)
+
+
+### Features
+
+* **auth:** restrict parent item destroy to admin and leader roles ([b8469a3](https://github.com/bonanzahq/bonanza/commit/b8469a30cf2fd39518e87234405c0262cdbd3ded))
+* **parent-items:** add delete button with confirmation modal ([996b57f](https://github.com/bonanzahq/bonanza/commit/996b57f85c15ad3cc1fc13e44d0317f4adfe189b))
+
 ## [2.2.1-beta.1](https://github.com/bonanzahq/bonanza/compare/v2.2.0...v2.2.1-beta.1) (2026-04-10)
 
 
