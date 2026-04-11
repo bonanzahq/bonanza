@@ -343,6 +343,17 @@ class BorrowersControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  # -- delete button label --
+
+  test "show page has Benutzerdaten löschen button and modal" do
+    sign_in @user
+    get borrower_path(@borrower)
+    assert_response :success
+    assert_select "a", text: "Benutzerdaten löschen"
+    assert_select ".modal-title", text: "Benutzerdaten löschen"
+    assert_select "button[type=submit]", text: "Benutzerdaten löschen"
+  end
+
   # -- GDPR: export_data --
 
   test "export_data creates an audit log entry" do
