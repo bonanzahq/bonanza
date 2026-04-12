@@ -114,6 +114,9 @@
                         </script>
                     </div>
                     <div class="right">
+                        <% if @lending.returned_at.nil? %>
+                            <a href="#" class="btn btn-outline-danger" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="forceCloseModal">Zwangsschließen</a>
+                        <% end %>
                         <%= button_to "Delete 2", lending_destroy_path, method: :delete, form: { data: { turbo: false } }, class: "btn btn-outline-secondary" %>
                     </div>
                 </div>
@@ -121,6 +124,30 @@
         </div>
     </div>
     <div class="col-3">
+    </div>
+
+    <div class="modal fade" id="forceCloseModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Ausleihe zwangsweise schließen</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <%= form_with url: force_close_lending_path(@lending), method: :patch, data: { turbo: false } do |form| %>
+          <div class="modal-body">
+            <p>Alle Artikel werden als zurückgegeben markiert. Diese Aktion kann nicht rückgängig gemacht werden.</p>
+            <div class="mb-3">
+              <%= form.label :reason, "Grund", class: "form-label" %>
+              <%= form.text_area :reason, class: "form-control", rows: 3, required: true, placeholder: "Warum wird diese Ausleihe zwangsweise geschlossen?" %>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <%= form.submit "Zwangsweise schließen", class: "btn btn-danger" %>
+          </div>
+          <% end %>
+        </div>
+      </div>
     </div>
 
     <div class="modal fade" id="editDurationModal" tabindex="-1">
