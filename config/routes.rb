@@ -54,6 +54,7 @@ Rails.application.routes.draw do
   get 'ausleihe/:id/token/:token/agreement' => 'lending#show_printable_agreement', :as => :lending_agreement
   match 'ausleihe/:id', to: 'lending#destroy', via: [:delete, :post], :as => :lending_destroy
   patch 'ausleihe/:id/ausleihzeit', to: 'lending#change_duration', :as => :change_lending_duration
+  patch 'ausleihe/:id/force_close', to: 'lending#force_close', :as => :force_close_lending
 
   get 'checkout', :to => 'checkout#index' , :as => :checkout
   match 'checkout/:state', to: 'checkout#index', via: [:get, :post], :as => :checkout_state

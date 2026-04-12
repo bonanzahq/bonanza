@@ -138,6 +138,22 @@ class LendingController < ApplicationController
     redirect_to lending_path, status: :see_other
   end
 
+  def force_close
+    @lending = @department.lendings.find(params[:id])
+    authorize! :manage, @lending
+
+    begin
+      @lending.force_close!(current_user, params[:reason])
+      flash[:notice] = "Ausleihe wurde zwangsweise geschlossen."
+    rescue ArgumentError => e
+      flash[:alert] = e.message
+    rescue RuntimeError => e
+      flash[:alert] = "Ausleihe ist bereits zurückgegeben."
+    end
+
+    redirect_to token_lending_path(@lending, token: @lending.token)
+  end
+
   def change_duration
     @lending = Lending.find(params[:id])
     old_duration = @lending.duration
