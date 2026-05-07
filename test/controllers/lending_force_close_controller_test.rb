@@ -110,7 +110,7 @@ class LendingForceCloseControllerTest < ActionDispatch::IntegrationTest
     patch force_close_lending_path(lending), params: { reason: "" }
 
     assert_redirected_to token_lending_path(lending, token: lending.token)
-    assert flash[:alert].present?
+    assert_equal "Grund ist erforderlich.", flash[:alert]
     lending.reload
     assert_nil lending.returned_at
   end

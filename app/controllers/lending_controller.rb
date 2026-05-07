@@ -147,7 +147,7 @@ class LendingController < ApplicationController
       flash[:notice] = "Ausleihe wurde zwangsweise geschlossen."
     rescue ArgumentError => e
       flash[:alert] = e.message
-    rescue RuntimeError => e
+    rescue Lending::AlreadyReturnedError
       flash[:alert] = "Ausleihe ist bereits zurückgegeben."
     end
 

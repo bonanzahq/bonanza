@@ -193,6 +193,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_10_074401) do
     t.integer "quantity"
     t.datetime "returned_at"
     t.datetime "updated_at", null: false
+    t.index ["item_id"], name: "index_line_items_on_item_id"
+    t.index ["lending_id"], name: "index_line_items_on_lending_id"
   end
 
   create_table "links", force: :cascade do |t|

@@ -88,11 +88,11 @@ class LendingForceCloseTest < ActiveSupport::TestCase
     assert_equal "available", item.status
   end
 
-  test "force_close raises on already-returned lending" do
+  test "force_close raises dedicated error on already-returned lending" do
     lending = create(:lending, :completed, user: @user, department: @department)
     lending.update_column(:returned_at, Time.current)
 
-    assert_raises(RuntimeError) do
+    assert_raises(Lending::AlreadyReturnedError) do
       lending.force_close!(@admin, "Should fail")
     end
   end
@@ -102,9 +102,11 @@ class LendingForceCloseTest < ActiveSupport::TestCase
     lending = create(:lending, :completed, user: @user, department: @department)
     create(:line_item, lending: lending, item: item, quantity: 1)
 
-    assert_raises(ArgumentError) do
+    error = assert_raises(ArgumentError) do
       lending.force_close!(@admin, "")
     end
+
+    assert_equal "Grund ist erforderlich.", error.message
   end
 
   test "force_close with nil reason raises" do
@@ -112,8 +114,10 @@ class LendingForceCloseTest < ActiveSupport::TestCase
     lending = create(:lending, :completed, user: @user, department: @department)
     create(:line_item, lending: lending, item: item, quantity: 1)
 
-    assert_raises(ArgumentError) do
+    error = assert_raises(ArgumentError) do
       lending.force_close!(@admin, nil)
     end
+
+    assert_equal "Grund ist erforderlich.", error.message
   end
 end

@@ -1,4 +1,6 @@
 class Lending < ApplicationRecord
+  class AlreadyReturnedError < StandardError; end
+
   belongs_to :user
   belongs_to :department
   belongs_to :borrower, optional: true
@@ -96,11 +98,9 @@ class Lending < ApplicationRecord
     end
   end
 
-  # Closes a lending regardless of item state. Handles orphaned line items
-  # (where the referenced item no longer exists) and returns valid items.
   def force_close!(user, reason)
-    raise RuntimeError, "Lending is already returned" if returned_at.present?
-    raise ArgumentError, "Reason is required" if reason.blank?
+    raise AlreadyReturnedError, "Lending is already returned" if returned_at.present?
+    raise ArgumentError, "Grund ist erforderlich." if reason.blank?
 
     ActiveRecord::Base.transaction do
       line_items.each do |li|
@@ -108,9 +108,10 @@ class Lending < ApplicationRecord
 
         item = Item.find_by(id: li.item_id)
         if item
+          item.lock!
           item.quantity += li.quantity
           item.status = :available
-          item.save!(validate: false)
+          item.save!
         end
 
         li.update_column(:returned_at, Time.current)

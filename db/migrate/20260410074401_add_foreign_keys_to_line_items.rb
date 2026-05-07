@@ -21,6 +21,9 @@ class AddForeignKeysToLineItems < ActiveRecord::Migration[8.1]
       say "Cleaned up #{orphaned_by_item} line items with missing items, #{orphaned_by_lending} with missing lendings"
     end
 
+    add_index :line_items, :item_id
+    add_index :line_items, :lending_id
+
     add_foreign_key :line_items, :items
     add_foreign_key :line_items, :lendings
   end
@@ -28,5 +31,7 @@ class AddForeignKeysToLineItems < ActiveRecord::Migration[8.1]
   def down
     remove_foreign_key :line_items, :items
     remove_foreign_key :line_items, :lendings
+    remove_index :line_items, :item_id, if_exists: true
+    remove_index :line_items, :lending_id, if_exists: true
   end
 end

@@ -114,7 +114,7 @@
                         </script>
                     </div>
                     <div class="right">
-                        <% if @lending.returned_at.nil? %>
+                        <% if @lending.returned_at.nil? && can?(:manage, @lending) %>
                             <a href="#" class="btn btn-outline-danger" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="forceCloseModal">Zwangsschließen</a>
                         <% end %>
                         <%= button_to "Delete 2", lending_destroy_path, method: :delete, form: { data: { turbo: false } }, class: "btn btn-outline-secondary" %>
