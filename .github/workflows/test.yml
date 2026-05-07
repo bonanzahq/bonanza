@@ -46,21 +46,31 @@ jobs:
 
       - name: Install mise
         uses: jdx/mise-action@v2
+        with:
+          install: false
+
+      - name: Install toolchain
+        run: mise install ruby@4.0.1 node@24 lefthook@2.1.4
+
+      - name: Enable pnpm via corepack
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.33.4 --activate
 
       - name: Install Ruby dependencies
-        run: bundle install
+        run: mise exec -- bundle install
 
       - name: Install JS dependencies
-        run: pnpm install --frozen-lockfile
+        run: mise exec -- pnpm install --frozen-lockfile
 
       - name: Build assets
-        run: pnpm build && pnpm build:css
+        run: mise exec -- pnpm build && mise exec -- pnpm build:css
 
       - name: Run JavaScript tests
-        run: node test/javascript/datepicker_duration_test.mjs
+        run: mise exec -- node test/javascript/datepicker_duration_test.mjs
 
       - name: Setup database
-        run: bundle exec rails db:create db:schema:load
+        run: mise exec -- bundle exec rails db:create db:schema:load
 
       - name: Run tests
-        run: bundle exec rails test
+        run: mise exec -- bundle exec rails test

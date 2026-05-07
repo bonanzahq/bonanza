@@ -40,11 +40,21 @@ jobs:
 
       - name: Install mise
         uses: jdx/mise-action@v2
+        with:
+          install: false
 
-      - run: pnpm install --frozen-lockfile
+      - name: Install toolchain
+        run: mise install ruby@4.0.1 node@24 lefthook@2.1.4
+
+      - name: Enable pnpm via corepack
+        run: |
+          corepack enable
+          corepack prepare pnpm@10.33.4 --activate
+
+      - run: mise exec -- pnpm install --frozen-lockfile
 
       - name: Run semantic-release
-        run: pnpm exec semantic-release
+        run: mise exec -- pnpm exec semantic-release
         env:
           GITHUB_TOKEN: ${{ steps.app-token.outputs.token }}
 
