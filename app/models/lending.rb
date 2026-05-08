@@ -118,7 +118,7 @@ class Lending < ApplicationRecord
       end
 
       timestamp = Time.current.strftime("%Y-%m-%d %H:%M")
-      close_note = "[Force-closed by #{user.email} at #{timestamp}] #{reason}"
+      close_note = "[Ausleihe entfernt von #{user.email} am #{timestamp}] #{reason}"
       new_note = note.present? ? "#{note}\n#{close_note}" : close_note
       update_columns(returned_at: Time.current, note: new_note)
     end

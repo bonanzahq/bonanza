@@ -144,7 +144,7 @@ class LendingController < ApplicationController
 
     begin
       @lending.force_close!(current_user, params[:reason])
-      flash[:notice] = "Ausleihe wurde zwangsweise geschlossen."
+      flash[:notice] = "Ausleihe wurde entfernt."
     rescue ArgumentError => e
       flash[:alert] = e.message
     rescue Lending::AlreadyReturnedError

@@ -60,7 +60,7 @@ class LendingForceCloseTest < ActiveSupport::TestCase
     lending.reload
     assert_includes lending.note, "Items deleted during v1 migration"
     assert_includes lending.note, @admin.email
-    assert_includes lending.note, "Force-closed by"
+    assert_includes lending.note, "Ausleihe entfernt von"
   end
 
   test "force_close appends to existing note" do

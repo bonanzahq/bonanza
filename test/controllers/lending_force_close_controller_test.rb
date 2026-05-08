@@ -35,6 +35,7 @@ class LendingForceCloseControllerTest < ActionDispatch::IntegrationTest
     assert li.returned_at.present?
     assert_includes lending.note, "Admin override"
     assert_redirected_to token_lending_path(lending, token: lending.token)
+    assert_equal "Ausleihe wurde entfernt.", flash[:notice]
   end
 
   test "force_close closes lending as member" do
@@ -48,6 +49,7 @@ class LendingForceCloseControllerTest < ActionDispatch::IntegrationTest
     lending.reload
     assert lending.returned_at.present?
     assert_redirected_to token_lending_path(lending, token: lending.token)
+    assert_equal "Ausleihe wurde entfernt.", flash[:notice]
   end
 
   test "force_close restores item quantity" do
