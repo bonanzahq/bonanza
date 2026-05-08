@@ -52,6 +52,7 @@ class LendingControllerTest < ActionDispatch::IntegrationTest
     get token_lending_path(lending, token: lending.token)
     assert_response :success
     assert_select "a", text: "Zwangsschließen"
+    assert_select "form button", text: "Delete 2", count: 0
   end
 
   test "show hides force-close action for returned lending" do
