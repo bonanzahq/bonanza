@@ -129,10 +129,15 @@ class ParentItemsController < ApplicationController
 
   # DELETE /parent_items/1 or /parent_items/1.json
   def destroy
+    if @parent_item.has_lent_items?
+      return redirect_back fallback_location: parent_item_path(@parent_item),
+        alert: "Artikelstamm kann nicht gelöscht werden, da Artikel noch ausgeliehen sind."
+    end
+
     @parent_item.destroy
 
     respond_to do |format|
-      format.html { redirect_to borrowers_path, notice: "Parent item was successfully destroyed." }
+      format.html { redirect_to borrowers_path, notice: "Artikelstamm wurde gelöscht." }
     end
   end
 

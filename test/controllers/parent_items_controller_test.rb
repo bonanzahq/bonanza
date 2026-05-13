@@ -55,6 +55,88 @@ class ParentItemsControllerTest < ActionDispatch::IntegrationTest
     assert_no_match borrower.fullname, response.body
   end
 
+  # -- destroy --
+
+  test "admin can destroy parent item" do
+    admin = create(:user, :admin, department: @department)
+    sign_in admin
+
+    assert_difference "ParentItem.count", -1 do
+      delete parent_item_path(@parent_item)
+    end
+
+    assert_redirected_to borrowers_path
+    assert_equal "Artikelstamm wurde gelöscht.", flash[:notice]
+  end
+
+  test "leader can destroy parent item in own department" do
+    leader = create(:user, :leader, department: @department)
+    sign_in leader
+
+    assert_difference "ParentItem.count", -1 do
+      delete parent_item_path(@parent_item)
+    end
+
+    assert_redirected_to borrowers_path
+  end
+
+  test "destroy is blocked when items are lent" do
+    create(:item, parent_item: @parent_item, status: :lent)
+    admin = create(:user, :admin, department: @department)
+    sign_in admin
+
+    assert_no_difference "ParentItem.count" do
+      delete parent_item_path(@parent_item)
+    end
+
+    assert_equal "Artikelstamm kann nicht gelöscht werden, da Artikel noch ausgeliehen sind.", flash[:alert]
+  end
+
+  test "member cannot destroy parent item" do
+    sign_in @user
+
+    assert_no_difference "ParentItem.count" do
+      delete parent_item_path(@parent_item)
+    end
+
+    assert_response :redirect
+  end
+
+  test "guest cannot destroy parent item" do
+    guest = create(:user, :guest, department: @department)
+    sign_in guest
+
+    assert_no_difference "ParentItem.count" do
+      delete parent_item_path(@parent_item)
+    end
+
+    assert_response :redirect
+  end
+
+  test "unauthenticated user cannot destroy parent item" do
+    assert_no_difference "ParentItem.count" do
+      delete parent_item_path(@parent_item)
+    end
+
+    assert_redirected_to new_user_session_path
+  end
+
+  test "show page shows delete button for admin" do
+    admin = create(:user, :admin, department: @department)
+    sign_in admin
+    get parent_item_path(@parent_item)
+    assert_response :success
+    assert_match "Löschen", response.body
+    assert_match "deleteParentItemModal", response.body
+  end
+
+  test "show page does not show delete button for member" do
+    sign_in @user
+    get parent_item_path(@parent_item)
+    assert_response :success
+    assert_no_match "deleteParentItemModal", response.body
+  end
+
   # -- move (via update) --
 
   test "member can move parent item to another department they belong to" do
