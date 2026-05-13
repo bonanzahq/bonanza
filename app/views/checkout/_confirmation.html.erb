@@ -43,13 +43,14 @@
 
                         <% if line_item.item.parent_item.accessories.any? %>
                             <div class="body">
-                                <% line_item.item.parent_item.accessories.each_with_index do |accessory, i| %>
+                                <%= hidden_field_tag "lending[line_items_attributes][#{line_item_index}][id]", line_item.id %>
+                                <%= hidden_field_tag "lending[line_items_attributes][#{line_item_index}][accessory_ids][]", "" %>
+                                <% line_item.item.parent_item.accessories.each do |accessory| %>
                                     <div class="item">
                                         <div class="left"><%= accessory.name %></div>
                                         <div class="right">
                                             <div class="form-check-inline me-0">
-                                                <%= check_box_tag "lending[line_items_attributes][#{i}][accessory_ids][]", accessory.id, true, class: "form-check-input" %>
-                                                <%= hidden_field_tag "lending[line_items_attributes][#{i}][id]", line_item.id %>
+                                                <%= check_box_tag "lending[line_items_attributes][#{line_item_index}][accessory_ids][]", accessory.id, true, class: "form-check-input" %>
                                             </div>
                                         </div>
                                     </div>
