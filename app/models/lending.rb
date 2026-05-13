@@ -1,4 +1,6 @@
 class Lending < ApplicationRecord
+  class AlreadyReturnedError < StandardError; end
+
   belongs_to :user
   belongs_to :department
   belongs_to :borrower, optional: true
@@ -93,6 +95,32 @@ class Lending < ApplicationRecord
     rescue => e
       logger.error("Error removing lending with id #{self.id}: #{e.message}")
       return false
+    end
+  end
+
+  def force_close!(user, reason)
+    raise AlreadyReturnedError, "Lending is already returned" if returned_at.present?
+    raise ArgumentError, "Grund ist erforderlich." if reason.blank?
+
+    ActiveRecord::Base.transaction do
+      line_items.each do |li|
+        next if li.returned_at.present?
+
+        item = Item.find_by(id: li.item_id)
+        if item
+          item.lock!
+          item.quantity += li.quantity
+          item.status = :available
+          item.save!
+        end
+
+        li.update_column(:returned_at, Time.current)
+      end
+
+      timestamp = Time.current.strftime("%Y-%m-%d %H:%M")
+      close_note = "[Ausleihe entfernt von #{user.email} am #{timestamp}] #{reason}"
+      new_note = note.present? ? "#{note}\n#{close_note}" : close_note
+      update_columns(returned_at: Time.current, note: new_note)
     end
   end
 
