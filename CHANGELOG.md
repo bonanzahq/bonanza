@@ -1,3 +1,25 @@
+# [2.3.0-beta.2](https://github.com/bonanzahq/bonanza/compare/v2.3.0-beta.1...v2.3.0-beta.2) (2026-05-13)
+
+
+### Bug Fixes
+
+* **ci:** install pnpm via corepack in GitHub Actions ([e02174a](https://github.com/bonanzahq/bonanza/commit/e02174ad99b7b1b0b502f906c717b1249a7b996f))
+* **ci:** use npm backend for pnpm in mise ([e44fc5f](https://github.com/bonanzahq/bonanza/commit/e44fc5f005ddd30119455cd200fd7fee66806b9a))
+* **lendings:** address Copilot review feedback ([0d1a5bc](https://github.com/bonanzahq/bonanza/commit/0d1a5bcde4235099f8e71cf5ac5b5303f7d94447))
+* **lendings:** remove stray delete button ([b79437b](https://github.com/bonanzahq/bonanza/commit/b79437be9960d75d97c5caeaec9aba28cc526e85))
+* **lendings:** rename removal action copy ([c57a37c](https://github.com/bonanzahq/bonanza/commit/c57a37c8e32c511267fac0e7f5c84cda090a351e))
+* **views:** handle orphaned items in public show and printable agreement ([79c3075](https://github.com/bonanzahq/bonanza/commit/79c30752cc93d522855ba593ec15a1a76e7df305))
+* **views:** handle orphaned line items in lending and returns views ([203fdc8](https://github.com/bonanzahq/bonanza/commit/203fdc88b41839fb8ad548a7d234f990052790e4))
+
+
+### Features
+
+* **db:** add foreign key constraints on line_items ([a4f3889](https://github.com/bonanzahq/bonanza/commit/a4f3889e6cb89eecb5d421d28789f85345fd9bf8))
+* **lendings:** add force_close controller action and route ([7f6ea5a](https://github.com/bonanzahq/bonanza/commit/7f6ea5aa6007adf3de94b1e39eaf1091d075e46b))
+* **lendings:** add force_close! and orphaned item scopes ([04fb3f0](https://github.com/bonanzahq/bonanza/commit/04fb3f0c7ea1a3493eee9f2111fb3b48f6b32867))
+* **lendings:** add rake tasks to find and close orphaned lendings ([7eec233](https://github.com/bonanzahq/bonanza/commit/7eec23309d20d6a1f2591c5231dffb6c001a41f3))
+* **views:** add force-close button and modal to lending show page ([f0e8abc](https://github.com/bonanzahq/bonanza/commit/f0e8abc1bbc36800dc7427d24930cc781cadffb1))
+
 # [2.3.0-beta.1](https://github.com/bonanzahq/bonanza/compare/v2.2.1-beta.1...v2.3.0-beta.1) (2026-04-11)
 
 
