@@ -209,6 +209,116 @@ class CheckoutControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to lending_path
   end
 
+  # -- accessory indexing (P0 bug #290) --
+
+  # View test: fails before the fix because the form uses the inner accessory
+  # index (i) as the key, causing collisions across line_items.
+  test "confirmation form renders exactly one id field per line_item at a unique index" do
+    parent_a = create(:parent_item, department: @department)
+    item_a = create(:item, parent_item: parent_a, quantity: 5)
+    create(:accessory, parent_item: parent_a)
+    create(:accessory, parent_item: parent_a)
+
+    parent_b = create(:parent_item, department: @department)
+    item_b = create(:item, parent_item: parent_b, quantity: 5)
+    create(:accessory, parent_item: parent_b)
+
+    borrower = create(:borrower, :with_tos)
+
+    sign_in @user
+    post lending_populate_path, params: { item_id: item_a.id, quantity: 1 }
+    post lending_populate_path, params: { item_id: item_b.id, quantity: 1 }
+
+    lending = Lending.find(session[:lending_id])
+    lending.update_columns(state: Lending.states[:confirmation], borrower_id: borrower.id, duration: 14)
+
+    get checkout_state_path("confirmation")
+    assert_response :success
+
+    # Each line_item must produce exactly one id hidden field at its own unique index.
+    assert_select "input[name='lending[line_items_attributes][0][id]']", count: 1
+    assert_select "input[name='lending[line_items_attributes][1][id]']", count: 1
+    # No overflow to a third index.
+    assert_select "input[name='lending[line_items_attributes][2][id]']", count: 0
+  end
+
+  test "checkout completion stores accessories on the correct line_item" do
+    parent_a = create(:parent_item, department: @department)
+    item_a = create(:item, parent_item: parent_a, quantity: 5)
+    acc_a1 = create(:accessory, parent_item: parent_a)
+    acc_a2 = create(:accessory, parent_item: parent_a)
+
+    parent_b = create(:parent_item, department: @department)
+    item_b = create(:item, parent_item: parent_b, quantity: 5)
+    acc_b1 = create(:accessory, parent_item: parent_b)
+
+    borrower = create(:borrower, :with_tos)
+
+    sign_in @user
+    post lending_populate_path, params: { item_id: item_a.id, quantity: 1 }
+    post lending_populate_path, params: { item_id: item_b.id, quantity: 1 }
+
+    lending = Lending.find(session[:lending_id])
+    line_items = lending.line_items.order(:id)
+    li_a = line_items.find { |li| li.item_id == item_a.id }
+    li_b = line_items.find { |li| li.item_id == item_b.id }
+    li_a_idx = line_items.index(li_a)
+    li_b_idx = line_items.index(li_b)
+
+    lending.update_columns(state: Lending.states[:confirmation], borrower_id: borrower.id, duration: 14)
+
+    patch update_checkout_path("confirmation"), params: {
+      lending: {
+        duration: 14,
+        line_items_attributes: {
+          li_a_idx.to_s => { id: li_a.id, accessory_ids: ["", acc_a1.id.to_s] },
+          li_b_idx.to_s => { id: li_b.id, accessory_ids: ["", acc_b1.id.to_s] }
+        }
+      }
+    }
+
+    assert_redirected_to lending_path
+    li_a.reload
+    li_b.reload
+
+    assert_equal [acc_a1.id], li_a.accessory_ids
+    assert_equal [acc_b1.id], li_b.accessory_ids
+    assert_not_includes li_a.accessory_ids, acc_b1.id
+    assert_not_includes li_b.accessory_ids, acc_a1.id
+    assert_not_includes li_b.accessory_ids, acc_a2.id
+  end
+
+  test "checkout completion clears all accessories when sentinel is sent with no selections" do
+    parent_a = create(:parent_item, department: @department)
+    item_a = create(:item, parent_item: parent_a, quantity: 5)
+    acc_a1 = create(:accessory, parent_item: parent_a)
+    acc_a2 = create(:accessory, parent_item: parent_a)
+
+    borrower = create(:borrower, :with_tos)
+
+    sign_in @user
+    post lending_populate_path, params: { item_id: item_a.id, quantity: 1 }
+
+    lending = Lending.find(session[:lending_id])
+    li_a = lending.line_items.order(:id).first
+    li_a.accessories << acc_a1
+    li_a.accessories << acc_a2
+
+    lending.update_columns(state: Lending.states[:confirmation], borrower_id: borrower.id, duration: 14)
+
+    patch update_checkout_path("confirmation"), params: {
+      lending: {
+        duration: 14,
+        line_items_attributes: {
+          "0" => { id: li_a.id, accessory_ids: [""] }
+        }
+      }
+    }
+
+    li_a.reload
+    assert_empty li_a.accessory_ids
+  end
+
   # -- strong parameters --
 
   test "select_borrower ignores unpermitted params" do
