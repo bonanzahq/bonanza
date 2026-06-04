@@ -1,3 +1,10 @@
+# [2.3.0-beta.3](https://github.com/bonanzahq/bonanza/compare/v2.3.0-beta.2...v2.3.0-beta.3) (2026-06-04)
+
+
+### Bug Fixes
+
+* **checkout:** use line_item index for accessory params in confirmation form ([3346037](https://github.com/bonanzahq/bonanza/commit/33460370179ac1e01e1aa6f9273385e0d7ebc348))
+
 # [2.3.0-beta.2](https://github.com/bonanzahq/bonanza/compare/v2.3.0-beta.1...v2.3.0-beta.2) (2026-05-13)
 
 
