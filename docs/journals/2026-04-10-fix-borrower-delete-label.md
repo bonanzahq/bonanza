@@ -10,7 +10,7 @@ asserting all three labels.
 ## Observations
 
 - [technique] Rails 8 `button_to` renders `<button type="submit">` not
-  `<input type="submit">`. Use `assert_select "button[type=submit]", text: "..."` 
+  `<input type="submit">`. Use `assert_select "button[type=submit]", text: "..."`
   instead of `assert_select "input[type=submit][value='...']"`.
 - [lesson] This worktree had no `node_modules` or compiled assets. Controller
   tests that render views need `pnpm build && pnpm build:css` first or they
