@@ -109,8 +109,34 @@
     <%= render partial: 'shared/weekly_activity_grid', locals: {max_week: @max_week, weekly_activity: @weekly_activity, created_date: parent_item.created_at} %>
   </div>
 
-  <% if can? :update, parent_item %>
-    <div class="actions">
-      <%= link_to "Bearbeiten", edit_parent_item_path(parent_item), class: "btn btn-outline-secondary" %>
+  <% if can?(:update, parent_item) || can?(:destroy, parent_item) %>
+    <div class="actions d-flex gap-2">
+      <% if can? :update, parent_item %>
+        <%= link_to "Bearbeiten", edit_parent_item_path(parent_item), class: "btn btn-outline-secondary" %>
+      <% end %>
+      <% if can? :destroy, parent_item %>
+        <a href="#" class="btn btn-outline-danger" data-controller="modal" data-action="click->modal#showModal" data-modal-modalID-param="deleteParentItemModal">Löschen</a>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if can? :destroy, parent_item %>
+    <div class="modal fade" id="deleteParentItemModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Artikelstamm löschen</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          </div>
+          <div class="modal-body">
+            <p>Soll der Artikelstamm "<%= parent_item.name %>" wirklich gelöscht werden?</p>
+            <p class="mb-0">Alle zugehörigen Artikel und deren Verlauf werden ebenfalls gelöscht.</p>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Abbrechen</button>
+            <%= button_to "Löschen", parent_item_path(parent_item), method: :delete, class: "btn btn-danger" %>
+          </div>
+        </div>
+      </div>
     </div>
   <% end %>

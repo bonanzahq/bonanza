@@ -1,3 +1,56 @@
+# [2.3.0-beta.2](https://github.com/bonanzahq/bonanza/compare/v2.3.0-beta.1...v2.3.0-beta.2) (2026-05-13)
+
+
+### Bug Fixes
+
+* **ci:** install pnpm via corepack in GitHub Actions ([e02174a](https://github.com/bonanzahq/bonanza/commit/e02174ad99b7b1b0b502f906c717b1249a7b996f))
+* **ci:** use npm backend for pnpm in mise ([e44fc5f](https://github.com/bonanzahq/bonanza/commit/e44fc5f005ddd30119455cd200fd7fee66806b9a))
+* **lendings:** address Copilot review feedback ([0d1a5bc](https://github.com/bonanzahq/bonanza/commit/0d1a5bcde4235099f8e71cf5ac5b5303f7d94447))
+* **lendings:** remove stray delete button ([b79437b](https://github.com/bonanzahq/bonanza/commit/b79437be9960d75d97c5caeaec9aba28cc526e85))
+* **lendings:** rename removal action copy ([c57a37c](https://github.com/bonanzahq/bonanza/commit/c57a37c8e32c511267fac0e7f5c84cda090a351e))
+* **views:** handle orphaned items in public show and printable agreement ([79c3075](https://github.com/bonanzahq/bonanza/commit/79c30752cc93d522855ba593ec15a1a76e7df305))
+* **views:** handle orphaned line items in lending and returns views ([203fdc8](https://github.com/bonanzahq/bonanza/commit/203fdc88b41839fb8ad548a7d234f990052790e4))
+
+
+### Features
+
+* **db:** add foreign key constraints on line_items ([a4f3889](https://github.com/bonanzahq/bonanza/commit/a4f3889e6cb89eecb5d421d28789f85345fd9bf8))
+* **lendings:** add force_close controller action and route ([7f6ea5a](https://github.com/bonanzahq/bonanza/commit/7f6ea5aa6007adf3de94b1e39eaf1091d075e46b))
+* **lendings:** add force_close! and orphaned item scopes ([04fb3f0](https://github.com/bonanzahq/bonanza/commit/04fb3f0c7ea1a3493eee9f2111fb3b48f6b32867))
+* **lendings:** add rake tasks to find and close orphaned lendings ([7eec233](https://github.com/bonanzahq/bonanza/commit/7eec23309d20d6a1f2591c5231dffb6c001a41f3))
+* **views:** add force-close button and modal to lending show page ([f0e8abc](https://github.com/bonanzahq/bonanza/commit/f0e8abc1bbc36800dc7427d24930cc781cadffb1))
+
+# [2.3.0-beta.1](https://github.com/bonanzahq/bonanza/compare/v2.2.1-beta.1...v2.3.0-beta.1) (2026-04-11)
+
+
+### Features
+
+* **auth:** restrict parent item destroy to admin and leader roles ([b8469a3](https://github.com/bonanzahq/bonanza/commit/b8469a30cf2fd39518e87234405c0262cdbd3ded))
+* **parent-items:** add delete button with confirmation modal ([996b57f](https://github.com/bonanzahq/bonanza/commit/996b57f85c15ad3cc1fc13e44d0317f4adfe189b))
+
+## [2.2.1-beta.1](https://github.com/bonanzahq/bonanza/compare/v2.2.0...v2.2.1-beta.1) (2026-04-10)
+
+
+### Bug Fixes
+
+* **borrowers:** rename delete button to "Benutzerdaten löschen" ([ff024f4](https://github.com/bonanzahq/bonanza/commit/ff024f46ba9474952cb8ac5feba79665efcc49a5)), closes [#283](https://github.com/bonanzahq/bonanza/issues/283)
+
+# [2.2.0](https://github.com/bonanzahq/bonanza/compare/v2.1.3...v2.2.0) (2026-04-07)
+
+
+### Bug Fixes
+
+* **borrowers:** add TOS link to staff borrower form ([98d4625](https://github.com/bonanzahq/bonanza/commit/98d4625b74d2f76b14f0423e558247667123cbcd))
+* **borrowers:** address review feedback on accessibility and fallback ([0be6122](https://github.com/bonanzahq/bonanza/commit/0be6122735bf996001ca0abd211023c42990ee56))
+* **borrowers:** move TOS embed styles to stylesheet with scaled typography ([7d7c513](https://github.com/bonanzahq/bonanza/commit/7d7c5139fcd68955137d8d1e8bb1bf4d836d9d12))
+* **deploy:** handle missing optional files at older refs ([fcf1300](https://github.com/bonanzahq/bonanza/commit/fcf1300e2d83e032507e49b6fbc4093a100b2ca5))
+* **static-pages:** cap heading sizes in legal text pages ([96f3162](https://github.com/bonanzahq/bonanza/commit/96f316222e340368c491b190f52ca4501d36eda4))
+
+
+### Features
+
+* **borrowers:** embed TOS content on self-registration page ([778f264](https://github.com/bonanzahq/bonanza/commit/778f26460a988099ce2f4e83de6943b1e89daebc))
+
 # [2.2.0-beta.1](https://github.com/bonanzahq/bonanza/compare/v2.1.4-beta.1...v2.2.0-beta.1) (2026-04-01)
 
 
