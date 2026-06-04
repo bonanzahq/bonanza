@@ -63,9 +63,15 @@
 
 - [technique] Docker stack is shared across worktrees. Check `tmux show-environment | grep '^agent:@'` and send RSVP to any active PM before starting Docker containers. Stop only containers you started; don't `docker compose down` a shared stack.
 
+## Git Workflow
+
+- [decision] For already-pushed PR branches that conflict with `beta`, merge `origin/beta` into the branch unless Fabian explicitly approves history rewriting.
+- [technique] Use `gh pr view --json mergeable,mergeStateStatus` after pushing conflict resolutions to verify GitHub no longer reports `CONFLICTING` or `DIRTY`.
+
 ## CI and tooling
 
 - [lesson] `jdx/mise-action@v2` installs the latest `mise`, so CI can break from upstream tool-resolution changes even when repo config did not change.
 - [lesson] Plain `pnpm = "10"` in `mise.toml` can resolve through a Linux binary backend that is sensitive to upstream pnpm asset naming.
 - [decision] In this repo, use the npm backend for pnpm in mise: `"npm:pnpm" = "10"`.
+- [lesson] pnpm 11 ignores the current `package.json` `pnpm.onlyBuiltDependencies` setting; don't bump pnpm until settings are migrated to pnpm's supported config location.
 - [technique] When CI fails during tool installation but local app code is unchanged, inspect the exact upstream release assets and backend resolution path before changing workflow logic.
