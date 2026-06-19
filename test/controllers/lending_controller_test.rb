@@ -45,6 +45,26 @@ class LendingControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "show displays force-close action for active lending" do
+    lending = create(:lending, :completed, user: @user, department: @department)
+    sign_in @user
+
+    get token_lending_path(lending, token: lending.token)
+    assert_response :success
+    assert_select "a", text: "Ausleihe entfernen"
+    assert_select "form button", text: "Delete 2", count: 0
+  end
+
+  test "show hides force-close action for returned lending" do
+    lending = create(:lending, :completed, user: @user, department: @department)
+    lending.update_column(:returned_at, Time.current)
+    sign_in @user
+
+    get token_lending_path(lending, token: lending.token)
+    assert_response :success
+    assert_select "a", text: "Ausleihe entfernen", count: 0
+  end
+
   test "show with valid token renders show_public when not signed in" do
     lending = create(:lending, :completed, user: @user, department: @department)
 
