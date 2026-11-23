@@ -1,7 +1,7 @@
 # ABOUTME: Builds the Rails application image for development and production.
 # ABOUTME: Uses multi-stage builds: build (compile), production (slim runtime), development (adds Node.js).
 
-FROM ruby:4.0.1-slim AS build
+FROM ruby:4.0.10-slim AS build
 
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends \
@@ -29,7 +29,7 @@ RUN SECRET_KEY_BASE=precompile-placeholder \
     RAILS_ENV=production \
     bundle exec rails assets:precompile
 
-FROM ruby:4.0.1-slim AS base
+FROM ruby:4.0.10-slim AS base
 
 RUN apt-get update -qq && \
     apt-get install -y --no-install-recommends \
