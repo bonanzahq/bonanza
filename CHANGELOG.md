@@ -1,3 +1,10 @@
+## [2.3.1-beta.1](https://github.com/bonanzahq/bonanza/compare/v2.3.0...v2.3.1-beta.1) (2026-11-23)
+
+
+### Bug Fixes
+
+* patch Ruby runtime to 4.0.10 ([f279664](https://github.com/bonanzahq/bonanza/commit/f2796648cb7b1c5bf36ad0d027eef5779c26d793)), closes [#298](https://github.com/bonanzahq/bonanza/issues/298)
+
 # [2.3.0](https://github.com/bonanzahq/bonanza/compare/v2.2.0...v2.3.0) (2026-06-19)
 
 

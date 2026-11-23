@@ -31,7 +31,7 @@ terminates TLS and proxies to Caddy on port 8080.
 
 ## Tech Stack
 
-- **Language**: Ruby 4.0.1
+- **Language**: Ruby 4.0.10
 - **Framework**: Rails 8.1.2
 - **Database**: PostgreSQL 15
 - **Search**: Elasticsearch 8.4 via Searchkick
