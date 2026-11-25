@@ -1,6 +1,8 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": ["github>bonanzahq/renovate-config"],
+  "baseBranchPatterns": ["beta"],
+  "schedule": ["at any time"],
   "packageRules": [
     {
       "groupName": "rails",
