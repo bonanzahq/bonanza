@@ -96,7 +96,7 @@ services:
       - "8025:8025"
 
   dozzle:
-    image: amir20/dozzle:v10.0.1
+    image: amir20/dozzle:v10.10.0
     restart: unless-stopped
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
