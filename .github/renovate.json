@@ -4,7 +4,7 @@
   "baseBranchPatterns": ["beta"],
     "dependencyDashboard": {
     "enabled": true
-  }
+  },
   "schedule": ["at any time"],
   "packageRules": [
     {
