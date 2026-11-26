@@ -73,7 +73,7 @@ gem 'ruby_identicon', "0.0.6"
 
 # faster json
 gem 'oj', "3.16.15"
-gem 'lograge'
+gem 'lograge', "0.15.1"
 
 # searchkick for elasticsearch
 
